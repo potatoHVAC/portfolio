@@ -1,3 +1,28 @@
 .DS_Store
 Thumbs.db
 *~
+
+# Siloed AWS credentials — the real silo is the parent tree (~/git/speerd/.aws),
+# outside this repo. Listed here so a stray copy can never be committed.
+.aws/
+credentials
+
+# Secrets & local env — this repo is public
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+*.tfvars
+*.tfstate
+*.tfstate.*
+
+# OpenTofu working directories — provider binaries, hundreds of MB each.
+# .terraform.lock.hcl is deliberately NOT ignored: it pins provider versions
+# and must be committed.
+.terraform/
+crash.log
+crash.*.log
