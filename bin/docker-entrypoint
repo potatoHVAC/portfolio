@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+if [ -z "${SECRET_KEY_BASE:-}" ]; then
+  SECRET_KEY_BASE="$({
+    bundle exec ruby -raws-sdk-ssm -e '
+      client = Aws::SSM::Client.new
+      response = client.get_parameter(
+        name: ENV.fetch("SECRET_KEY_BASE_PARAMETER"),
+        with_decryption: true
+      )
+      print response.parameter.value
+    '
+  })"
+  export SECRET_KEY_BASE
+fi
+
+exec "$@"

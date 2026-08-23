@@ -1,3 +1,50 @@
 .DS_Store
 Thumbs.db
 *~
+
+# Siloed AWS credentials — the real silo is the parent tree (~/git/speerd/.aws),
+# outside this repo. Listed here so a stray copy can never be committed.
+.aws/
+credentials
+
+# Secrets & local env — this repo is public
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+*.tfvars
+*.tfstate
+*.tfstate.*
+
+# OpenTofu working directories — provider binaries, hundreds of MB each.
+# .terraform.lock.hcl is deliberately NOT ignored: it pins provider versions
+# and must be committed.
+.terraform/
+crash.log
+crash.*.log
+
+# --- Rails ---
+# Bundler config.
+/.bundle
+
+# Logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Pidfiles, but keep the directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Compiled assets. Propshaft writes digested copies here on precompile;
+# the sources in app/assets are what is committed.
+/public/assets
+
+# config/master.key is not listed: this app has no encrypted credentials.
+# SECRET_KEY_BASE is supplied at runtime from SSM Parameter Store.
