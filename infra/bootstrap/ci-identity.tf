@@ -14,7 +14,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
-  sub_prefix = "repo:${var.github_repository}"
+  sub_prefix = "repo:${var.github_repository_subject}"
 
   # These resources do not exist yet — they arrive in Chunks 10 and 12. The ARNs
   # are constructed rather than deferred so the roles are narrow from the first
