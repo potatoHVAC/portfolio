@@ -14,8 +14,10 @@ Rails.application.configure do
 
   # Turn on fragment caching in view templates.
   config.action_controller.perform_caching = true
+  config.cache_store = :null_store
 
   # Cache assets for far-future expiry since they are all digest stamped.
+  config.public_file_server.enabled = true
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
@@ -42,9 +44,6 @@ Rails.application.configure do
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
-
-  # Replace the default in-process memory cache store with a durable alternative.
-  # config.cache_store = :mem_cache_store
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

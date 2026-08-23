@@ -6,6 +6,8 @@ gem "rails", "~> 8.0.2"
 gem "propshaft"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
+# Fetch the production secret from SSM before Rails boots.
+gem "aws-sdk-ssm", require: false
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
