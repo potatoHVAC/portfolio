@@ -80,6 +80,54 @@ That repository is private and staying private; this one is not.
 
 Beware `gh variable list` — it prints values. `gh secret list` prints only names.
 
+## Seed image — one time
+
+The dev Lambda and production App Runner service cannot be created while their
+repositories are empty. After Chunk 5 has a committed arm64 image, build and
+smoke-test that exact seed artifact:
+
+```sh
+docker build --platform linux/arm64 -t portfolio:seed .
+bin/smoke.sh portfolio:seed
+test "$(docker image inspect portfolio:seed --format '{{.Architecture}}')" = arm64
+```
+
+Resolve the private registry without printing or recording the account ID, then
+authenticate and add the two local tags:
+
+```sh
+speerd_region=us-west-2
+speerd_account_id="$(aws sts get-caller-identity --query Account --output text)"
+speerd_registry="${speerd_account_id}.dkr.ecr.${speerd_region}.amazonaws.com"
+
+aws ecr get-login-password --region "$speerd_region" \
+  | docker login --username AWS --password-stdin "$speerd_registry"
+docker tag portfolio:seed "$speerd_registry/dev/portfolio:seed"
+docker tag portfolio:seed "$speerd_registry/prod/portfolio:seed"
+```
+
+Each push is a separate AWS mutation and needs its own explicit approval. Push
+only the approved target; do not treat approval for dev as approval for prod:
+
+```sh
+docker push "$speerd_registry/dev/portfolio:seed"
+docker push "$speerd_registry/prod/portfolio:seed"
+```
+
+Verify both repositories resolve `seed` to the same manifest, then record both
+digests in the parent repository’s `docs/reference/aws-resources.md`:
+
+```sh
+dev_seed_digest="$(aws ecr describe-images --repository-name dev/portfolio \
+  --image-ids imageTag=seed --query "imageDetails[0].imageDigest" --output text)"
+prod_seed_digest="$(aws ecr describe-images --repository-name prod/portfolio \
+  --image-ids imageTag=seed --query "imageDetails[0].imageDigest" --output text)"
+test "$dev_seed_digest" = "$prod_seed_digest"
+```
+
+The seed tag is bootstrap material, not a deployment channel. Chunks 10 and 12
+refer to its digest; later workflows publish commit-addressed images.
+
 ## Things that will bite
 
 - **The `sub` conditions are exact strings.** A wildcard `sub` on a public
