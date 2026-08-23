@@ -94,8 +94,10 @@ built image directly to `prod/portfolio`.
 ## Things that will bite
 
 - **The `sub` conditions are exact strings.** A wildcard `sub` on a public
-  repository is the standard critical misconfiguration. If a workflow cannot
-  assume a role, fix the workflow's ref or environment — never widen the `sub`.
+  repository is the standard critical misconfiguration. The prefix includes
+  GitHub's owner and repository IDs, as returned by the repository OIDC
+  customization endpoint. If a workflow cannot assume a role, compare the
+  observed subject with the exact trust value — never widen the `sub`.
 - **`prod/portfolio` keeps only 5 images**, changed 2026-08-22 for cost. It is
   the rollback set, and ECR cannot see what is deployed — a rollback followed by
   more promotions can expire the running image, failing at the next pull rather

@@ -4,14 +4,15 @@ variable "region" {
   default     = "us-west-2"
 }
 
-variable "github_repository" {
+variable "github_repository_subject" {
   description = <<-DESC
-    owner/name of the GitHub repository allowed to assume the CI roles. Pinned
-    exactly into every trust policy. A wildcard in a `sub` condition on a public
-    repository is the standard critical misconfiguration and must never appear.
+    GitHub's repository subject prefix, including immutable owner and repository
+    IDs. Pinned exactly into every trust policy. A wildcard in a `sub` condition
+    on a public repository is the standard critical misconfiguration and must
+    never appear.
   DESC
   type        = string
-  default     = "potatoHVAC/portfolio"
+  default     = "potatoHVAC@33634621/portfolio@1343244685"
 }
 
 variable "state_bucket_name" {
