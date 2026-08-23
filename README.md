@@ -34,6 +34,20 @@ bin/rails server    # http://localhost:3000
 
 `/up` is the health endpoint; it returns 200 when the app boots cleanly.
 
+## Image metadata
+
+Requires ExifTool, `file`, and `jq`. Check every committed image before it is
+published; the same command runs as a standalone CI job.
+
+```sh
+tools/media/check-metadata.sh
+tools/media/strip.sh path/to/image.jpg
+```
+
+The strip helper removes GPS, EXIF, XMP, and IPTC data while preserving an
+embedded ICC colour profile. The gate covers `app/assets/images/` and image
+files under `public/`.
+
 ## Configuration
 
 The app reads two environment variables and has no other configuration:

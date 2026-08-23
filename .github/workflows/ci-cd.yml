@@ -1,0 +1,31 @@
+name: Portfolio CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  media-metadata:
+    name: media-metadata
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Install metadata tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes --no-install-recommends file jq libimage-exiftool-perl
+
+      - name: Check image metadata
+        run: tools/media/check-metadata.sh
