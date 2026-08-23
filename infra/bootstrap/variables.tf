@@ -24,3 +24,27 @@ variable "state_bucket_name" {
   type        = string
   default     = "speerd-portfolio-tfstate"
 }
+
+variable "dev_image_retention_count" {
+  description = <<-DESC
+    Commit-tagged images kept in dev/portfolio. Bounds how far back a *first*
+    promotion can reach: a SHA older than this window cannot be promoted, and
+    images are never rebuilt from a commit because dependencies float. The
+    promotion workflow reports "aged out of the retention window" as its own
+    failure rather than trying.
+  DESC
+  type        = number
+  default     = 5
+}
+
+variable "prod_image_retention_count" {
+  description = <<-DESC
+    Promoted images kept in prod/portfolio. **This is the rollback set.** ECR
+    lifecycle rules cannot see what is deployed, so a low number here can expire
+    the image production is running — see the comment in ecr.tf for the exact
+    sequence that does it. Raising this is the cheapest possible insurance:
+    layers are shared between images, so each extra release costs cents a year.
+  DESC
+  type        = number
+  default     = 5
+}

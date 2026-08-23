@@ -85,9 +85,11 @@ Beware `gh variable list` — it prints values. `gh secret list` prints only nam
 - **The `sub` conditions are exact strings.** A wildcard `sub` on a public
   repository is the standard critical misconfiguration. If a workflow cannot
   assume a role, fix the workflow's ref or environment — never widen the `sub`.
-- **`prod/portfolio` has no lifecycle policy, on purpose.** It is the rollback
-  set. Adding a count or age rule will eventually delete the image production is
-  running.
+- **`prod/portfolio` keeps only 5 images**, changed 2026-08-22 for cost. It is
+  the rollback set, and ECR cannot see what is deployed — a rollback followed by
+  more promotions can expire the running image, failing at the next pull rather
+  than immediately. Roll back by *promoting* the old SHA, which re-copies it and
+  makes it newest. `var.prod_image_retention_count` is a one-line change.
 - **`prod/portfolio` is IMMUTABLE.** Re-promoting a SHA already present fails
   the copy rather than overwriting. The promotion workflow checks first.
 - **Two constructed ARNs** in `ci-identity.tf` name resources that do not exist

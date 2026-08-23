@@ -21,12 +21,12 @@ resource "aws_ecr_lifecycle_policy" "dev" {
     rules = [
       {
         rulePriority = 1
-        description  = "Keep the 20 most recent commit-tagged images"
+        description  = "Keep the 5 most recent commit-tagged images"
         selection = {
           tagStatus     = "tagged"
           tagPrefixList = ["git-"]
           countType     = "imageCountMoreThan"
-          countNumber   = 20
+          countNumber   = var.dev_image_retention_count
         }
         action = { type = "expire" }
       },
@@ -59,8 +59,53 @@ resource "aws_ecr_repository" "prod" {
   }
 }
 
-# Deliberately NO lifecycle policy on prod/portfolio. Only promoted images land
-# here and they are the rollback set; a count or age rule would eventually
-# delete the image production is running, or the one you would roll back to.
-# Retention here cannot be decided until the rollback strategy is — see the
-# design's Future development section.
+# Retention on prod/portfolio, added 2026-08-22 at the owner's request to cap
+# cost. This reverses the original "no expiry here" decision, and the reason for
+# that decision has not gone away — it is written out below rather than dropped.
+#
+# ECR lifecycle rules cannot see what is deployed. They count images and delete
+# the oldest, whether or not App Runner is running one of them.
+#
+# The reachable failure, precisely: promote five releases, roll production back
+# to the oldest, then promote once more. That sixth promotion pushes the count
+# past the limit and the oldest image — the one production is *currently
+# running* — is expired. Nothing breaks at that moment, because App Runner has
+# already pulled it. It breaks later, at the next instance replacement, deploy,
+# or scale event, when the pull fails. A latent outage with no obvious cause and
+# a long delay between action and symptom.
+#
+# Two mitigations, neither of them the rule below:
+#   - Rolling back is a promotion. Promote the old SHA rather than pointing the
+#     service at it, and the image is re-copied and becomes the newest again.
+#   - A retention job that reads the deployed digest first and skips it is the
+#     correct fix, and is what the design's Future development section describes.
+resource "aws_ecr_lifecycle_policy" "prod" {
+  repository = aws_ecr_repository.prod.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep the ${var.prod_image_retention_count} most recent promoted images"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["git-"]
+          countType     = "imageCountMoreThan"
+          countNumber   = var.prod_image_retention_count
+        }
+        action = { type = "expire" }
+      },
+      {
+        rulePriority = 2
+        description  = "Expire untagged layers after a day"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 1
+        }
+        action = { type = "expire" }
+      },
+    ]
+  })
+}
