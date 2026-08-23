@@ -12,7 +12,7 @@ in the parent `speerd` repository.
 |---|---|
 | **State bucket** | Versioned, SSE-S3, private, TLS-only. Holds state for *every* stack, not just this one. |
 | **GitHub OIDC provider + three roles** | `portfolio-ci` (read-only), `portfolio-dev-deploy`, `portfolio-prod-deploy`. No long-lived AWS keys in GitHub. |
-| **`dev/portfolio` and `prod/portfolio`** | ECR repositories. They are here rather than in `global` because **a container-image Lambda and an App Runner service cannot be created without an image already in the repository** — see the seed image chunk. |
+| **`dev/portfolio` and `prod/portfolio`** | ECR repositories. They are here rather than in `global` because compute cannot be created until its image repository exists. |
 
 `tofu apply` is **not** a CI action. Infrastructure is applied by a human with
 the `steep` credentials; CI plans and deploys images. There is no apply role.
@@ -80,53 +80,16 @@ That repository is private and staying private; this one is not.
 
 Beware `gh variable list` — it prints values. `gh secret list` prints only names.
 
-## Seed image — one time
+## First image
 
-The dev Lambda and production App Runner service cannot be created while their
-repositories are empty. After Chunk 5 has a committed arm64 image, build and
-smoke-test that exact seed artifact:
+The first merge after CI publishing is enabled builds the native arm64 image,
+smoke-tests that artifact, and publishes it to `dev/portfolio` as both
+`git-<commit>` and `main`. The commit digest bootstraps the dev Lambda; there is
+no separate validation or seed image.
 
-```sh
-docker build --platform linux/arm64 -t portfolio:seed .
-bin/smoke.sh portfolio:seed
-test "$(docker image inspect portfolio:seed --format '{{.Architecture}}')" = arm64
-```
-
-Resolve the private registry without printing or recording the account ID, then
-authenticate and add the two local tags:
-
-```sh
-speerd_region=us-west-2
-speerd_account_id="$(aws sts get-caller-identity --query Account --output text)"
-speerd_registry="${speerd_account_id}.dkr.ecr.${speerd_region}.amazonaws.com"
-
-aws ecr get-login-password --region "$speerd_region" \
-  | docker login --username AWS --password-stdin "$speerd_registry"
-docker tag portfolio:seed "$speerd_registry/dev/portfolio:seed"
-docker tag portfolio:seed "$speerd_registry/prod/portfolio:seed"
-```
-
-Each push is a separate AWS mutation and needs its own explicit approval. Push
-only the approved target; do not treat approval for dev as approval for prod:
-
-```sh
-docker push "$speerd_registry/dev/portfolio:seed"
-docker push "$speerd_registry/prod/portfolio:seed"
-```
-
-Verify both repositories resolve `seed` to the same manifest, then record both
-digests in the parent repository’s `docs/reference/aws-resources.md`:
-
-```sh
-dev_seed_digest="$(aws ecr describe-images --repository-name dev/portfolio \
-  --image-ids imageTag=seed --query "imageDetails[0].imageDigest" --output text)"
-prod_seed_digest="$(aws ecr describe-images --repository-name prod/portfolio \
-  --image-ids imageTag=seed --query "imageDetails[0].imageDigest" --output text)"
-test "$dev_seed_digest" = "$prod_seed_digest"
-```
-
-The seed tag is bootstrap material, not a deployment channel. Chunks 10 and 12
-refer to its digest; later workflows publish commit-addressed images.
+Production receives an already-validated dev digest through the promotion
+workflow before the App Runner service is created. CI never pushes a locally
+built image directly to `prod/portfolio`.
 
 ## Things that will bite
 
