@@ -26,3 +26,25 @@ id_rsa*
 .terraform/
 crash.log
 crash.*.log
+
+# --- Rails ---
+# Bundler config.
+/.bundle
+
+# Logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Pidfiles, but keep the directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Compiled assets. Propshaft writes digested copies here on precompile;
+# the sources in app/assets are what is committed.
+/public/assets
+
+# config/master.key is not listed: this app has no encrypted credentials.
+# SECRET_KEY_BASE is supplied at runtime from SSM Parameter Store.
