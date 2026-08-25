@@ -16,3 +16,8 @@ output "hosted_zones" {
     }
   }
 }
+
+output "edge_key_value_store_arn" {
+  description = "CloudFront Functions attach to this store to read their configuration."
+  value       = aws_cloudfront_key_value_store.edge.arn
+}
