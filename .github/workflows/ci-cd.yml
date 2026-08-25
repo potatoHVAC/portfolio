@@ -86,6 +86,8 @@ jobs:
       DEV_ECR_REPOSITORY: dev/portfolio
       DEV_IMAGE_TAG: git-${{ github.sha }}
       DEV_MUTABLE_TAG: main
+      DEV_FUNCTION_NAME: portfolio-dev
+      DEV_ALIAS: live
     steps:
       - name: Decide whether this run publishes
         id: publish
@@ -200,12 +202,85 @@ jobs:
           echo "digest=$image_digest" >> "$GITHUB_OUTPUT"
           echo "uri=$repository@$image_digest" >> "$GITHUB_OUTPUT"
 
+      - name: Deploy the published image to dev
+        id: deploy
+        if: steps.publish.outputs.enabled == 'true'
+        env:
+          IMAGE_URI: ${{ steps.image.outputs.uri }}
+        run: |
+          set -euo pipefail
+
+          # Publishing succeeds on its own before the environment exists.
+          if ! aws lambda get-function \
+            --function-name "$DEV_FUNCTION_NAME" >/dev/null 2>&1; then
+            echo "$DEV_FUNCTION_NAME does not exist; image published, nothing deployed."
+            echo "deployed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          live_uri=$(aws lambda get-function \
+            --function-name "$DEV_FUNCTION_NAME" \
+            --qualifier "$DEV_ALIAS" \
+            --query 'Code.ResolvedImageUri' --output text)
+
+          if [ "$live_uri" = "$IMAGE_URI" ]; then
+            echo "$DEV_ALIAS already runs $IMAGE_URI"
+            version=$(aws lambda get-alias \
+              --function-name "$DEV_FUNCTION_NAME" \
+              --name "$DEV_ALIAS" \
+              --query FunctionVersion --output text)
+            {
+              echo "deployed=false"
+              echo "version=$version"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          previous=$(aws lambda get-alias \
+            --function-name "$DEV_FUNCTION_NAME" \
+            --name "$DEV_ALIAS" \
+            --query FunctionVersion --output text)
+
+          aws lambda update-function-code \
+            --function-name "$DEV_FUNCTION_NAME" \
+            --image-uri "$IMAGE_URI" >/dev/null
+          aws lambda wait function-updated-v2 \
+            --function-name "$DEV_FUNCTION_NAME"
+
+          # Publishing freezes the code; moving the alias is what makes it live.
+          version=$(aws lambda publish-version \
+            --function-name "$DEV_FUNCTION_NAME" \
+            --description "$GITHUB_SHA" \
+            --query Version --output text)
+          aws lambda update-alias \
+            --function-name "$DEV_FUNCTION_NAME" \
+            --name "$DEV_ALIAS" \
+            --function-version "$version" >/dev/null
+
+          deployed_uri=$(aws lambda get-function \
+            --function-name "$DEV_FUNCTION_NAME" \
+            --qualifier "$DEV_ALIAS" \
+            --query 'Code.ResolvedImageUri' --output text)
+          test "$deployed_uri" = "$IMAGE_URI" || {
+            echo "$DEV_ALIAS resolved to $deployed_uri, not $IMAGE_URI"
+            exit 1
+          }
+
+          {
+            echo "deployed=true"
+            echo "version=$version"
+            echo "previous=$previous"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Write job summary
         if: always()
         env:
           PUBLISHED: ${{ steps.publish.outputs.enabled }}
           IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
           IMAGE_URI: ${{ steps.image.outputs.uri }}
+          DEPLOYED: ${{ steps.deploy.outputs.deployed }}
+          VERSION: ${{ steps.deploy.outputs.version }}
+          PREVIOUS: ${{ steps.deploy.outputs.previous }}
         run: |
           {
             echo '## Portfolio image'
@@ -217,6 +292,14 @@ jobs:
               echo "- Mutable tag: \`$DEV_MUTABLE_TAG\`"
               echo "- Digest: \`$IMAGE_DIGEST\`"
               echo "- URI: \`$IMAGE_URI\`"
+              if [ "$DEPLOYED" = true ]; then
+                echo "- Deployed: alias \`$DEV_ALIAS\` now on version \`$VERSION\`"
+                echo "- Roll back: \`aws lambda update-alias --function-name $DEV_FUNCTION_NAME --name $DEV_ALIAS --function-version $PREVIOUS\`"
+              elif [ -n "$VERSION" ]; then
+                echo "- Deployed: no change; alias \`$DEV_ALIAS\` already on version \`$VERSION\`"
+              else
+                echo "- Deployed: nothing; the dev function does not exist yet"
+              fi
             else
               echo '- Result: built and smoke-tested; nothing published'
             fi
