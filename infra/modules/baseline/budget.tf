@@ -1,6 +1,5 @@
-# A cost ceiling. The design models ~$5/month; this alarm exists to catch the
-# case where that model is wrong — a runaway CloudFront bill, an App Runner
-# instance that scaled, a service left running after an experiment.
+# A cost ceiling. The design models a low-traffic serverless site; this catches
+# a runaway CloudFront bill, invocation spike, or service left after an experiment.
 #
 # The first two budgets are free.
 

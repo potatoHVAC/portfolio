@@ -29,7 +29,7 @@ jobs:
       DEV_ECR_REPOSITORY: dev/portfolio
       PROD_ECR_REPOSITORY: prod/portfolio
       DEV_MUTABLE_TAG: main
-      APP_RUNNER_SERVICE_NAME: portfolio-prod
+      PROD_FUNCTION_NAME: portfolio-prod
     steps:
       - name: Check out source
         uses: actions/checkout@v6
@@ -146,23 +146,27 @@ jobs:
         run: |
           set -euo pipefail
 
-          service_arn=$(aws apprunner list-services \
-            --query "ServiceSummaryList[?ServiceName=='$APP_RUNNER_SERVICE_NAME'].ServiceArn | [0]" \
-            --output text)
-          if [ -z "$service_arn" ] || [ "$service_arn" = None ]; then
-            echo "$APP_RUNNER_SERVICE_NAME does not exist; this promotion bootstraps the repository."
+          if ! aws lambda get-function \
+              --function-name "$PROD_FUNCTION_NAME" \
+              --qualifier live \
+              --output json > "$RUNNER_TEMP/current-function.json" \
+              2> "$RUNNER_TEMP/current-function-error.txt"; then
+            sed -E 's/[0-9]{12}/<ACCOUNT>/g' "$RUNNER_TEMP/current-function-error.txt"
+            grep -q ResourceNotFoundException "$RUNNER_TEMP/current-function-error.txt" || exit 1
+            echo "$PROD_FUNCTION_NAME does not exist; this promotion bootstraps the repository."
             echo "exists=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          aws apprunner describe-service \
-            --service-arn "$service_arn" \
-            --output json > "$RUNNER_TEMP/current-service.json"
-          previous_image=$(jq -r '.Service.SourceConfiguration.ImageRepository.ImageIdentifier' \
-            "$RUNNER_TEMP/current-service.json")
+          previous_image=$(jq -r '.Code.ResolvedImageUri' "$RUNNER_TEMP/current-function.json")
           previous_digest="${previous_image##*@}"
+          previous_version=$(jq -r '.Configuration.Version' "$RUNNER_TEMP/current-function.json")
           [[ "$previous_digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
             echo "Production is not digest-pinned; found $previous_digest."
+            exit 1
+          }
+          [[ "$previous_version" =~ ^[0-9]+$ ]] || {
+            echo "The live alias did not resolve to a published version."
             exit 1
           }
 
@@ -180,13 +184,13 @@ jobs:
 
           {
             echo "exists=true"
-            echo "arn=$service_arn"
             echo "image=$previous_image"
             echo "digest=$previous_digest"
+            echo "version=$previous_version"
             echo "tag=$previous_tag"
             echo "commit=$previous_commit"
           } >> "$GITHUB_OUTPUT"
-          echo "Rollback target: $previous_tag at $previous_digest"
+          echo "Rollback target: $previous_tag at $previous_digest on Lambda version $previous_version"
 
       - name: Copy the validated image into production
         id: copy
@@ -245,29 +249,30 @@ jobs:
             --output text)
           test "$destination_digest" = "$SOURCE_DIGEST" || {
             echo "Digest changed in copy: dev $SOURCE_DIGEST, prod $destination_digest."
-            echo "App Runner was not touched."
+            echo "Production Lambda was not touched."
             exit 1
           }
           echo "Production copy matches $destination_digest"
 
-      - name: Deploy the promoted digest when App Runner exists
+      - name: Deploy the promoted digest when production Lambda exists
         id: deploy
         env:
-          SERVICE_EXISTS: ${{ steps.current.outputs.exists }}
-          SERVICE_ARN: ${{ steps.current.outputs.arn }}
+          FUNCTION_EXISTS: ${{ steps.current.outputs.exists }}
           PREVIOUS_DIGEST: ${{ steps.current.outputs.digest }}
+          PREVIOUS_VERSION: ${{ steps.current.outputs.version }}
           SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          TAG: ${{ steps.source.outputs.tag }}
           IMAGE_URI: ${{ steps.copy.outputs.uri }}
         run: |
           set -euo pipefail
 
-          if [ "$SERVICE_EXISTS" != true ]; then
+          if [ "$FUNCTION_EXISTS" != true ]; then
             {
               echo "bootstrapped=true"
               echo "changed=false"
               echo "verified=true"
             } >> "$GITHUB_OUTPUT"
-            echo "Production ECR is seeded; App Runner does not exist yet."
+            echo "Production ECR is seeded; the production function does not exist yet."
             exit 0
           fi
 
@@ -276,73 +281,35 @@ jobs:
               echo "bootstrapped=false"
               echo "changed=false"
               echo "verified=true"
+              echo "version=$PREVIOUS_VERSION"
             } >> "$GITHUB_OUTPUT"
-            echo "$APP_RUNNER_SERVICE_NAME already runs $SOURCE_DIGEST"
+            echo "$PROD_FUNCTION_NAME live already runs $SOURCE_DIGEST"
             exit 0
           fi
 
-          jq --arg image "$IMAGE_URI" \
-            '.Service.SourceConfiguration
-             | .ImageRepository.ImageIdentifier = $image
-             | .AutoDeploymentsEnabled = false' \
-            "$RUNNER_TEMP/current-service.json" > "$RUNNER_TEMP/next-source.json"
+          aws lambda update-function-code \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --image-uri "$IMAGE_URI" >/dev/null
+          aws lambda wait function-updated-v2 \
+            --function-name "$PROD_FUNCTION_NAME"
 
-          operation_id=$(aws apprunner update-service \
-            --service-arn "$SERVICE_ARN" \
-            --source-configuration "file://$RUNNER_TEMP/next-source.json" \
-            --query OperationId \
+          version=$(aws lambda publish-version \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --description "${TAG#git-}" \
+            --query Version \
             --output text)
-          test -n "$operation_id" && test "$operation_id" != None || {
-            echo "App Runner returned no operation id."
-            exit 1
-          }
+          aws lambda update-alias \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --name live \
+            --function-version "$version" >/dev/null
 
-          operation_status=""
-          for _attempt in $(seq 1 80); do
-            operation_status=$(aws apprunner list-operations \
-              --service-arn "$SERVICE_ARN" \
-              --query "OperationSummaryList[?Id=='$operation_id'].Status | [0]" \
-              --output text)
-            case "$operation_status" in
-              SUCCEEDED)
-                break
-                ;;
-              PENDING|IN_PROGRESS|ROLLBACK_IN_PROGRESS)
-                sleep 15
-                ;;
-              FAILED|ROLLBACK_FAILED|ROLLBACK_SUCCEEDED)
-                echo "App Runner operation ended in $operation_status; promotion failed."
-                exit 1
-                ;;
-              *)
-                echo "Unknown App Runner operation status: $operation_status"
-                exit 1
-                ;;
-            esac
-          done
-          test "$operation_status" = SUCCEEDED || {
-            echo "Timed out waiting for App Runner; last status was $operation_status."
-            exit 1
-          }
-
-          aws apprunner describe-service \
-            --service-arn "$SERVICE_ARN" \
-            --output json > "$RUNNER_TEMP/deployed-service.json"
-          deployed_status=$(jq -r '.Service.Status' "$RUNNER_TEMP/deployed-service.json")
-          deployed_image=$(jq -r '.Service.SourceConfiguration.ImageRepository.ImageIdentifier' \
-            "$RUNNER_TEMP/deployed-service.json")
-          auto_deployments=$(jq -r '.Service.SourceConfiguration.AutoDeploymentsEnabled' \
-            "$RUNNER_TEMP/deployed-service.json")
-          test "$deployed_status" = RUNNING || {
-            echo "App Runner ended in $deployed_status."
-            exit 1
-          }
-          test "$deployed_image" = "$IMAGE_URI" || {
-            echo "App Runner did not retain the promoted digest."
-            exit 1
-          }
-          test "$auto_deployments" = false || {
-            echo "Auto deployments were enabled after promotion."
+          deployed_uri=$(aws lambda get-function \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --qualifier live \
+            --query 'Code.ResolvedImageUri' \
+            --output text)
+          test "$deployed_uri" = "$IMAGE_URI" || {
+            echo "Production live resolved to $deployed_uri, not $IMAGE_URI."
             exit 1
           }
 
@@ -350,8 +317,9 @@ jobs:
             echo "bootstrapped=false"
             echo "changed=true"
             echo "verified=true"
+            echo "version=$version"
           } >> "$GITHUB_OUTPUT"
-          echo "$APP_RUNNER_SERVICE_NAME now runs $SOURCE_DIGEST"
+          echo "$PROD_FUNCTION_NAME live now runs $SOURCE_DIGEST on version $version"
 
       - name: Write job summary
         if: always() && steps.source.outcome == 'success' && steps.current.outcome == 'success'
@@ -359,49 +327,57 @@ jobs:
           JOB_STATUS: ${{ job.status }}
           SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
           TAG: ${{ steps.source.outputs.tag }}
-          SERVICE_EXISTS: ${{ steps.current.outputs.exists }}
-          SERVICE_ARN: ${{ steps.current.outputs.arn }}
+          FUNCTION_EXISTS: ${{ steps.current.outputs.exists }}
           PREVIOUS_DIGEST: ${{ steps.current.outputs.digest }}
           PREVIOUS_TAG: ${{ steps.current.outputs.tag }}
           PREVIOUS_COMMIT: ${{ steps.current.outputs.commit }}
+          PREVIOUS_VERSION: ${{ steps.current.outputs.version }}
           DEPLOY_CHANGED: ${{ steps.deploy.outputs.changed }}
           DEPLOY_VERIFIED: ${{ steps.deploy.outputs.verified }}
+          DEPLOY_VERSION: ${{ steps.deploy.outputs.version }}
         run: |
           set -u
           current_digest=""
-          if [ "$SERVICE_EXISTS" = true ]; then
-            current_image=$(aws apprunner describe-service \
-              --service-arn "$SERVICE_ARN" \
-              --query 'Service.SourceConfiguration.ImageRepository.ImageIdentifier' \
+          current_version=""
+          if [ "$FUNCTION_EXISTS" = true ]; then
+            current_image=$(aws lambda get-function \
+              --function-name "$PROD_FUNCTION_NAME" \
+              --qualifier live \
+              --query 'Code.ResolvedImageUri' \
               --output text 2>/dev/null || true)
             current_digest="${current_image##*@}"
+            current_version=$(aws lambda get-alias \
+              --function-name "$PROD_FUNCTION_NAME" \
+              --name live \
+              --query FunctionVersion \
+              --output text 2>/dev/null || true)
           fi
 
           {
             echo "## Promote to production"
-            echo "- Source: \`$DEV_ECR_REPOSITORY@$SOURCE_DIGEST\` as \`$TAG\`"
-            if [ "$SERVICE_EXISTS" != true ]; then
-              echo "- Previous: no App Runner service."
+            echo "- Source: $DEV_ECR_REPOSITORY@$SOURCE_DIGEST as $TAG"
+            if [ "$FUNCTION_EXISTS" != true ]; then
+              echo "- Previous: no production Lambda function."
               if [ "$JOB_STATUS" = success ]; then
-                echo "- New: \`$PROD_ECR_REPOSITORY@$SOURCE_DIGEST\` is seeded for Chunk 12."
+                echo "- New: $PROD_ECR_REPOSITORY@$SOURCE_DIGEST is seeded for Chunk 12."
               else
-                echo "- Failed while seeding production ECR; no service was touched."
+                echo "- Failed while seeding production ECR; no function was touched."
               fi
             else
-              echo "- Previous: \`$PREVIOUS_TAG\` at \`$PREVIOUS_DIGEST\`."
+              echo "- Previous: $PREVIOUS_TAG at $PREVIOUS_DIGEST, Lambda version $PREVIOUS_VERSION."
               if [[ "$current_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-                echo "- Now: \`$current_digest\`."
+                echo "- Now: $current_digest, Lambda version $current_version."
               else
-                echo "- Now: readback failed; inspect App Runner before retrying."
+                echo "- Now: readback failed; inspect production Lambda before retrying."
               fi
               if [ "$JOB_STATUS" = success ] && [ "$DEPLOY_CHANGED" = true ] \
                   && [ "$DEPLOY_VERIFIED" = true ]; then
-                echo "- Deployment succeeded and readback matched."
+                echo "- Deployment succeeded and readback matched version $DEPLOY_VERSION."
               elif [ "$JOB_STATUS" = success ]; then
-                echo "- Deployment was already current; no service update was needed."
+                echo "- Deployment was already current; no alias update was needed."
               else
-                echo "- Promotion failed. App Runner rollback is automatic, but verify the live digest above."
+                echo "- Promotion failed. Alias live should still reference the previous published version; verify it before retrying."
               fi
-              echo "- Roll back: \`gh workflow run promote-production.yml --ref main -f commit_sha=$PREVIOUS_COMMIT\`"
+              echo "- Roll back: gh workflow run promote-production.yml --ref main -f commit_sha=$PREVIOUS_COMMIT"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
