@@ -1,0 +1,407 @@
+name: Promote to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Full commit SHA to promote; blank selects the latest build of main.
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    name: promote
+    runs-on: ubuntu-24.04
+    environment: production
+    concurrency:
+      group: portfolio-promote-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_PROD_DEPLOY_ROLE_ARN: ${{ secrets.AWS_PROD_DEPLOY_ROLE_ARN }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      DEV_ECR_REPOSITORY: dev/portfolio
+      PROD_ECR_REPOSITORY: prod/portfolio
+      DEV_MUTABLE_TAG: main
+      APP_RUNNER_SERVICE_NAME: portfolio-prod
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check promotion configuration
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/main || {
+            echo "Promotion runs from main only, got $GITHUB_REF."
+            exit 1
+          }
+          test -n "$AWS_REGION" || { echo "Missing AWS_REGION repository variable"; exit 1; }
+          test -n "$AWS_PROD_DEPLOY_ROLE_ARN" || {
+            echo "Missing AWS_PROD_DEPLOY_ROLE_ARN repository secret"
+            exit 1
+          }
+          test -n "$AWS_ACCOUNT_ID" || {
+            echo "Missing AWS_ACCOUNT_ID repository secret; it is required for log masking"
+            exit 1
+          }
+          echo "::add-mask::$AWS_ACCOUNT_ID"
+
+      - name: Configure production AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_PROD_DEPLOY_ROLE_ARN }}
+          role-session-name: portfolio-promote-${{ github.run_id }}
+
+      - name: Resolve the source image in dev
+        id: source
+        env:
+          INPUT_COMMIT: ${{ inputs.commit_sha }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "$INPUT_COMMIT" ]; then
+            [[ "$INPUT_COMMIT" =~ ^[0-9a-f]{40}$ ]] || {
+              echo "Bad commit SHA '$INPUT_COMMIT'; expected 40 lowercase hexadecimal characters."
+              exit 1
+            }
+            selector="imageTag=git-$INPUT_COMMIT"
+            asked="tag git-$INPUT_COMMIT"
+          else
+            selector="imageTag=$DEV_MUTABLE_TAG"
+            asked="tag $DEV_MUTABLE_TAG (the latest build of main)"
+          fi
+          echo "Resolving $asked in $DEV_ECR_REPOSITORY"
+
+          if ! found=$(aws ecr describe-images \
+                --repository-name "$DEV_ECR_REPOSITORY" \
+                --image-ids "$selector" \
+                --query 'imageDetails[0].{digest:imageDigest,tags:imageTags}' \
+                --output json 2>"$RUNNER_TEMP/resolve-error.txt"); then
+            sed -E 's/[0-9]{12}/<ACCOUNT>/g' "$RUNNER_TEMP/resolve-error.txt"
+            grep -q ImageNotFound "$RUNNER_TEMP/resolve-error.txt" || exit 1
+            echo
+            echo "No image for $asked in $DEV_ECR_REPOSITORY."
+            if [ -z "$INPUT_COMMIT" ]; then
+              echo "Nothing is published under the mutable main reference."
+            elif ! git merge-base --is-ancestor "$INPUT_COMMIT" HEAD 2>/dev/null; then
+              echo "That commit is not on main, so no main push built it."
+            elif ! git rev-list --first-parent HEAD | grep -qx "$INPUT_COMMIT"; then
+              echo "That commit reached main through a merge and was never a tip of main."
+              echo "Promote the merge commit that brought it in instead."
+            elif ! git cat-file -e "$INPUT_COMMIT:.github/workflows/ci-cd.yml" 2>/dev/null; then
+              echo "That commit predates this pipeline, so nothing built it."
+            else
+              echo "That build aged out of the five-image dev retention window."
+            fi
+            echo "Images are not rebuilt during promotion because dependencies float."
+            echo "Promotable images still present:"
+            aws ecr describe-images \
+              --repository-name "$DEV_ECR_REPOSITORY" \
+              --query 'reverse(sort_by(imageDetails,&imagePushedAt))[:10].{pushed:imagePushedAt,tags:imageTags}' \
+              --output table
+            exit 1
+          fi
+
+          digest=$(printf '%s' "$found" | jq -r .digest)
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "Invalid ECR digest: $digest"
+            exit 1
+          }
+
+          if [ -n "$INPUT_COMMIT" ]; then
+            tag="git-$INPUT_COMMIT"
+          else
+            candidates=$(printf '%s' "$found" \
+              | jq -r '[.tags[]? | select(startswith("git-"))] | join(" ")')
+            tag=""
+            while read -r sha; do
+              case " $candidates " in
+                *" git-$sha "*) tag="git-$sha"; break ;;
+              esac
+            done < <(git rev-list --first-parent HEAD)
+            test -n "$tag" || {
+              echo "$digest has no git-<sha> tag from main; nothing would name it in production."
+              exit 1
+            }
+          fi
+
+          {
+            echo "digest=$digest"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+          echo "Resolved $tag to $digest"
+
+      - name: Read the current production target
+        id: current
+        run: |
+          set -euo pipefail
+
+          service_arn=$(aws apprunner list-services \
+            --query "ServiceSummaryList[?ServiceName=='$APP_RUNNER_SERVICE_NAME'].ServiceArn | [0]" \
+            --output text)
+          if [ -z "$service_arn" ] || [ "$service_arn" = None ]; then
+            echo "$APP_RUNNER_SERVICE_NAME does not exist; this promotion bootstraps the repository."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          aws apprunner describe-service \
+            --service-arn "$service_arn" \
+            --output json > "$RUNNER_TEMP/current-service.json"
+          previous_image=$(jq -r '.Service.SourceConfiguration.ImageRepository.ImageIdentifier' \
+            "$RUNNER_TEMP/current-service.json")
+          previous_digest="${previous_image##*@}"
+          [[ "$previous_digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "Production is not digest-pinned; found $previous_digest."
+            exit 1
+          }
+
+          previous_tag=$(aws ecr describe-images \
+            --repository-name "$PROD_ECR_REPOSITORY" \
+            --image-ids "imageDigest=$previous_digest" \
+            --query 'imageDetails[0].imageTags[?starts_with(@, `git-`)] | [0]' \
+            --output text 2>/dev/null || true)
+          [[ "$previous_tag" =~ ^git-[0-9a-f]{40}$ ]] || {
+            echo "The running digest has no retained git-<sha> tag in production ECR."
+            echo "A one-command rollback cannot be guaranteed, so nothing will be copied or deployed."
+            exit 1
+          }
+          previous_commit="${previous_tag#git-}"
+
+          {
+            echo "exists=true"
+            echo "arn=$service_arn"
+            echo "image=$previous_image"
+            echo "digest=$previous_digest"
+            echo "tag=$previous_tag"
+            echo "commit=$previous_commit"
+          } >> "$GITHUB_OUTPUT"
+          echo "Rollback target: $previous_tag at $previous_digest"
+
+      - name: Copy the validated image into production
+        id: copy
+        env:
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          TAG: ${{ steps.source.outputs.tag }}
+          REGISTRY_AUTH_FILE: ${{ runner.temp }}/registry-auth.json
+        run: |
+          set -euo pipefail
+          registry="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+          destination="$registry/$PROD_ECR_REPOSITORY@$SOURCE_DIGEST"
+
+          existing=$(aws ecr batch-get-image \
+            --repository-name "$PROD_ECR_REPOSITORY" \
+            --image-ids "imageTag=$TAG" \
+            --output json)
+          destination_digest=$(printf '%s' "$existing" \
+            | jq -r '.images[0].imageId.imageDigest // empty')
+          if [ -n "$destination_digest" ]; then
+            test "$destination_digest" = "$SOURCE_DIGEST" || {
+              echo "$TAG already names $destination_digest, not $SOURCE_DIGEST."
+              exit 1
+            }
+            echo "$TAG already exists at the requested digest; copy is idempotently complete."
+            copied=false
+          else
+            failure=$(printf '%s' "$existing" \
+              | jq -r '.failures[0].failureCode // empty')
+            test "$failure" = ImageNotFound || {
+              echo "Could not resolve production tag: ${failure:-unknown error}"
+              exit 1
+            }
+            aws ecr get-login-password --region "$AWS_REGION" \
+              | skopeo login --username AWS --password-stdin "$registry"
+            skopeo copy --preserve-digests \
+              "docker://$registry/$DEV_ECR_REPOSITORY@$SOURCE_DIGEST" \
+              "docker://$registry/$PROD_ECR_REPOSITORY:$TAG"
+            copied=true
+          fi
+
+          {
+            echo "copied=$copied"
+            echo "uri=$destination"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Assert production holds the same bytes
+        env:
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          TAG: ${{ steps.source.outputs.tag }}
+        run: |
+          set -euo pipefail
+          destination_digest=$(aws ecr batch-get-image \
+            --repository-name "$PROD_ECR_REPOSITORY" \
+            --image-ids "imageTag=$TAG" \
+            --query 'images[0].imageId.imageDigest' \
+            --output text)
+          test "$destination_digest" = "$SOURCE_DIGEST" || {
+            echo "Digest changed in copy: dev $SOURCE_DIGEST, prod $destination_digest."
+            echo "App Runner was not touched."
+            exit 1
+          }
+          echo "Production copy matches $destination_digest"
+
+      - name: Deploy the promoted digest when App Runner exists
+        id: deploy
+        env:
+          SERVICE_EXISTS: ${{ steps.current.outputs.exists }}
+          SERVICE_ARN: ${{ steps.current.outputs.arn }}
+          PREVIOUS_DIGEST: ${{ steps.current.outputs.digest }}
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          IMAGE_URI: ${{ steps.copy.outputs.uri }}
+        run: |
+          set -euo pipefail
+
+          if [ "$SERVICE_EXISTS" != true ]; then
+            {
+              echo "bootstrapped=true"
+              echo "changed=false"
+              echo "verified=true"
+            } >> "$GITHUB_OUTPUT"
+            echo "Production ECR is seeded; App Runner does not exist yet."
+            exit 0
+          fi
+
+          if [ "$PREVIOUS_DIGEST" = "$SOURCE_DIGEST" ]; then
+            {
+              echo "bootstrapped=false"
+              echo "changed=false"
+              echo "verified=true"
+            } >> "$GITHUB_OUTPUT"
+            echo "$APP_RUNNER_SERVICE_NAME already runs $SOURCE_DIGEST"
+            exit 0
+          fi
+
+          jq --arg image "$IMAGE_URI" \
+            '.Service.SourceConfiguration
+             | .ImageRepository.ImageIdentifier = $image
+             | .AutoDeploymentsEnabled = false' \
+            "$RUNNER_TEMP/current-service.json" > "$RUNNER_TEMP/next-source.json"
+
+          operation_id=$(aws apprunner update-service \
+            --service-arn "$SERVICE_ARN" \
+            --source-configuration "file://$RUNNER_TEMP/next-source.json" \
+            --query OperationId \
+            --output text)
+          test -n "$operation_id" && test "$operation_id" != None || {
+            echo "App Runner returned no operation id."
+            exit 1
+          }
+
+          operation_status=""
+          for _attempt in $(seq 1 80); do
+            operation_status=$(aws apprunner list-operations \
+              --service-arn "$SERVICE_ARN" \
+              --query "OperationSummaryList[?Id=='$operation_id'].Status | [0]" \
+              --output text)
+            case "$operation_status" in
+              SUCCEEDED)
+                break
+                ;;
+              PENDING|IN_PROGRESS|ROLLBACK_IN_PROGRESS)
+                sleep 15
+                ;;
+              FAILED|ROLLBACK_FAILED|ROLLBACK_SUCCEEDED)
+                echo "App Runner operation ended in $operation_status; promotion failed."
+                exit 1
+                ;;
+              *)
+                echo "Unknown App Runner operation status: $operation_status"
+                exit 1
+                ;;
+            esac
+          done
+          test "$operation_status" = SUCCEEDED || {
+            echo "Timed out waiting for App Runner; last status was $operation_status."
+            exit 1
+          }
+
+          aws apprunner describe-service \
+            --service-arn "$SERVICE_ARN" \
+            --output json > "$RUNNER_TEMP/deployed-service.json"
+          deployed_status=$(jq -r '.Service.Status' "$RUNNER_TEMP/deployed-service.json")
+          deployed_image=$(jq -r '.Service.SourceConfiguration.ImageRepository.ImageIdentifier' \
+            "$RUNNER_TEMP/deployed-service.json")
+          auto_deployments=$(jq -r '.Service.SourceConfiguration.AutoDeploymentsEnabled' \
+            "$RUNNER_TEMP/deployed-service.json")
+          test "$deployed_status" = RUNNING || {
+            echo "App Runner ended in $deployed_status."
+            exit 1
+          }
+          test "$deployed_image" = "$IMAGE_URI" || {
+            echo "App Runner did not retain the promoted digest."
+            exit 1
+          }
+          test "$auto_deployments" = false || {
+            echo "Auto deployments were enabled after promotion."
+            exit 1
+          }
+
+          {
+            echo "bootstrapped=false"
+            echo "changed=true"
+            echo "verified=true"
+          } >> "$GITHUB_OUTPUT"
+          echo "$APP_RUNNER_SERVICE_NAME now runs $SOURCE_DIGEST"
+
+      - name: Write job summary
+        if: always() && steps.source.outcome == 'success' && steps.current.outcome == 'success'
+        env:
+          JOB_STATUS: ${{ job.status }}
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          TAG: ${{ steps.source.outputs.tag }}
+          SERVICE_EXISTS: ${{ steps.current.outputs.exists }}
+          SERVICE_ARN: ${{ steps.current.outputs.arn }}
+          PREVIOUS_DIGEST: ${{ steps.current.outputs.digest }}
+          PREVIOUS_TAG: ${{ steps.current.outputs.tag }}
+          PREVIOUS_COMMIT: ${{ steps.current.outputs.commit }}
+          DEPLOY_CHANGED: ${{ steps.deploy.outputs.changed }}
+          DEPLOY_VERIFIED: ${{ steps.deploy.outputs.verified }}
+        run: |
+          set -u
+          current_digest=""
+          if [ "$SERVICE_EXISTS" = true ]; then
+            current_image=$(aws apprunner describe-service \
+              --service-arn "$SERVICE_ARN" \
+              --query 'Service.SourceConfiguration.ImageRepository.ImageIdentifier' \
+              --output text 2>/dev/null || true)
+            current_digest="${current_image##*@}"
+          fi
+
+          {
+            echo "## Promote to production"
+            echo "- Source: \`$DEV_ECR_REPOSITORY@$SOURCE_DIGEST\` as \`$TAG\`"
+            if [ "$SERVICE_EXISTS" != true ]; then
+              echo "- Previous: no App Runner service."
+              if [ "$JOB_STATUS" = success ]; then
+                echo "- New: \`$PROD_ECR_REPOSITORY@$SOURCE_DIGEST\` is seeded for Chunk 12."
+              else
+                echo "- Failed while seeding production ECR; no service was touched."
+              fi
+            else
+              echo "- Previous: \`$PREVIOUS_TAG\` at \`$PREVIOUS_DIGEST\`."
+              if [[ "$current_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+                echo "- Now: \`$current_digest\`."
+              else
+                echo "- Now: readback failed; inspect App Runner before retrying."
+              fi
+              if [ "$JOB_STATUS" = success ] && [ "$DEPLOY_CHANGED" = true ] \
+                  && [ "$DEPLOY_VERIFIED" = true ]; then
+                echo "- Deployment succeeded and readback matched."
+              elif [ "$JOB_STATUS" = success ]; then
+                echo "- Deployment was already current; no service update was needed."
+              else
+                echo "- Promotion failed. App Runner rollback is automatic, but verify the live digest above."
+              fi
+              echo "- Roll back: \`gh workflow run promote-production.yml --ref main -f commit_sha=$PREVIOUS_COMMIT\`"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
