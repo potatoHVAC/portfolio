@@ -256,6 +256,15 @@ data "aws_iam_policy_document" "prod_deploy" {
     resources = [aws_ecr_repository.prod.arn]
   }
 
+  # App Runner service ARNs include a generated id. Discovery is the only
+  # account-wide App Runner permission; deployment remains scoped below.
+  statement {
+    sid       = "DiscoverProdService"
+    effect    = "Allow"
+    actions   = ["apprunner:ListServices"]
+    resources = ["*"]
+  }
+
   statement {
     sid    = "DeployProdService"
     effect = "Allow"
