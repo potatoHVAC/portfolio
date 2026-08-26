@@ -60,25 +60,8 @@ resource "aws_ecr_repository" "prod" {
 }
 
 # Retention on prod/portfolio, added 2026-08-22 at the owner's request to cap
-# cost. This reverses the original "no expiry here" decision, and the reason for
-# that decision has not gone away — it is written out below rather than dropped.
-#
-# ECR lifecycle rules cannot see what is deployed. They count images and delete
-# the oldest, whether or not App Runner is running one of them.
-#
-# The reachable failure, precisely: promote five releases, roll production back
-# to the oldest, then promote once more. That sixth promotion pushes the count
-# past the limit and the oldest image — the one production is *currently
-# running* — is expired. Nothing breaks at that moment, because App Runner has
-# already pulled it. It breaks later, at the next instance replacement, deploy,
-# or scale event, when the pull fails. A latent outage with no obvious cause and
-# a long delay between action and symptom.
-#
-# Two mitigations, neither of them the rule below:
-#   - Rolling back is a promotion. Promote the old SHA rather than pointing the
-#     service at it, and the image is re-copied and becomes the newest again.
-#   - A retention job that reads the deployed digest first and skips it is the
-#     correct fix, and is what the design's Future development section describes.
+# cost. Lambda versions retain deployed code, but a digest that ages out of ECR
+# cannot be promoted again by commit SHA. Five images is the rollback window.
 resource "aws_ecr_lifecycle_policy" "prod" {
   repository = aws_ecr_repository.prod.name
 
