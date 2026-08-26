@@ -2,8 +2,8 @@
 # AWS keys in GitHub.
 #
 # The split is the point: the workflow that runs on every merge has no IAM path
-# to production. `dev-deploy` cannot write prod/portfolio and cannot call
-# UpdateService on the production service. That is a property of these policies,
+# to production. `dev-deploy` cannot write prod/portfolio or update the
+# production function. That is a property of these policies,
 # not of workflow discipline.
 #
 # `tofu apply` is NOT a CI action. Infrastructure is applied by a human with the
@@ -16,14 +16,11 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   sub_prefix = "repo:${var.github_repository_subject}"
 
-  # These resources do not exist yet — they arrive in Chunks 10 and 12. The ARNs
+  # These resources arrive in Chunks 10 and 12. The ARNs
   # are constructed rather than deferred so the roles are narrow from the first
   # apply, never widened-then-tightened.
-  dev_function_arn = "arn:aws:lambda:${var.region}:${local.account_id}:function:portfolio-dev"
-
-  # App Runner service ARNs carry a generated id, so the suffix is unknowable
-  # here. The wildcard is on that id only, never on a principal or a `sub`.
-  prod_service_arn = "arn:aws:apprunner:${var.region}:${local.account_id}:service/portfolio-prod/*"
+  dev_function_arn  = "arn:aws:lambda:${var.region}:${local.account_id}:function:portfolio-dev"
+  prod_function_arn = "arn:aws:lambda:${var.region}:${local.account_id}:function:portfolio-prod"
 
   secret_parameter_arn = "arn:aws:ssm:${var.region}:${local.account_id}:parameter/portfolio/*"
 }
@@ -256,24 +253,18 @@ data "aws_iam_policy_document" "prod_deploy" {
     resources = [aws_ecr_repository.prod.arn]
   }
 
-  # App Runner service ARNs include a generated id. Discovery is the only
-  # account-wide App Runner permission; deployment remains scoped below.
   statement {
-    sid       = "DiscoverProdService"
-    effect    = "Allow"
-    actions   = ["apprunner:ListServices"]
-    resources = ["*"]
-  }
-
-  statement {
-    sid    = "DeployProdService"
+    sid    = "DeployProdFunction"
     effect = "Allow"
     actions = [
-      "apprunner:DescribeService",
-      "apprunner:ListOperations",
-      "apprunner:UpdateService",
+      "lambda:GetAlias",
+      "lambda:GetFunction",
+      "lambda:GetFunctionConfiguration",
+      "lambda:PublishVersion",
+      "lambda:UpdateAlias",
+      "lambda:UpdateFunctionCode",
     ]
-    resources = [local.prod_service_arn]
+    resources = [local.prod_function_arn, "${local.prod_function_arn}:*"]
   }
 }
 

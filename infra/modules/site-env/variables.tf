@@ -4,7 +4,7 @@ variable "environment" {
 }
 
 variable "compute" {
-  description = "Origin substrate. The App Runner branch arrives with the prod environment."
+  description = "Origin substrate. Both environments currently use Lambda."
   type        = string
   default     = "lambda"
 
@@ -44,6 +44,12 @@ variable "private" {
   description = "Gate the environment behind edge Basic auth and mark it noindex."
   type        = bool
   default     = false
+}
+
+variable "create_dns_records" {
+  description = "Create application aliases. Certificate validation records are always created."
+  type        = bool
+  default     = true
 }
 
 variable "edge_kvs_arn" {

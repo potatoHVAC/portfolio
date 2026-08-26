@@ -88,7 +88,7 @@ smoke-tests that artifact, and publishes it to `dev/portfolio` as both
 no separate validation or seed image.
 
 Production receives an already-validated dev digest through the promotion
-workflow before the App Runner service is created. CI never pushes a locally
+workflow before the production Lambda is created. CI never pushes a locally
 built image directly to `prod/portfolio`.
 
 ## Things that will bite
@@ -99,9 +99,9 @@ built image directly to `prod/portfolio`.
   customization endpoint. If a workflow cannot assume a role, compare the
   observed subject with the exact trust value — never widen the `sub`.
 - **`prod/portfolio` keeps only 5 images**, changed 2026-08-22 for cost. It is
-  the rollback set, and ECR cannot see what is deployed — a rollback followed by
-  more promotions can expire the running image, failing at the next pull rather
-  than immediately. Roll back by *promoting* the old SHA, which re-copies it and
+  the promotion-by-SHA rollback set; a commit that ages out cannot be promoted
+  again even though existing Lambda versions retain their deployed code. Roll
+  back by *promoting* the old SHA while its image remains available, which
   makes it newest. `var.prod_image_retention_count` is a one-line change.
 - **`prod/portfolio` is IMMUTABLE.** Re-promoting a SHA already present fails
   the copy rather than overwriting. The promotion workflow checks first.
