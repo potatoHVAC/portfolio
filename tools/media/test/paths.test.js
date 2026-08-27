@@ -37,6 +37,13 @@ test("nested image and video sources may share a directory", async () => {
       });
       assert.equal(source.assetId, "rings/home/hero");
       assert.equal(source.relativePath, "rings/home/hero.jpg");
+      const video = await resolvePrimarySource({
+        sourceRoot: path.join(root, "media-source"),
+        inputPath: "media-source/rings/home/demo.mov",
+        kind: "video",
+      });
+      assert.equal(video.assetId, "rings/home/demo");
+      assert.equal(video.expectedFormat, "mov");
     });
   } finally {
     await rm(root, { recursive: true, force: true });

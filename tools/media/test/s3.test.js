@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
-import { sha256Buffer } from "../src/hash.js";
+import { sha256Buffer, sha256FileWithParts } from "../src/hash.js";
 import { IMMUTABLE_CACHE_CONTROL, S3Store } from "../src/s3.js";
 
 class FakeS3Client {
@@ -118,4 +121,51 @@ test("failed checksum readback rejects an upload", async () => {
     }),
     /ChecksumSHA256/,
   );
+});
+
+test("large source archives use a streamed composite-checksum multipart upload", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "media-s3-"));
+  const filePath = path.join(root, "demo.mp4");
+  const data = Buffer.from("complete original video bytes");
+  const partSize = 8;
+  try {
+    await writeFile(filePath, data);
+    const checksum = await sha256FileWithParts(filePath, partSize);
+    const client = new FakeS3Client();
+    let upload;
+    const multipartUpload = async (options) => {
+      upload = options;
+      const chunks = [];
+      for await (const chunk of options.params.Body) chunks.push(chunk);
+      assert.deepEqual(Buffer.concat(chunks), data);
+      client.objects.set("originals/rings/demo.mp4", {
+        ContentLength: data.byteLength,
+        ChecksumSHA256: checksum.compositeBase64,
+        ChecksumType: "COMPOSITE",
+        ContentType: "video/mp4",
+        VersionId: "1",
+      });
+      return { VersionId: "1" };
+    };
+    const store = new S3Store({
+      originalsBucket: "originals",
+      deliveryBucket: "delivery",
+      client,
+      multipartUpload,
+    });
+    const result = await store.archiveFile({
+      key: "rings/demo.mp4",
+      filePath,
+      bytes: data.byteLength,
+      checksum,
+      contentType: "video/mp4",
+      partSize,
+    });
+    assert.equal(result.created, true);
+    assert.equal(upload.partSize, partSize);
+    assert.equal(upload.params.ChecksumAlgorithm, "SHA256");
+    assert.equal(upload.params.ChecksumType, "COMPOSITE");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });

@@ -86,3 +86,55 @@ test("an empty manifest performs no remote requests", async () => {
   await hydrateManifest(manifest, "https://speerd.com", "/tmp/unused", fetcher);
   assert.equal(requests, 0);
 });
+
+test("video verification requires an exact first-kilobyte range response", async () => {
+  const video = {
+    path: `/media/rings/demo/${"a".repeat(64)}-320x180.mp4`,
+    contentType: "video/mp4",
+    bytes: 1500,
+    width: 320,
+    height: 180,
+  };
+  const poster = {
+    ...video,
+    path: `/media/rings/demo/${"b".repeat(64)}-poster.jpg`,
+    contentType: "image/jpeg",
+  };
+  const manifest = {
+    version: 1,
+    assets: {
+      "rings/demo": {
+        kind: "video",
+        video,
+        poster,
+        captions: [],
+      },
+    },
+  };
+  let rangeRequest;
+  const fetcher = async (url, options) => {
+    if (options.method === "HEAD") {
+      const descriptor = url.endsWith(".mp4") ? video : poster;
+      return new Response(null, { status: 200, headers: headers(descriptor) });
+    }
+    rangeRequest = options;
+    return new Response(Buffer.alloc(1024), {
+      status: 206,
+      headers: { "content-range": "bytes 0-1023/1500" },
+    });
+  };
+  await verifyRemoteManifest(manifest, "https://speerd.com", fetcher);
+  assert.equal(rangeRequest.headers.Range, "bytes=0-1023");
+
+  await assert.rejects(
+    verifyRemoteManifest(manifest, "https://speerd.com", async (url, options) =>
+      options.method === "HEAD"
+        ? new Response(null, { status: 200, headers: headers(url.endsWith(".mp4") ? video : poster) })
+        : new Response(Buffer.alloc(1024), {
+          status: 206,
+          headers: { "content-range": "bytes 1-1024/1500" },
+        }),
+    ),
+    /wrong Content-Range/,
+  );
+});

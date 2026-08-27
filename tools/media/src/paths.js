@@ -13,10 +13,15 @@ export const IMAGE_EXTENSIONS = new Map([
   [".webp", "webp"],
 ]);
 
-export const VIDEO_EXTENSIONS = new Set([".m4v", ".mov", ".mp4", ".webm"]);
+export const VIDEO_EXTENSIONS = new Map([
+  [".m4v", "mov"],
+  [".mov", "mov"],
+  [".mp4", "mov"],
+  [".webm", "webm"],
+]);
 const PRIMARY_EXTENSIONS = new Set([
   ...IMAGE_EXTENSIONS.keys(),
-  ...VIDEO_EXTENSIONS,
+  ...VIDEO_EXTENSIONS.keys(),
 ]);
 
 function assertSafeRelative(relativePath) {
@@ -53,7 +58,7 @@ function extensionKind(extension) {
   return undefined;
 }
 
-export async function resolvePrimarySource({ sourceRoot, inputPath, kind }) {
+async function resolveSourceFile(sourceRoot, inputPath) {
   if (path.isAbsolute(inputPath)) {
     throw new Error("Source path must be relative to the repository");
   }
@@ -76,6 +81,28 @@ export async function resolvePrimarySource({ sourceRoot, inputPath, kind }) {
   if (!sourceStat.isFile()) {
     throw new Error("Source must be a regular file");
   }
+
+  return { resolved, relativePath, parts, sourceStat };
+}
+
+export async function resolveCompanionSource({ sourceRoot, inputPath }) {
+  const { resolved, parts, sourceStat } = await resolveSourceFile(
+    sourceRoot,
+    inputPath,
+  );
+  if (parts.slice(0, -1).some((part) => !SEGMENT_PATTERN.test(part))) {
+    throw new Error("Source directories must use lowercase kebab-case segments");
+  }
+  return {
+    absolutePath: resolved,
+    relativePath: parts.join("/"),
+    filename: parts.at(-1),
+    bytes: sourceStat.size,
+  };
+}
+
+export async function resolvePrimarySource({ sourceRoot, inputPath, kind }) {
+  const { resolved, parts, sourceStat } = await resolveSourceFile(sourceRoot, inputPath);
 
   const filename = parts.at(-1);
   const extension = path.extname(filename);
@@ -113,7 +140,7 @@ export async function resolvePrimarySource({ sourceRoot, inputPath, kind }) {
     relativePath: parts.join("/"),
     assetId: assetParts.join("/"),
     extension,
-    expectedFormat: IMAGE_EXTENSIONS.get(extension),
+    expectedFormat: IMAGE_EXTENSIONS.get(extension) ?? VIDEO_EXTENSIONS.get(extension),
     bytes: sourceStat.size,
   };
 }

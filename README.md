@@ -78,6 +78,12 @@ repository-scoped `speerd` AWS profile are required for live publication.
 bin/media check
 bin/media publish image media-source/rings/home/hero.jpg --alt "Portrait in studio"
 bin/media publish image media-source/backgrounds/texture.jpg --decorative
+bin/media publish video media-source/rings/home/demo.mp4 \
+  --title "Ring controls" --description "A demonstration of the ring controls"
+bin/media publish video media-source/rings/home/demo.mp4 \
+  --title "Ring controls" --description "A selected demonstration" \
+  --start 00:00:03.500 --end 00:00:08.000 \
+  --captions en-US:media-source/rings/home/demo.en-us.vtt
 bin/media verify-manifest
 bin/media verify-manifest --remote https://speerd.com
 bin/media hydrate
@@ -91,8 +97,12 @@ is additive: it does not scan a directory for publication or delete remote
 objects when a local file disappears. Source files and hydrated files under
 `public/media/` must never be committed.
 
-Video publication is added by the next media-pipeline chunk; the current command
-rejects `publish video` explicitly.
+Video publication re-encodes H.264/AAC MP4 derivatives and a JPEG poster. Supply
+both `--start` and `--end` to publish a clip, or neither to publish the full
+video. Caption files use WebVTT and the primary stem plus a lowercase BCP 47
+language suffix, such as `demo.en-us.vtt`; repeat `--captions language:path` for
+additional tracks. Use `--caption-label language:label` to override the visible
+label. The complete original video and caption bytes are archived.
 
 ## Configuration
 

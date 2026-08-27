@@ -8,6 +8,7 @@ import { createManifestValidator, loadManifest } from "./manifest.js";
 import { publishImage } from "./publisher.js";
 import { S3Store } from "./s3.js";
 import { hydrateManifest, verifyRemoteManifest } from "./verify.js";
+import { publishVideo } from "./video/publisher.js";
 
 const workingDirectory = process.cwd();
 const manifestPath = path.join(workingDirectory, "config/media.json");
@@ -69,37 +70,72 @@ async function run() {
 
   if (command === "publish") {
     const [kind, inputPath, ...optionArguments] = arguments_;
-    if (kind === "video") throw new Error("Video publication is implemented in Chunk 5");
-    if (kind !== "image" || !inputPath) {
-      throw new Error("Usage: bin/media publish image media-source/path --alt TEXT");
+    if (!inputPath || !["image", "video"].includes(kind)) {
+      throw new Error("Usage: bin/media publish <image|video> media-source/path [options]");
     }
-    const { values } = parseArgs({
-      args: optionArguments,
-      options: {
-        alt: { type: "string" },
-        decorative: { type: "boolean", default: false },
-        replace: { type: "boolean", default: false },
-        verbose: { type: "boolean", default: false },
-      },
-      strict: true,
-    });
     const originalsBucket = process.env.SPEERD_MEDIA_ORIGINALS_BUCKET;
     const deliveryBucket = process.env.SPEERD_MEDIA_DELIVERY_BUCKET;
     if (!originalsBucket || !deliveryBucket) throw new Error("Media bucket configuration is missing");
+    const store = new S3Store({ originalsBucket, deliveryBucket });
 
-    const result = await publishImage({
-      inputPath,
-      alt: values.alt,
-      decorative: values.decorative,
-      replace: values.replace,
-      sourceRoot,
-      temporaryRoot,
-      manifestPath,
-      validateManifest,
-      store: new S3Store({ originalsBucket, deliveryBucket }),
-    });
+    let result;
+    if (kind === "image") {
+      const { values } = parseArgs({
+        args: optionArguments,
+        options: {
+          alt: { type: "string" },
+          decorative: { type: "boolean", default: false },
+          replace: { type: "boolean", default: false },
+          verbose: { type: "boolean", default: false },
+        },
+        strict: true,
+      });
+      result = await publishImage({
+        inputPath,
+        alt: values.alt,
+        decorative: values.decorative,
+        replace: values.replace,
+        sourceRoot,
+        temporaryRoot,
+        manifestPath,
+        validateManifest,
+        store,
+      });
+    } else {
+      const { values } = parseArgs({
+        args: optionArguments,
+        options: {
+          title: { type: "string" },
+          description: { type: "string" },
+          start: { type: "string" },
+          end: { type: "string" },
+          "poster-at": { type: "string" },
+          captions: { type: "string", multiple: true, default: [] },
+          "caption-label": { type: "string", multiple: true, default: [] },
+          replace: { type: "boolean", default: false },
+          verbose: { type: "boolean", default: false },
+        },
+        strict: true,
+      });
+      result = await publishVideo({
+        inputPath,
+        title: values.title,
+        description: values.description,
+        start: values.start,
+        end: values.end,
+        posterAt: values["poster-at"],
+        captionSpecifications: values.captions,
+        captionLabelSpecifications: values["caption-label"],
+        replace: values.replace,
+        sourceRoot,
+        temporaryRoot,
+        manifestPath,
+        validateManifest,
+        store,
+      });
+    }
     const state = result.changed ? "published" : "already current";
-    process.stdout.write(`Image ${result.assetId} ${state} (${result.sourceSha256}).\n`);
+    process.stdout.write(`${kind === "image" ? "Image" : "Video"} ${result.assetId} ${state} (${result.sourceSha256}).\n`);
     return;
   }
 

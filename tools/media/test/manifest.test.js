@@ -35,11 +35,70 @@ function imageEntry() {
   };
 }
 
+function videoEntry() {
+  const videoHash = "c".repeat(64);
+  const posterHash = "d".repeat(64);
+  const captionHash = "e".repeat(64);
+  return {
+    kind: "video",
+    sourceSha256: "f".repeat(64),
+    title: "Demo",
+    description: "A short demo",
+    sourceDurationMs: 3000,
+    clipStartMs: 500,
+    clipEndMs: 2500,
+    durationMs: 2000,
+    video: {
+      path: `/media/rings/demo/${videoHash}-320x180.mp4`,
+      contentType: "video/mp4",
+      bytes: 100,
+      width: 320,
+      height: 180,
+    },
+    poster: {
+      path: `/media/rings/demo/${posterHash}-poster.jpg`,
+      contentType: "image/jpeg",
+      bytes: 20,
+      width: 320,
+      height: 180,
+    },
+    captions: [{
+      path: `/media/rings/demo/${captionHash}-en-us.vtt`,
+      contentType: "text/vtt; charset=utf-8",
+      bytes: 10,
+      language: "en-US",
+      label: "English",
+    }],
+  };
+}
+
 test("empty and nested image manifests validate", async () => {
   const validate = await createManifestValidator(schemaPath);
   assert.doesNotThrow(() => validate({ version: 1, assets: {} }));
   assert.doesNotThrow(() =>
     validate({ version: 1, assets: { "rings/home/hero": imageEntry() } }),
+  );
+});
+
+test("video manifests validate exact derivative, poster, caption, and timing paths", async () => {
+  const validate = await createManifestValidator(schemaPath);
+  assert.doesNotThrow(() => validate({ version: 1, assets: { "rings/demo": videoEntry() } }));
+
+  const wrongDuration = videoEntry();
+  wrongDuration.durationMs = 1500;
+  assert.throws(
+    () => validate({ version: 1, assets: { "rings/demo": wrongDuration } }),
+    /duration does not match/,
+  );
+  const wrongCaption = videoEntry();
+  wrongCaption.captions[0].path = wrongCaption.captions[0].path.replace("-en-us", "-fr");
+  assert.throws(
+    () => validate({ version: 1, assets: { "rings/demo": wrongCaption } }),
+    /invalid en-US caption path/,
+  );
+  assert.throws(
+    () => validate({ version: 1, assets: { "rings/demo": { kind: "video", captions: {} } } }),
+    /Invalid media manifest/,
   );
 });
 

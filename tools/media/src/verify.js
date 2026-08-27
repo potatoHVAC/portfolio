@@ -1,10 +1,16 @@
-import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { createWriteStream } from "node:fs";
+import { mkdir, readFile, rename, rm } from "node:fs/promises";
 import path from "node:path";
-import { sha256Buffer } from "./hash.js";
+import { pipeline } from "node:stream/promises";
 import { IMMUTABLE_CACHE_CONTROL } from "./s3.js";
 
 function allDescriptors(manifest) {
-  return Object.values(manifest.assets).flatMap((asset) => Object.values(asset.sources).flat());
+  return Object.values(manifest.assets).flatMap((asset) =>
+    asset.kind === "video"
+      ? [asset.video, asset.poster, ...asset.captions]
+      : Object.values(asset.sources).flat(),
+  );
 }
 
 function originUrl(origin, resourcePath) {
@@ -32,6 +38,20 @@ export async function verifyRemoteManifest(manifest, origin, fetcher = fetch) {
   for (const descriptor of allDescriptors(manifest)) {
     const response = await fetcher(originUrl(origin, descriptor.path), { method: "HEAD" });
     verifyHeaders(response, descriptor);
+    if (descriptor.contentType === "video/mp4") {
+      const ranged = await fetcher(originUrl(origin, descriptor.path), {
+        headers: { Range: "bytes=0-1023" },
+      });
+      const expectedLastByte = Math.min(1023, descriptor.bytes - 1);
+      if (ranged.status !== 206) throw new Error(`${descriptor.path} did not honor Range`);
+      if (ranged.headers.get("content-range") !== `bytes 0-${expectedLastByte}/${descriptor.bytes}`) {
+        throw new Error(`${descriptor.path} returned the wrong Content-Range`);
+      }
+      const data = Buffer.from(await ranged.arrayBuffer());
+      if (data.byteLength !== expectedLastByte + 1) {
+        throw new Error(`${descriptor.path} returned the wrong Range length`);
+      }
+    }
   }
 }
 
@@ -39,11 +59,7 @@ export async function hydrateManifest(manifest, origin, outputRoot, fetcher = fe
   for (const descriptor of allDescriptors(manifest)) {
     const response = await fetcher(originUrl(origin, descriptor.path));
     verifyHeaders(response, descriptor);
-    const data = Buffer.from(await response.arrayBuffer());
     const expectedHash = path.posix.basename(descriptor.path).split("-")[0];
-    if (sha256Buffer(data).hex !== expectedHash) {
-      throw new Error(`${descriptor.path} returned bytes with the wrong checksum`);
-    }
 
     const relativePath = descriptor.path.replace(/^\/media\//, "");
     if (!relativePath || relativePath.startsWith("../") || path.isAbsolute(relativePath)) {
@@ -53,7 +69,21 @@ export async function hydrateManifest(manifest, origin, outputRoot, fetcher = fe
     const temporary = `${destination}.${process.pid}.tmp`;
     await mkdir(path.dirname(destination), { recursive: true });
     try {
-      await writeFile(temporary, data);
+      if (!response.body) throw new Error(`${descriptor.path} returned an empty body`);
+      const hash = createHash("sha256");
+      let bytes = 0;
+      const hasher = async function* (source) {
+        for await (const chunk of source) {
+          bytes += chunk.byteLength;
+          hash.update(chunk);
+          yield chunk;
+        }
+      };
+      await pipeline(response.body, hasher, createWriteStream(temporary, { flags: "wx" }));
+      if (bytes !== descriptor.bytes) throw new Error(`${descriptor.path} returned the wrong size`);
+      if (hash.digest("hex") !== expectedHash) {
+        throw new Error(`${descriptor.path} returned bytes with the wrong checksum`);
+      }
       await rename(temporary, destination);
     } finally {
       await rm(temporary, { force: true });
