@@ -104,6 +104,19 @@ language suffix, such as `demo.en-us.vtt`; repeat `--captions language:path` for
 additional tracks. Use `--caption-label language:label` to override the visible
 label. The complete original video and caption bytes are archived.
 
+Render published entries from Rails with the manifest-backed helpers. Image
+callers supply the responsive `sizes` contract; development fetches only the
+manifest-referenced public derivatives.
+
+```erb
+<%= portfolio_picture "rings/home/hero", sizes: "(min-width: 60rem) 60rem, 100vw" %>
+<%= portfolio_video "videos/studio-tour", class: "studio-tour" %>
+```
+
+Run `bin/media hydrate` after a manifest change to reproduce the root-relative
+`public/media/` hierarchy locally. The current home-page hero remains a
+Propshaft asset until the planned content rollout.
+
 ## Configuration
 
 The app and its container entrypoint read these environment variables:

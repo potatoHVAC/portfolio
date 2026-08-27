@@ -29,4 +29,18 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "application views can render root-relative manifest media without AWS" do
+    aws_loaded_before = Object.const_defined?(:Aws)
+    catalog = MediaCatalog.new(manifest: MediaManifestFixture.manifest)
+    view = ApplicationController.helpers
+    view.instance_variable_set(:@media_catalog, catalog)
+    html = view.portfolio_picture("rings/home/hero", sizes: "100vw")
+
+    image = Nokogiri::HTML.fragment(html).at_css("picture img")
+    assert image
+    assert_match %r{\A/media/rings/home/hero/}, image["src"]
+    refute_match %r{\A/assets/}, image["src"]
+    assert_equal aws_loaded_before, Object.const_defined?(:Aws)
+  end
 end
