@@ -17,7 +17,8 @@ Website: [www.speerd.com](https://www.speerd.com)
 | `app/`, `config/`, `test/` | The Rails application — one page, no database |
 | `infra/bootstrap/` | State bucket, GitHub OIDC identity, ECR repositories |
 | `infra/modules/baseline/` | CloudTrail, budget, and the alert topic |
-| `infra/envs/global/` | Account-wide stack; instantiates `baseline` |
+| `infra/modules/media-storage/` | Private original-media archive and derivative-delivery buckets |
+| `infra/envs/global/` | Account-wide baseline, edge, DNS, and media storage |
 
 Infrastructure is [OpenTofu](https://opentofu.org). See
 `infra/bootstrap/README.md` for the one-time bootstrap sequence.
