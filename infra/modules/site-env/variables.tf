@@ -47,7 +47,7 @@ variable "private" {
 }
 
 variable "create_dns_records" {
-  description = "Create application aliases. Certificate validation records are always created."
+  description = "Create application aliases for the primary hostname and certificate SANs. Certificate validation records are always created."
   type        = bool
   default     = true
 }
