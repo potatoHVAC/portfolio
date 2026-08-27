@@ -37,7 +37,7 @@ module "site" {
 
   image_uri = "${data.terraform_remote_state.bootstrap.outputs.prod_ecr_repository_url}@${var.bootstrap_image_digest}"
 
-  create_dns_records = false
+  create_dns_records = true
   private            = false
 
   secret_parameter_name = var.secret_parameter_name
