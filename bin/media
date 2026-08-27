@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+fail() {
+  echo "$1" >&2
+  exit 2
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || fail "$1 is required"
+}
+
+tool_hash="$({
+  find tools/media -type f \
+    ! -path '*/node_modules/*' \
+    -print0 \
+    | sort -z \
+    | xargs -0 sha256sum
+} | sha256sum | cut -c1-16)"
+image_name="speerd-portfolio-media:$tool_hash"
+
+ensure_image() {
+  if ! docker image inspect "$image_name" >/dev/null 2>&1; then
+    docker build --tag "$image_name" tools/media
+  fi
+}
+
+resolve_bucket() {
+  local output_name="$1"
+  local provided_value="$2"
+  local deployed_value
+
+  deployed_value="$(tofu -chdir=infra/envs/global output -raw "$output_name")"
+  [[ -n "$deployed_value" ]] || fail "Missing global output: $output_name"
+  if [[ -n "$provided_value" && "$provided_value" != "$deployed_value" ]]; then
+    fail "$output_name override disagrees with deployed state"
+  fi
+  printf '%s' "$deployed_value"
+}
+
+run_container() {
+  local include_aws="$1"
+  shift
+
+  mkdir -p tmp/media public/media
+  local -a docker_args=(
+    run --rm
+    --user "$(id -u):$(id -g)"
+    --workdir /workspace
+    --env HOME=/tmp
+    --mount "type=bind,source=$repo_root/config,target=/workspace/config"
+    --mount "type=bind,source=$repo_root/tmp/media,target=/workspace/tmp/media"
+    --mount "type=bind,source=$repo_root/public/media,target=/workspace/public/media"
+  )
+
+  if [[ -d media-source ]]; then
+    docker_args+=(--mount "type=bind,source=$repo_root/media-source,target=/workspace/media-source,readonly")
+  fi
+
+  if [[ "$include_aws" == true ]]; then
+    local aws_dir="$repo_root/../.aws"
+    [[ -r "$aws_dir/config" && -r "$aws_dir/credentials" ]] || fail "Repository-scoped AWS files are required"
+    docker_args+=(
+      --env AWS_PROFILE=speerd
+      --env AWS_REGION=us-west-2
+      --env AWS_CONFIG_FILE=/aws/config
+      --env AWS_SHARED_CREDENTIALS_FILE=/aws/credentials
+      --env "SPEERD_MEDIA_ORIGINALS_BUCKET=$SPEERD_MEDIA_ORIGINALS_BUCKET"
+      --env "SPEERD_MEDIA_DELIVERY_BUCKET=$SPEERD_MEDIA_DELIVERY_BUCKET"
+      --mount "type=bind,source=$aws_dir/config,target=/aws/config,readonly"
+      --mount "type=bind,source=$aws_dir/credentials,target=/aws/credentials,readonly"
+    )
+  fi
+
+  docker "${docker_args[@]}" "$image_name" "$@"
+}
+
+command_name="${1:-}"
+[[ -n "$command_name" ]] || fail "Usage: bin/media <check|publish|verify-manifest|hydrate>"
+
+require_command docker
+ensure_image
+
+case "$command_name" in
+  check)
+    require_command aws
+    require_command tofu
+    docker info >/dev/null
+    aws sts get-caller-identity --profile speerd >/dev/null
+    tofu -chdir=infra/envs/global output -raw media_originals_bucket_name >/dev/null
+    tofu -chdir=infra/envs/global output -raw media_delivery_bucket_name >/dev/null
+    run_container false check
+    ;;
+  publish)
+    require_command tofu
+    [[ -d media-source ]] || fail "media-source/ does not exist"
+    source_path="${3:-}"
+    [[ "$source_path" == media-source/* ]] || fail "Publish source must be beneath media-source/"
+    if git ls-files --error-unmatch -- "$source_path" >/dev/null 2>&1; then
+      fail "Source media must not be tracked by Git"
+    fi
+    if [[ -n "$(git ls-files -- media-source public/media)" ]]; then
+      fail "Source media and hydrated derivatives must not be tracked by Git"
+    fi
+    SPEERD_MEDIA_ORIGINALS_BUCKET="$(resolve_bucket media_originals_bucket_name "${SPEERD_MEDIA_ORIGINALS_BUCKET:-}")"
+    SPEERD_MEDIA_DELIVERY_BUCKET="$(resolve_bucket media_delivery_bucket_name "${SPEERD_MEDIA_DELIVERY_BUCKET:-}")"
+    export SPEERD_MEDIA_ORIGINALS_BUCKET SPEERD_MEDIA_DELIVERY_BUCKET
+    run_container true "$@"
+    ;;
+  verify-manifest|hydrate)
+    run_container false "$@"
+    ;;
+  *)
+    fail "Unknown media command: $command_name"
+    ;;
+esac

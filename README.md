@@ -19,6 +19,8 @@ Website: [www.speerd.com](https://www.speerd.com)
 | `infra/modules/baseline/` | CloudTrail, budget, and the alert topic |
 | `infra/modules/media-storage/` | Private original-media archive and derivative-delivery buckets |
 | `infra/envs/global/` | Account-wide baseline, edge, DNS, and media storage |
+| `bin/media`, `tools/media/` | Containerized media publisher and its tests |
+| `config/media.json` | Committed public derivative manifest |
 
 Infrastructure is [OpenTofu](https://opentofu.org). See
 `infra/bootstrap/README.md` for the one-time bootstrap sequence.
@@ -60,6 +62,37 @@ tools/media/strip.sh path/to/image.jpg
 The strip helper removes GPS, EXIF, XMP, and IPTC data while preserving an
 embedded ICC colour profile. The gate covers `app/assets/images/` and image
 files under `public/`.
+
+## Media publishing
+
+Keep owner source files under the Git-ignored `media-source/` tree. Images,
+videos, and captions may share a directory, but primary image and video files
+may not use the same extensionless relative path. Directory names and primary
+basenames must be lowercase kebab case; that extensionless relative path becomes
+the public asset ID.
+
+Docker is the only host media-processing dependency. OpenTofu and the
+repository-scoped `speerd` AWS profile are required for live publication.
+
+```sh
+bin/media check
+bin/media publish image media-source/rings/home/hero.jpg --alt "Portrait in studio"
+bin/media publish image media-source/backgrounds/texture.jpg --decorative
+bin/media verify-manifest
+bin/media verify-manifest --remote https://speerd.com
+bin/media hydrate
+```
+
+Publication handles one selected asset at a time. It archives the source bytes,
+publishes metadata-free content-addressed derivatives, and updates
+`config/media.json` only after object readback succeeds. Reusing an asset ID
+with changed bytes or accessibility content requires `--replace`. The command
+is additive: it does not scan a directory for publication or delete remote
+objects when a local file disappears. Source files and hydrated files under
+`public/media/` must never be committed.
+
+Video publication is added by the next media-pipeline chunk; the current command
+rejects `publish video` explicitly.
 
 ## Configuration
 

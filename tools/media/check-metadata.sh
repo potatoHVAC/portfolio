@@ -9,8 +9,20 @@ for command_name in exiftool file jq; do
   fi
 done
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$repo_root"
+if (( $# == 0 )); then
+  repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+  cd "$repo_root"
+  targets=(app/assets/images public)
+else
+  targets=("$@")
+fi
+
+for target in "${targets[@]}"; do
+  if [[ ! -e "$target" ]]; then
+    echo "Metadata target does not exist: $target" >&2
+    exit 2
+  fi
+done
 
 failed=0
 images_checked=0
@@ -41,7 +53,7 @@ while IFS= read -r -d '' path; do
     printf '  %s\n' "$metadata_key" >&2
   done <<< "$metadata_keys"
   failed=1
-done < <(find app/assets/images public -type f -print0)
+done < <(find "${targets[@]}" -type f -print0)
 
 if (( failed != 0 )); then
   exit 1
