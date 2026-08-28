@@ -6,6 +6,7 @@ RUN apt-get update -qq && \
       ca-certificates \
       ffmpeg \
       file \
+      git \
       jq \
       libimage-exiftool-perl && \
     rm -rf /var/lib/apt/lists/*

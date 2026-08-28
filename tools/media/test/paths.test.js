@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { resolvePrimarySource } from "../src/paths.js";
-import { assertSourceUntracked } from "../src/tracked.js";
+import { assertNoTrackedMedia, assertSourceUntracked } from "../src/tracked.js";
 
 async function workspace() {
   const root = await mkdtemp(path.join(os.tmpdir(), "media-paths-"));
@@ -117,4 +117,21 @@ test("Git-tracked sources are rejected", async () => {
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("CI rejects tracked sources and hydrated derivatives", async () => {
+  const tracked = ["media-source/rings/hero.jpg", "public/media/rings/hero/hash-w480.webp"];
+  await assert.rejects(
+    assertNoTrackedMedia("/workspace", async () => ({ stdout: `${tracked.join("\0")}\0` })),
+    (error) => tracked.every((path) => error.message.includes(path)),
+  );
+  await assert.doesNotReject(
+    assertNoTrackedMedia("/workspace", async () => ({ stdout: "" })),
+  );
+  await assert.rejects(
+    assertNoTrackedMedia("/workspace", async () => {
+      throw new Error("git failed");
+    }),
+    /Could not inspect tracked media paths/,
+  );
 });

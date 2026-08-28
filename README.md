@@ -76,6 +76,7 @@ repository-scoped `speerd` AWS profile are required for live publication.
 
 ```sh
 bin/media check
+bin/media ci
 bin/media publish image media-source/rings/home/hero.jpg --alt "Portrait in studio"
 bin/media publish image media-source/backgrounds/texture.jpg --decorative
 bin/media publish video media-source/rings/home/demo.mp4 \
@@ -88,6 +89,12 @@ bin/media verify-manifest
 bin/media verify-manifest --remote https://speerd.com
 bin/media hydrate
 ```
+
+`bin/media ci` is credential-free. It runs the pinned ESLint and binary-backed
+test suite, validates the committed manifest, scans committed public media for
+metadata, and rejects tracked source or hydrated files. Pushes to `main` also
+verify every manifest object through the public CloudFront origin with HEAD and
+video Range requests after the development deployment.
 
 Publication handles one selected asset at a time. It archives the source bytes,
 publishes metadata-free content-addressed derivatives, and updates

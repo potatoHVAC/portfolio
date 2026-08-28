@@ -4,9 +4,11 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import sharp from "sharp";
+import { checkMediaMetadata } from "./metadata.js";
 import { createManifestValidator, loadManifest } from "./manifest.js";
 import { publishImage } from "./publisher.js";
 import { S3Store } from "./s3.js";
+import { assertNoTrackedMedia } from "./tracked.js";
 import { hydrateManifest, verifyRemoteManifest } from "./verify.js";
 import { publishVideo } from "./video/publisher.js";
 
@@ -27,6 +29,12 @@ function requireBinary(name) {
   if (result.error) throw new Error(`${name} is unavailable`, { cause: result.error });
 }
 
+function runTool(name, arguments_, options = {}) {
+  const result = spawnSync(name, arguments_, { stdio: "inherit", ...options });
+  if (result.error) throw new Error(`${name} is unavailable`, { cause: result.error });
+  if (result.status !== 0) throw new Error(`${name} failed with status ${result.status}`);
+}
+
 async function check(validateManifest) {
   for (const binary of ["aws", "exiftool", "ffmpeg", "ffprobe", "file", "jq"]) {
     requireBinary(binary);
@@ -36,6 +44,16 @@ async function check(validateManifest) {
     .toBuffer();
   await loadManifest(manifestPath, validateManifest);
   process.stdout.write("Media tool check passed.\n");
+}
+
+async function ci(validateManifest) {
+  await check(validateManifest);
+  const environment = { ...process.env, MEDIA_SCHEMA_PATH: schemaPath };
+  runTool("npm", ["run", "lint"], { cwd: "/app", env: environment });
+  runTool("npm", ["test"], { cwd: "/app", env: environment });
+  await checkMediaMetadata(["app/assets/images", "public"]);
+  await assertNoTrackedMedia(workingDirectory);
+  process.stdout.write("Media CI checks passed.\n");
 }
 
 function parseRemoteOptions(values) {
@@ -51,6 +69,7 @@ async function run() {
   const validateManifest = await createManifestValidator(schemaPath);
 
   if (command === "check") return check(validateManifest);
+  if (command === "ci") return ci(validateManifest);
 
   if (command === "verify-manifest") {
     const { remote } = parseRemoteOptions(arguments_);
@@ -139,7 +158,7 @@ async function run() {
     return;
   }
 
-  throw new Error("Usage: bin/media <check|publish|verify-manifest|hydrate>");
+  throw new Error("Usage: bin/media <check|ci|publish|verify-manifest|hydrate>");
 }
 
 run().catch((error) => fail(error.message));

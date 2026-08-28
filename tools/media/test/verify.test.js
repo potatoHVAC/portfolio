@@ -59,6 +59,30 @@ test("remote verification checks every immutable delivery header", async () => {
     ),
     /wrong Content-Type/,
   );
+
+  const failures = [
+    [new Response(null, { status: 404 }), /returned HTTP 404/],
+    [
+      new Response(null, {
+        status: 200,
+        headers: { ...headers(descriptor), "content-length": String(descriptor.bytes + 1) },
+      }),
+      /wrong Content-Length/,
+    ],
+    [
+      new Response(null, {
+        status: 200,
+        headers: { ...headers(descriptor), "cache-control": "public, max-age=60" },
+      }),
+      /wrong Cache-Control/,
+    ],
+  ];
+  for (const [response, message] of failures) {
+    await assert.rejects(
+      verifyRemoteManifest(manifest, "https://speerd.com", async () => response),
+      message,
+    );
+  }
 });
 
 test("hydrate preserves the manifest hierarchy and verifies final bytes", async () => {
@@ -136,5 +160,26 @@ test("video verification requires an exact first-kilobyte range response", async
         }),
     ),
     /wrong Content-Range/,
+  );
+
+  await assert.rejects(
+    verifyRemoteManifest(manifest, "https://speerd.com", async (url, options) =>
+      options.method === "HEAD"
+        ? new Response(null, { status: 200, headers: headers(url.endsWith(".mp4") ? video : poster) })
+        : new Response(Buffer.alloc(1024), { status: 200 }),
+    ),
+    /did not honor Range/,
+  );
+
+  await assert.rejects(
+    verifyRemoteManifest(manifest, "https://speerd.com", async (url, options) =>
+      options.method === "HEAD"
+        ? new Response(null, { status: 200, headers: headers(url.endsWith(".mp4") ? video : poster) })
+        : new Response(Buffer.alloc(1000), {
+          status: 206,
+          headers: { "content-range": "bytes 0-1023/1500" },
+        }),
+    ),
+    /wrong Range length/,
   );
 });
