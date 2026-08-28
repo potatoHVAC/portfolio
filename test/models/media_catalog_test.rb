@@ -66,12 +66,35 @@ class MediaCatalogTest < ActiveSupport::TestCase
     assert_raises(MediaCatalog::InvalidManifest) { MediaCatalog.new(manifest: unsafe) }
   end
 
-  test "loads the empty committed manifest without initializing an AWS client" do
+  test "accepts the publisher's 2400 pixel cap for wider source images" do
+    capped = MediaManifestFixture.manifest
+    image = capped.fetch("assets").fetch("rings/home/hero")
+    image["width"] = 3072
+    image["height"] = 4096
+    image.fetch("sources").each_value do |descriptors|
+      largest = descriptors.last
+      largest["width"] = 2400
+      largest["height"] = 3200
+      largest["path"] = largest.fetch("path").sub("-w1200.", "-w2400.")
+    end
+
+    assert_nothing_raised { MediaCatalog.new(manifest: capped) }
+
+    capped.fetch("assets").fetch("rings/home/hero").fetch("sources").fetch("avif").pop
+    error = assert_raises(MediaCatalog::InvalidManifest) do
+      MediaCatalog.new(manifest: capped)
+    end
+    assert_match "omit the largest permitted width", error.message
+  end
+
+  test "loads the committed manifest without initializing an AWS client" do
     aws_loaded_before = Object.const_defined?(:Aws)
     catalog = MediaCatalog.new
 
     assert_equal aws_loaded_before, Object.const_defined?(:Aws)
-    assert_empty catalog.assets
+    assert_equal 2, catalog.assets.size
+    assert_equal "image", catalog.fetch!("validation/p-20231021-194531").fetch("kind")
+    assert_equal "video", catalog.fetch!("validation/v-20231013-144526-es3").fetch("kind")
     assert_raises(MediaCatalog::UnknownAsset) { catalog.fetch!("rings/home/hero") }
   end
 end

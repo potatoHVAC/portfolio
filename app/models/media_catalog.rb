@@ -11,6 +11,7 @@ class MediaCatalog
   ASSET_ID = /\A[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*\z/
   SHA256 = "[0-9a-f]{64}"
   KINDS = %w[image video].freeze
+  MAX_IMAGE_WIDTH = 2400
   IMAGE_FORMATS = {
     "avif" => [ "image/avif", "avif" ],
     "webp" => [ "image/webp", "webp" ],
@@ -92,8 +93,9 @@ class MediaCatalog
 
         previous_width = width
       end
-      unless descriptors.last.fetch("width") == asset["width"]
-        raise InvalidManifest, "Image #{id} #{format} sources omit the full width"
+      expected_width = [ asset["width"], MAX_IMAGE_WIDTH ].min
+      unless descriptors.last.fetch("width") == expected_width
+        raise InvalidManifest, "Image #{id} #{format} sources omit the largest permitted width"
       end
     end
   end

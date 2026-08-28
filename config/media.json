@@ -1,4 +1,152 @@
 {
-  "version": 1,
-  "assets": {}
+  "assets": {
+    "validation/p-20231021-194531": {
+      "alt": "",
+      "decorative": true,
+      "height": 4096,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAArACADASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAwUAAgQBBv/EABcBAQEBAQAAAAAAAAAAAAAAAAEAAgP/2gAMAwEAAhADEAAAAfPFoz24BNUw2aKIjRXOUa/SdNZw7AYv/8QAHhAAAgEFAAMAAAAAAAAAAAAAAAECAwQQERITITH/2gAIAQEAAQUC9ibOpHTPpbQiy6pLQmW9WCjc1YzWN55R4h02jTwhjP/EABcRAQADAAAAAAAAAAAAAAAAAAAREiD/2gAIAQMBAT8BxCr/xAAXEQADAQAAAAAAAAAAAAAAAAAAAQIR/9oACAECAQE/AUhk1hVaKUWkj//EAB0QAAEEAgMAAAAAAAAAAAAAAAEAAiAxEUEQElH/2gAIAQEABj8CiXHWl3bjkh1+rDZ2rl//xAAfEAACAgEEAwAAAAAAAAAAAAAAARExYRAhQVGBkaH/2gAIAQEAAT8hTTk7fwauV6HiFDUhrEyI3OVVC5GRbCcUrIJkuWOxs2EjwJ3ZB9fBWIzEO9Sh/9oADAMBAAIAAwAAABA1IRy93//EABgRAQEBAQEAAAAAAAAAAAAAAAERACFh/9oACAEDAQE/EGzm7BchdfcByJd//8QAGBEBAQADAAAAAAAAAAAAAAAAAQARITH/2gAIAQIBAT8QRNWR2SZEvpKav//EAB8QAQADAAEFAQEAAAAAAAAAAAEAESExQVFhcYGR8P/aAAgBAQABPxBXEHqUypZjJ3n4jAvBWGSynkMDZr8gc0Cbl3JzlgTpBeJdNviBpYVTr/bLtHiUuS2u8L2uEQV1TXz4eYDx+1oA0X0iEAbda5jyK1uZSck//9k=",
+      "sourceSha256": "6f95ff49746134cf5eb6c591166cb6baa13f41bc32796d5f66f1458051d812bf",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 13844,
+            "contentType": "image/avif",
+            "height": 640,
+            "path": "/media/validation/p-20231021-194531/583a8e395e1853a8de0ecad5ee62ba3d4c9d33c27ecf5554ade9c8fd9532291f-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 29347,
+            "contentType": "image/avif",
+            "height": 1024,
+            "path": "/media/validation/p-20231021-194531/f0355b044d4425519232bef214ce37f49582a481fc98e1f66f31da073712a08a-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 57829,
+            "contentType": "image/avif",
+            "height": 1600,
+            "path": "/media/validation/p-20231021-194531/1548349ad7ddfffa8f1a068e0023c63b1765fc6d47b94cfd785dcd547ce88b16-w1200.avif",
+            "width": 1200
+          },
+          {
+            "bytes": 86558,
+            "contentType": "image/avif",
+            "height": 2133,
+            "path": "/media/validation/p-20231021-194531/eb646a1a955e60d2a5c6afcc07e0597072dff47cbbad57f140d3b2f4066e7983-w1600.avif",
+            "width": 1600
+          },
+          {
+            "bytes": 152377,
+            "contentType": "image/avif",
+            "height": 3200,
+            "path": "/media/validation/p-20231021-194531/f387016eec70abffbdd97dd2e27eb61e03cebab00da72db63d82051aaac56db9-w2400.avif",
+            "width": 2400
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 36222,
+            "contentType": "image/jpeg",
+            "height": 640,
+            "path": "/media/validation/p-20231021-194531/2ff40a034113d32697e5039004bde20efb55c83d613699aa8f6fcba59847a6f0-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 81321,
+            "contentType": "image/jpeg",
+            "height": 1024,
+            "path": "/media/validation/p-20231021-194531/a979d584a4dbfd154fcb5ea5ff283539e4230a3e16d48bd1cd2086bccbf17e8a-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 173059,
+            "contentType": "image/jpeg",
+            "height": 1600,
+            "path": "/media/validation/p-20231021-194531/3024c39d287e4af7c7006db7ed9859700a0e0b34b490820e6a6447ee23aea9f5-w1200.jpg",
+            "width": 1200
+          },
+          {
+            "bytes": 280619,
+            "contentType": "image/jpeg",
+            "height": 2133,
+            "path": "/media/validation/p-20231021-194531/da5ab6a127a76015d50b7a39415fb1b17c467ea10f76d68ce91acbbaacf8dd36-w1600.jpg",
+            "width": 1600
+          },
+          {
+            "bytes": 554140,
+            "contentType": "image/jpeg",
+            "height": 3200,
+            "path": "/media/validation/p-20231021-194531/094575f99b4ba7369423c7b8dfe4192766b67aca932a1acea0eade46eda13369-w2400.jpg",
+            "width": 2400
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 22254,
+            "contentType": "image/webp",
+            "height": 640,
+            "path": "/media/validation/p-20231021-194531/a0a8a0d1668321825130d67015d6082abbbc9570299f6fd7ab8c42a7dffbb407-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 48860,
+            "contentType": "image/webp",
+            "height": 1024,
+            "path": "/media/validation/p-20231021-194531/8a5e4582cc7223d5e3213c36acacc2dcfe556f3f87467ed26ea13294bcd80f11-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 99390,
+            "contentType": "image/webp",
+            "height": 1600,
+            "path": "/media/validation/p-20231021-194531/c492e33e9ee4eb1d6b0b8ccf0533c78f052233b055e39b877a5f37836808af51-w1200.webp",
+            "width": 1200
+          },
+          {
+            "bytes": 152292,
+            "contentType": "image/webp",
+            "height": 2133,
+            "path": "/media/validation/p-20231021-194531/8f53527b3f4845a11e9b19662a0172e2bf68875506b602224a6ed72e7c6f88b8-w1600.webp",
+            "width": 1600
+          },
+          {
+            "bytes": 267694,
+            "contentType": "image/webp",
+            "height": 3200,
+            "path": "/media/validation/p-20231021-194531/78c54ea5d6bf7485e8ce557af4b8aa980b684ea11453e5f79f1ae4ff3cb739f8-w2400.webp",
+            "width": 2400
+          }
+        ]
+      },
+      "width": 3072
+    },
+    "validation/v-20231013-144526-es3": {
+      "captions": [],
+      "clipEndMs": 3000,
+      "clipStartMs": 0,
+      "description": "A short video used to validate media publication.",
+      "durationMs": 3000,
+      "kind": "video",
+      "poster": {
+        "bytes": 121791,
+        "contentType": "image/jpeg",
+        "height": 1080,
+        "path": "/media/validation/v-20231013-144526-es3/8427e16ae1ad9fcbb295f6277e2d2efecda2a411a2c6929583a4642b3d4f5f1e-poster.jpg",
+        "width": 608
+      },
+      "sourceDurationMs": 19930,
+      "sourceSha256": "804b637c7ac307491a91d6600e0f00a2f542f70097b005b744db925fc2158a96",
+      "title": "Video pipeline validation",
+      "video": {
+        "bytes": 1188440,
+        "contentType": "video/mp4",
+        "height": 1080,
+        "path": "/media/validation/v-20231013-144526-es3/fffb1dd3655a2d85c33d313ade920bf8159fec68463ec132b7b655bd62f43de2-608x1080.mp4",
+        "width": 608
+      }
+    }
+  },
+  "version": 1
 }

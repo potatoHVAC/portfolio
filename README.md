@@ -121,8 +121,8 @@ manifest-referenced public derivatives.
 ```
 
 Run `bin/media hydrate` after a manifest change to reproduce the root-relative
-`public/media/` hierarchy locally. The current home-page hero remains a
-Propshaft asset until the planned content rollout.
+`public/media/` hierarchy locally. The home page renders both published
+validation assets through these helpers.
 
 ## Configuration
 
