@@ -7,6 +7,11 @@ output "distribution_domain_name" {
   value       = aws_cloudfront_distribution.site.domain_name
 }
 
+output "distribution_arn" {
+  description = "Exact distribution ARN used by the media bucket access policy."
+  value       = aws_cloudfront_distribution.site.arn
+}
+
 output "function_name" {
   description = "What CI calls update-function-code against."
   value       = aws_lambda_function.site.function_name

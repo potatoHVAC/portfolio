@@ -1,0 +1,226 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://speerd.com/schemas/media-v1.json",
+  "title": "SPEERD portfolio media manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "assets"],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "assets": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*$"
+      },
+      "additionalProperties": {
+        "oneOf": [
+          { "$ref": "#/$defs/image" },
+          { "$ref": "#/$defs/video" }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "descriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "contentType", "bytes", "width", "height"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/media/[a-z0-9/-]+/[0-9a-f]{64}-w[1-9][0-9]*\\.(?:avif|webp|jpg)$"
+        },
+        "contentType": {
+          "enum": ["image/avif", "image/webp", "image/jpeg"]
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "sourceSha256",
+        "alt",
+        "width",
+        "height",
+        "placeholder",
+        "sources"
+      ],
+      "properties": {
+        "kind": {
+          "const": "image"
+        },
+        "sourceSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "alt": {
+          "type": "string"
+        },
+        "decorative": {
+          "const": true
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "placeholder": {
+          "type": "string",
+          "pattern": "^data:image/jpeg;base64,[A-Za-z0-9+/]+={0,2}$"
+        },
+        "sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["avif", "webp", "jpeg"],
+          "properties": {
+            "avif": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/descriptor"
+              }
+            },
+            "webp": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/descriptor"
+              }
+            },
+            "jpeg": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/descriptor"
+              }
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "alt": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "not": {
+            "required": ["decorative"]
+          }
+        },
+        {
+          "required": ["decorative"],
+          "properties": {
+            "alt": {
+              "const": ""
+            },
+            "decorative": {
+              "const": true
+            }
+          }
+        }
+      ]
+    },
+    "videoFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "contentType", "bytes", "width", "height"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/media/[a-z0-9/-]+/[0-9a-f]{64}-[1-9][0-9]*x[1-9][0-9]*\\.mp4$"
+        },
+        "contentType": { "const": "video/mp4" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "width": { "type": "integer", "minimum": 2, "multipleOf": 2 },
+        "height": { "type": "integer", "minimum": 2, "multipleOf": 2 }
+      }
+    },
+    "poster": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "contentType", "bytes", "width", "height"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/media/[a-z0-9/-]+/[0-9a-f]{64}-poster\\.jpg$"
+        },
+        "contentType": { "const": "image/jpeg" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "caption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "contentType", "bytes", "language", "label"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/media/[a-z0-9/-]+/[0-9a-f]{64}-[a-z0-9]+(?:-[a-z0-9]+)*\\.vtt$"
+        },
+        "contentType": { "const": "text/vtt; charset=utf-8" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "language": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$"
+        },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "video": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "sourceSha256",
+        "title",
+        "description",
+        "sourceDurationMs",
+        "clipStartMs",
+        "clipEndMs",
+        "durationMs",
+        "video",
+        "poster",
+        "captions"
+      ],
+      "properties": {
+        "kind": { "const": "video" },
+        "sourceSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "sourceDurationMs": { "type": "integer", "minimum": 1 },
+        "clipStartMs": { "type": "integer", "minimum": 0 },
+        "clipEndMs": { "type": "integer", "minimum": 1 },
+        "durationMs": { "type": "integer", "minimum": 1 },
+        "video": { "$ref": "#/$defs/videoFile" },
+        "poster": { "$ref": "#/$defs/poster" },
+        "captions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/caption" }
+        }
+      }
+    }
+  }
+}

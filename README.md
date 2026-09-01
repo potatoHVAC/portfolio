@@ -17,7 +17,10 @@ Website: [www.speerd.com](https://www.speerd.com)
 | `app/`, `config/`, `test/` | The Rails application — one page, no database |
 | `infra/bootstrap/` | State bucket, GitHub OIDC identity, ECR repositories |
 | `infra/modules/baseline/` | CloudTrail, budget, and the alert topic |
-| `infra/envs/global/` | Account-wide stack; instantiates `baseline` |
+| `infra/modules/media-storage/` | Private original-media archive and derivative-delivery buckets |
+| `infra/envs/global/` | Account-wide baseline, edge, DNS, and media storage |
+| `bin/media`, `tools/media/` | Containerized media publisher and its tests |
+| `config/media.json` | Committed public derivative manifest |
 
 Infrastructure is [OpenTofu](https://opentofu.org). See
 `infra/bootstrap/README.md` for the one-time bootstrap sequence.
@@ -59,6 +62,67 @@ tools/media/strip.sh path/to/image.jpg
 The strip helper removes GPS, EXIF, XMP, and IPTC data while preserving an
 embedded ICC colour profile. The gate covers `app/assets/images/` and image
 files under `public/`.
+
+## Media publishing
+
+Keep owner source files under the Git-ignored `media-source/` tree. Images,
+videos, and captions may share a directory, but primary image and video files
+may not use the same extensionless relative path. Directory names and primary
+basenames must be lowercase kebab case; that extensionless relative path becomes
+the public asset ID.
+
+Docker is the only host media-processing dependency. OpenTofu and the
+repository-scoped `speerd` AWS profile are required for live publication.
+
+```sh
+bin/media check
+bin/media ci
+bin/media publish image media-source/rings/home/hero.jpg --alt "Portrait in studio"
+bin/media publish image media-source/backgrounds/texture.jpg --decorative
+bin/media publish video media-source/rings/home/demo.mp4 \
+  --title "Ring controls" --description "A demonstration of the ring controls"
+bin/media publish video media-source/rings/home/demo.mp4 \
+  --title "Ring controls" --description "A selected demonstration" \
+  --start 00:00:03.500 --end 00:00:08.000 \
+  --captions en-US:media-source/rings/home/demo.en-us.vtt
+bin/media verify-manifest
+bin/media verify-manifest --remote https://speerd.com
+bin/media hydrate
+```
+
+`bin/media ci` is credential-free. It runs the pinned ESLint and binary-backed
+test suite, validates the committed manifest, scans committed public media for
+metadata, and rejects tracked source or hydrated files. Pushes to `main` also
+verify every manifest object through the public CloudFront origin with HEAD and
+video Range requests after the development deployment.
+
+Publication handles one selected asset at a time. It archives the source bytes,
+publishes metadata-free content-addressed derivatives, and updates
+`config/media.json` only after object readback succeeds. Reusing an asset ID
+with changed bytes or accessibility content requires `--replace`. The command
+is additive: it does not scan a directory for publication or delete remote
+objects when a local file disappears. Source files and hydrated files under
+`public/media/` must never be committed.
+
+Video publication re-encodes H.264/AAC MP4 derivatives and a JPEG poster. Supply
+both `--start` and `--end` to publish a clip, or neither to publish the full
+video. Caption files use WebVTT and the primary stem plus a lowercase BCP 47
+language suffix, such as `demo.en-us.vtt`; repeat `--captions language:path` for
+additional tracks. Use `--caption-label language:label` to override the visible
+label. The complete original video and caption bytes are archived.
+
+Render published entries from Rails with the manifest-backed helpers. Image
+callers supply the responsive `sizes` contract; development fetches only the
+manifest-referenced public derivatives.
+
+```erb
+<%= portfolio_picture "rings/home/hero", sizes: "(min-width: 60rem) 60rem, 100vw" %>
+<%= portfolio_video "videos/studio-tour", class: "studio-tour" %>
+```
+
+Run `bin/media hydrate` after a manifest change to reproduce the root-relative
+`public/media/` hierarchy locally. The home page renders both published
+validation assets through these helpers.
 
 ## Configuration
 
