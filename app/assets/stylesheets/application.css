@@ -47,3 +47,13 @@ body {
   width: 100%;
   height: auto;
 }
+
+.portfolio-video {
+  margin: clamp(1rem, 3vw, 2rem) 0 0;
+}
+
+.home__video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}

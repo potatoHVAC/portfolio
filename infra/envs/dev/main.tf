@@ -36,6 +36,8 @@ module "site" {
 
   image_uri = "${data.terraform_remote_state.bootstrap.outputs.dev_ecr_repository_url}@${var.bootstrap_image_digest}"
 
+  media_bucket_regional_domain_name = data.terraform_remote_state.global.outputs.media_delivery_bucket_regional_domain_name
+
   # Not public: Basic auth at the edge and noindex on every response.
   private      = true
   edge_kvs_arn = data.terraform_remote_state.global.outputs.edge_key_value_store_arn

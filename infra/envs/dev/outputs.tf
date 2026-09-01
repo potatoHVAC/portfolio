@@ -6,6 +6,10 @@ output "distribution_domain_name" {
   value = module.site.distribution_domain_name
 }
 
+output "distribution_arn" {
+  value = module.site.distribution_arn
+}
+
 output "function_name" {
   value = module.site.function_name
 }

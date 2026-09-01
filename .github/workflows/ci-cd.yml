@@ -47,8 +47,8 @@ jobs:
       - name: Run Rails tests
         run: bin/rails test
 
-  media-metadata:
-    name: media-metadata
+  media:
+    name: media-ci
     runs-on: ubuntu-24.04
     steps:
       - name: Check out source
@@ -56,20 +56,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install metadata tools
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install --yes --no-install-recommends file jq libimage-exiftool-perl
-
-      - name: Check image metadata
-        run: tools/media/check-metadata.sh
+      - name: Run media gates
+        run: bin/media ci
 
   container:
     name: container-arm64
     needs:
       - lint
       - test
-      - media-metadata
+      - media
     runs-on: ubuntu-24.04-arm
     concurrency:
       group: portfolio-container-${{ github.event_name }}-${{ github.ref }}
@@ -271,6 +266,10 @@ jobs:
             echo "version=$version"
             echo "previous=$previous"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Verify public media delivery
+        if: steps.publish.outputs.enabled == 'true'
+        run: bin/media verify-manifest --remote https://speerd.com
 
       - name: Write job summary
         if: always()

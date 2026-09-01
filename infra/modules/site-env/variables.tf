@@ -19,6 +19,16 @@ variable "domain_name" {
   type        = string
 }
 
+variable "media_bucket_regional_domain_name" {
+  description = "Regional domain of the private S3 bucket serving content-addressed media."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9.-]+\\.s3\\.[a-z0-9-]+\\.amazonaws\\.com$", var.media_bucket_regional_domain_name))
+    error_message = "media_bucket_regional_domain_name must be a regional S3 bucket domain."
+  }
+}
+
 variable "subject_alternative_names" {
   description = "Extra hostnames on the certificate and the distribution."
   type        = list(string)

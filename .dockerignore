@@ -18,3 +18,5 @@ tools
 *.tfvars
 config/master.key
 public/assets
+public/media
+media-source
