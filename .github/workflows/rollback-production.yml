@@ -1,11 +1,11 @@
-name: Revert PROD
-run-name: ${{ inputs.action == 'specific' && format('Revert PROD - specific {0}', inputs.commit) || format('Revert PROD - {0}', inputs.action) }}
+name: Rollback PROD
+run-name: ${{ inputs.action == 'specific' && format('Rollback PROD - specific {0}', inputs.commit) || format('Rollback PROD - {0}', inputs.action) }}
 
 on:
   workflow_dispatch:
     inputs:
       action:
-        description: "list shows candidates and deploys nothing; specific reverts to the commit below"
+        description: "list shows options and deploys nothing; specific rolls back to the commit below"
         required: true
         default: list
         type: choice
@@ -59,7 +59,7 @@ jobs:
             echo "This run lists candidates and deploys nothing."
           else
             echo "deploying=true" >> "$GITHUB_OUTPUT"
-            echo "This run reverts to $COMMIT."
+            echo "This run rolls back to $COMMIT."
           fi
 
       - name: Check out source
@@ -93,12 +93,36 @@ jobs:
           role-to-assume: ${{ env.AWS_PROD_DEPLOY_ROLE_ARN }}
           role-session-name: portfolio-deploy-${{ github.run_id }}
 
-      - name: Resolve and optionally list revert candidates
+      - name: Resolve and optionally list rollback options
         id: candidates
         env:
           ACTION: ${{ inputs.action }}
         run: |
           set -euo pipefail
+
+          image_age() {
+            local pushed=$1
+            local pushed_epoch
+            local seconds
+
+            [ -n "$pushed" ] || return 0
+            if [[ "$pushed" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+              pushed_epoch=${pushed%%.*}
+            else
+              pushed_epoch=$(date --date="$pushed" +%s 2>/dev/null) || return 0
+            fi
+            seconds=$(( $(date +%s) - pushed_epoch ))
+            (( seconds >= 0 )) || seconds=0
+            if (( seconds >= 86400 )); then
+              echo "$((seconds / 86400))d"
+            elif (( seconds >= 3600 )); then
+              echo "$((seconds / 3600))h"
+            elif (( seconds >= 60 )); then
+              echo "$((seconds / 60))m"
+            else
+              echo "${seconds}s"
+            fi
+          }
 
           aws lambda get-function \
             --function-name "$PROD_FUNCTION_NAME" \
@@ -130,7 +154,7 @@ jobs:
           done < <(git rev-list --first-parent HEAD)
           [[ "$current_commit" =~ ^[0-9a-f]{40}$ ]] || {
             echo "The running digest has no retained git-<sha> tag on the first-parent history of main."
-            echo "Refusing to offer a revert without a direction boundary."
+            echo "Refusing to offer a rollback without a direction boundary."
             exit 1
           }
 
@@ -162,21 +186,26 @@ jobs:
           done
           sort -u "$RUNNER_TEMP/live-digests.txt" -o "$RUNNER_TEMP/live-digests.txt"
 
-          revertable=0
+          rollbackable=0
+          image_count=0
+          declare -A image_labels=()
           {
-            echo "## Revert candidates — Portfolio PROD"
+            echo "## Rollback options — Portfolio PROD"
             echo
-            echo "Copy a commit SHA and run this workflow again with action specific."
-            echo "The default list action deploys nothing."
+            echo 'Copy a commit SHA and run this workflow again with action `specific` to'
+            echo 'put production back onto it. `was live` ran in production before;'
+            echo '`never promoted` passed the same validation but was never chosen.'
             echo
-            echo "| Commit SHA | Message | Digest | State |"
-            echo "|---|---|---|---|"
+            echo "| Commit SHA | Message | Image | Age | State |"
+            echo "|---|---|---|---|---|"
             while read -r sha; do
               state=""
               digest=""
               if [ "$sha" = "$current_commit" ]; then
                 state=PROD
                 digest="$current_digest"
+                detail=$(printf '%s' "$prod_images" | jq -c --arg digest "$digest" \
+                  'map(select(.imageDigest == $digest)) | .[0] // empty')
               else
                 prod_detail=$(printf '%s' "$prod_images" | jq -c --arg tag "git-$sha" \
                   'map(select((.imageTags // []) | index($tag))) | .[0] // empty')
@@ -185,7 +214,8 @@ jobs:
                 if [ -n "$prod_detail" ]; then
                   digest=$(printf '%s' "$prod_detail" | jq -r .imageDigest)
                   if grep -Fxq "$digest" "$RUNNER_TEMP/live-digests.txt"; then
-                    state=published
+                    state="was live"
+                    detail=$prod_detail
                   else
                     [ -n "$dev_detail" ] || continue
                     dev_digest=$(printf '%s' "$dev_detail" | jq -r .imageDigest)
@@ -194,34 +224,52 @@ jobs:
                       exit 1
                     }
                     state="never promoted"
+                    detail=$prod_detail
                   fi
                 else
                   [ -n "$dev_detail" ] || continue
                   digest=$(printf '%s' "$dev_detail" | jq -r .imageDigest)
                   state="never promoted"
+                  detail=$dev_detail
                 fi
-                revertable=$((revertable + 1))
+                rollbackable=$((rollbackable + 1))
               fi
+              if [ -z "${image_labels[$digest]+present}" ]; then
+                image_count=$((image_count + 1))
+                image_labels[$digest]="img $image_count"
+              fi
+              pushed=$(printf '%s' "$detail" | jq -r '.imagePushedAt // empty')
+              age=$(image_age "$pushed")
               subject=$(git log -1 --format=%s "$sha" | tr '|' '/')
               short=$(printf '%.7s' "$sha")
-              digest_short=$(printf '%.19s' "$digest")
-              echo "| [$short]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$sha) | ${subject:0:60} | $digest_short… | $state |"
+              if [ "$state" = PROD ]; then
+                printf -v commit_cell '`%s`' "$short"
+              else
+                printf -v commit_cell '[`%s`](%s/%s/commit/%s)' \
+                  "$short" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$sha"
+              fi
+              echo "| $commit_cell | ${subject:0:60} | ${image_labels[$digest]} | $age | $state |"
             done < <(git rev-list --first-parent "$current_commit")
             echo
-            if [ "$revertable" -eq 0 ]; then
-              echo "No retained image can be used to move PROD backward."
+            if [ "$rollbackable" -eq 0 ]; then
+              echo "Nothing below PROD is still available. Rolling back needs an image,"
+              echo "and images that aged out cannot be rebuilt because dependencies float."
             else
-              echo "**$revertable** revert candidate(s)."
+              if [ "$rollbackable" -eq 1 ]; then
+                count=option
+              else
+                count=options
+              fi
+              echo "**$rollbackable** $count below PROD. Rows sharing an image are byte-identical."
             fi
             echo
-            echo "published means a retained production digest is pinned by a Lambda version."
-            echo "never promoted means the older validated dev image remains available."
-            echo "A copied but unpinned production image is eligible only while the matching dev image remains."
-          } > "$RUNNER_TEMP/revert-candidates.md"
+            echo "An image that no Lambda version pinned is listed only while its matching"
+            echo "validated dev image remains available."
+          } > "$RUNNER_TEMP/rollback-options.md"
 
           if [ "$ACTION" = list ]; then
             {
-              cat "$RUNNER_TEMP/revert-candidates.md"
+              cat "$RUNNER_TEMP/rollback-options.md"
               echo
               echo "Nothing was copied and nothing was deployed."
             } >> "$GITHUB_STEP_SUMMARY"
@@ -255,7 +303,7 @@ jobs:
           }
           git merge-base --is-ancestor "$commit" "$DEPLOYED_COMMIT" || {
             echo "$(printf '%.7s' "$commit") is not behind PROD ($(printf '%.7s' "$DEPLOYED_COMMIT"))."
-            echo "Revert only moves production backward. Use Promote to PROD to move forward."
+            echo "Rollback only moves production backward. Use Promote to PROD to move forward."
             exit 1
           }
 
@@ -309,7 +357,9 @@ jobs:
             echo "digest=$digest"
             echo "tag=$tag"
             echo "repository=$source_repository"
+            echo "message=Rollback PROD - specific $commit"
           } >> "$GITHUB_OUTPUT"
+          echo "::notice title=Rollback PROD::Rollback PROD - specific $commit"
           echo "Resolved $source_repository@$digest as $tag"
 
       - name: Copy the selected image into production
@@ -455,6 +505,7 @@ jobs:
         if: always() && steps.mode.outputs.deploying == 'true' && steps.source.outcome == 'success'
         env:
           JOB_STATUS: ${{ job.status }}
+          REQUEST_MESSAGE: ${{ steps.source.outputs.message }}
           SOURCE_REPOSITORY: ${{ steps.source.outputs.repository }}
           SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
           TAG: ${{ steps.source.outputs.tag }}
@@ -480,7 +531,7 @@ jobs:
             --output text 2>/dev/null || true)
 
           {
-            echo "## Revert PROD"
+            echo "## $REQUEST_MESSAGE"
             echo "- Source: $SOURCE_REPOSITORY@$SOURCE_DIGEST as $TAG"
             echo "- Previous: $PREVIOUS_TAG at $PREVIOUS_DIGEST, Lambda version $PREVIOUS_VERSION."
             if [[ "$current_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
@@ -490,11 +541,11 @@ jobs:
             fi
             if [ "$JOB_STATUS" = success ] && [ "$DEPLOY_CHANGED" = true ] \
                 && [ "$DEPLOY_VERIFIED" = true ]; then
-              echo "- Revert succeeded and readback matched version $DEPLOY_VERSION."
+              echo "- Rollback succeeded and readback matched version $DEPLOY_VERSION."
             elif [ "$JOB_STATUS" = success ]; then
               echo "- Production was already at the requested digest; no alias update was needed."
             else
-              echo "- Revert failed. Verify the live alias before retrying."
+              echo "- Rollback failed. Verify the live alias before retrying."
             fi
             echo "- Restore: gh workflow run promote-production.yml --ref main -f action=specific -f commit=$PREVIOUS_COMMIT"
           } >> "$GITHUB_STEP_SUMMARY"
