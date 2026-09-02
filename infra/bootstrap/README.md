@@ -96,7 +96,11 @@ current promotion candidates to its job summary. `Promote to PROD` action
 `latest` snapshots the newest retained `git-<sha>` image whose push workflow
 has completed successfully. Failed and in-progress runs are skipped, including
 a newer merge whose CI run has not finished when promotion starts. Action
-`specific` enforces the same successful-run requirement.
+`specific` enforces the same successful-run requirement. `latest` succeeds
+without a deployment when production already runs the newest proven commit. If
+a newer proven commit produces identical bytes, promotion records its tag in
+production ECR and succeeds without updating Lambda. The job summary
+distinguishes those outcomes.
 
 ## Things that will bite
 
@@ -107,9 +111,9 @@ a newer merge whose CI run has not finished when promotion starts. Action
   observed subject with the exact trust value — never widen the `sub`.
 - **`prod/portfolio` keeps only 5 images**, changed 2026-08-22 for cost. It is
   the promotion-by-SHA rollback set; a commit that ages out cannot be promoted
-  again even though existing Lambda versions retain their deployed code. Roll
-  back by *promoting* the old SHA while its image remains available, which
-  makes it newest. `var.prod_image_retention_count` is a one-line change.
+  again even though existing Lambda versions retain their deployed code. Use
+  `Rollback PROD` with action `specific` while the selected image remains.
+  `var.prod_image_retention_count` is a one-line change.
 - **`prod/portfolio` is IMMUTABLE.** Re-promoting a SHA already present fails
   the copy rather than overwriting. The promotion workflow checks first.
 - **Two constructed ARNs** in `ci-identity.tf` name resources that do not exist

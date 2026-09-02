@@ -14,6 +14,30 @@ set -euo pipefail
 successful_commits="$RUNNER_TEMP/successful-main-commits.txt"
 markdown="$RUNNER_TEMP/promotion-candidates.md"
 
+image_age() {
+  local pushed=$1
+  local pushed_epoch
+  local seconds
+
+  [ -n "$pushed" ] || return 0
+  if [[ "$pushed" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    pushed_epoch=${pushed%%.*}
+  else
+    pushed_epoch=$(date --date="$pushed" +%s 2>/dev/null) || return 0
+  fi
+  seconds=$(( $(date +%s) - pushed_epoch ))
+  (( seconds >= 0 )) || seconds=0
+  if (( seconds >= 86400 )); then
+    echo "$((seconds / 86400))d"
+  elif (( seconds >= 3600 )); then
+    echo "$((seconds / 3600))h"
+  elif (( seconds >= 60 )); then
+    echo "$((seconds / 60))m"
+  else
+    echo "${seconds}s"
+  fi
+}
+
 # A git-<sha> image proves the artifact passed the pre-publish gates. A
 # successful push run additionally proves the complete dev delivery finished.
 gh api --paginate \
@@ -61,23 +85,32 @@ images=$(aws ecr describe-images \
   --repository-name "$DEV_ECR_REPOSITORY" \
   --query imageDetails \
   --output json)
+prod_images=$(aws ecr describe-images \
+  --repository-name "$PROD_ECR_REPOSITORY" \
+  --query imageDetails \
+  --output json)
+head_sha=$(git rev-parse HEAD)
 latest=""
 promotable=0
 bounded=false
+image_count=0
+declare -A image_labels=()
 {
   echo "## Deploy candidates — Portfolio PROD"
   echo
-  echo "Copy a commit SHA and run Promote to PROD with action specific."
-  echo "Only completed, successful main CI/CD runs are eligible."
+  echo 'Copy a commit SHA and run this workflow again with action `specific` to deploy it.'
+  echo "A commit appears here only after its main CI/CD run completed successfully."
   echo
-  echo "| Commit SHA | Message | Digest | State |"
-  echo "|---|---|---|---|"
+  echo "| Commit SHA | Message | Image | Age | State |"
+  echo "|---|---|---|---|---|"
   while read -r sha; do
     state=""
     if [ -n "$current_commit" ] && [ "$sha" = "$current_commit" ]; then
       digest=$current_digest
       state=PROD
       bounded=true
+      detail=$(printf '%s' "$prod_images" | jq -c --arg digest "$digest" \
+        'map(select(.imageDigest == $digest)) | .[0] // empty')
     else
       grep -Fxq "$sha" "$successful_commits" || continue
       detail=$(printf '%s' "$images" | jq -c --arg tag "git-$sha" \
@@ -86,26 +119,44 @@ bounded=false
       digest=$(printf '%s' "$detail" | jq -r .imageDigest)
       if [ -z "$latest" ]; then
         latest=$sha
-        state="latest successful"
       fi
+      [ "$sha" = "$head_sha" ] && state="DEV head"
       promotable=$((promotable + 1))
     fi
+    if [ -z "${image_labels[$digest]+present}" ]; then
+      image_count=$((image_count + 1))
+      image_labels[$digest]="img $image_count"
+    fi
+    pushed=$(printf '%s' "$detail" | jq -r '.imagePushedAt // empty')
+    age=$(image_age "$pushed")
     subject=$(git log -1 --format=%s "$sha" | tr '|' '/')
     short=$(printf '%.7s' "$sha")
-    digest_short=$(printf '%.19s' "$digest")
-    echo "| [$short]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$sha) | ${subject:0:60} | $digest_short… | $state |"
+    if [ "$state" = PROD ]; then
+      printf -v commit_cell '`%s`' "$short"
+    else
+      printf -v commit_cell '[`%s`](%s/%s/commit/%s)' \
+        "$short" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$sha"
+    fi
+    echo "| $commit_cell | ${subject:0:60} | ${image_labels[$digest]} | $age | $state |"
     [ "$state" = PROD ] && break
   done < <(git rev-list --first-parent HEAD)
   echo
   if [ "$promotable" -eq 0 ]; then
     echo "PROD runs the newest proven build. Nothing to promote."
   else
-    echo "**$promotable** promotable commit(s)."
+    if [ "$promotable" -eq 1 ]; then
+      count="commit is"
+    else
+      count="commits are"
+    fi
+    echo "**$promotable** $count promotable. Rows sharing an image are byte-identical;"
+    echo "deploying any of them ships the same bytes under that commit's name."
   fi
   if [ "$function_exists" = true ] && [ "$bounded" != true ]; then
     echo
-    echo "The list is not bounded by PROD because its commit could not be placed in main."
-    echo "A deploy will fail closed until that direction check is possible."
+    echo "The list is not bounded by production: no commit in the first-parent history"
+    echo "of main carries what PROD is running, so everything known is shown."
+    echo "Promotion still refuses anything that is not ahead of PROD."
   fi
   if [ "$function_exists" != true ]; then
     echo
