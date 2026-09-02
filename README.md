@@ -52,6 +52,7 @@ only `/tmp` is writable. The image serves on port 8080 as a non-root user.
 Pushes to `main` publish the validated image to the development environment.
 Production promotion is a separate manually dispatched workflow.
 The `list` action reports candidates without copying or deploying an image.
+Rows sharing an image represent byte-identical deployable content.
 
 ## Image metadata
 
