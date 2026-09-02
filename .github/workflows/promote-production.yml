@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "list shows candidates and deploys nothing; latest promotes the newest validated build; specific promotes the commit below"
+        description: "list shows candidates and deploys nothing; latest promotes the newest proven build; specific promotes the commit below"
         required: true
         default: list
         type: choice
@@ -30,6 +30,7 @@ jobs:
       group: portfolio-deploy-production
       cancel-in-progress: false
     permissions:
+      actions: read
       contents: read
       id-token: write
     env:
@@ -98,94 +99,10 @@ jobs:
         id: candidates
         env:
           ACTION: ${{ inputs.action }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          function_exists=true
-          current_commit=""
-          current_digest=""
-          if ! aws lambda get-function \
-              --function-name "$PROD_FUNCTION_NAME" \
-              --qualifier live \
-              --output json > "$RUNNER_TEMP/catalog-function.json" \
-              2> "$RUNNER_TEMP/catalog-function-error.txt"; then
-            grep -q ResourceNotFoundException "$RUNNER_TEMP/catalog-function-error.txt" || {
-              sed -E 's/[0-9]{12}/<ACCOUNT>/g' "$RUNNER_TEMP/catalog-function-error.txt"
-              exit 1
-            }
-            function_exists=false
-          else
-            current_image=$(jq -r '.Code.ResolvedImageUri' "$RUNNER_TEMP/catalog-function.json")
-            current_digest=$(printf '%s' "$current_image" | sed 's/.*@//')
-            [[ "$current_digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
-              echo "Production is not digest-pinned; found $current_digest."
-              exit 1
-            }
-            # shellcheck disable=SC2016
-            current_tags=$(aws ecr describe-images \
-              --repository-name "$PROD_ECR_REPOSITORY" \
-              --image-ids "imageDigest=$current_digest" \
-              --query 'imageDetails[0].imageTags[?starts_with(@, `git-`)]' \
-              --output text 2>/dev/null | tr '\t' ' ' || true)
-            while read -r sha; do
-              case " $current_tags " in
-                *" git-$sha "*) current_commit="$sha"; break ;;
-              esac
-            done < <(git rev-list --first-parent HEAD)
-          fi
-
-          images=$(aws ecr describe-images \
-            --repository-name "$DEV_ECR_REPOSITORY" \
-            --query imageDetails \
-            --output json)
-          head_sha=$(git rev-parse HEAD)
-          latest=""
-          promotable=0
-          bounded=false
-          {
-            echo "## Deploy candidates — Portfolio PROD"
-            echo
-            echo "Copy a commit SHA and run this workflow again with action specific."
-            echo "The default list action deploys nothing."
-            echo
-            echo "| Commit SHA | Message | Digest | State |"
-            echo "|---|---|---|---|"
-            while read -r sha; do
-              state=""
-              if [ -n "$current_commit" ] && [ "$sha" = "$current_commit" ]; then
-                digest="$current_digest"
-                state=PROD
-                bounded=true
-              else
-                detail=$(printf '%s' "$images" | jq -c --arg tag "git-$sha" \
-                  'first(.[] | select((.imageTags // []) | index($tag))) // empty')
-                [ -n "$detail" ] || continue
-                digest=$(printf '%s' "$detail" | jq -r .imageDigest)
-                [ -n "$latest" ] || latest="$sha"
-                promotable=$((promotable + 1))
-                [ "$sha" = "$head_sha" ] && state="DEV head"
-              fi
-              subject=$(git log -1 --format=%s "$sha" | tr '|' '/')
-              short=$(printf '%.7s' "$sha")
-              digest_short=$(printf '%.19s' "$digest")
-              echo "| [$short]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$sha) | ${subject:0:60} | $digest_short… | $state |"
-              [ "$state" = PROD ] && break
-            done < <(git rev-list --first-parent HEAD)
-            echo
-            if [ "$promotable" -eq 0 ]; then
-              echo "PROD runs the newest validated build. Nothing to promote."
-            else
-              echo "**$promotable** promotable commit(s)."
-            fi
-            if [ "$function_exists" = true ] && [ "$bounded" != true ]; then
-              echo
-              echo "The list is not bounded by PROD because its commit could not be placed in main."
-              echo "A deploy will fail closed until that direction check is possible."
-            fi
-            if [ "$function_exists" != true ]; then
-              echo
-              echo "The production Lambda does not exist; promotion will only seed production ECR."
-            fi
-          } > "$RUNNER_TEMP/promotion-candidates.md"
+          bin/promotion-candidates
 
           if [ "$ACTION" = list ]; then
             {
@@ -194,12 +111,6 @@ jobs:
               echo "Nothing was copied and nothing was deployed."
             } >> "$GITHUB_STEP_SUMMARY"
           fi
-          {
-            echo "function_exists=$function_exists"
-            echo "deployed_commit=$current_commit"
-            echo "deployed_digest=$current_digest"
-            echo "latest=$latest"
-          } >> "$GITHUB_OUTPUT"
 
       - name: Resolve the source image in dev
         id: source
@@ -216,7 +127,7 @@ jobs:
           if [ "$ACTION" = latest ]; then
             target="$LATEST_COMMIT"
             [ -n "$target" ] || {
-              echo "PROD already runs the newest validated build; nothing to promote."
+              echo "PROD already runs the newest proven build; nothing to promote."
               exit 1
             }
             echo "Resolved 'latest' to $target."
@@ -229,6 +140,11 @@ jobs:
           }
           commit=$(git rev-parse --verify --quiet "$target^{commit}") || {
             echo "No commit '$target' in this repository."
+            exit 1
+          }
+          grep -Fxq "$commit" "$RUNNER_TEMP/successful-main-commits.txt" || {
+            echo "$commit has no completed, successful main CI/CD run."
+            echo "Failed and in-progress builds cannot be promoted."
             exit 1
           }
           git merge-base --is-ancestor "$commit" HEAD || {
@@ -288,7 +204,9 @@ jobs:
             echo "commit=$commit"
             echo "digest=$digest"
             echo "tag=$tag"
+            echo "message=Promote to PROD - $ACTION $commit"
           } >> "$GITHUB_OUTPUT"
+          echo "::notice title=Promote to PROD::Promote to PROD - $ACTION $commit"
           echo "Resolved $tag to $digest"
 
       - name: Read the current production target
@@ -517,6 +435,7 @@ jobs:
         if: always() && steps.mode.outputs.deploying == 'true' && steps.source.outcome == 'success' && steps.current.outcome == 'success'
         env:
           JOB_STATUS: ${{ job.status }}
+          REQUEST_MESSAGE: ${{ steps.source.outputs.message }}
           SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
           TAG: ${{ steps.source.outputs.tag }}
           FUNCTION_EXISTS: ${{ steps.current.outputs.exists }}
@@ -546,7 +465,7 @@ jobs:
           fi
 
           {
-            echo "## Promote to PROD"
+            echo "## $REQUEST_MESSAGE"
             echo "- Source: $DEV_ECR_REPOSITORY@$SOURCE_DIGEST as $TAG"
             if [ "$FUNCTION_EXISTS" != true ]; then
               echo "- Previous: no production Lambda function."
@@ -564,6 +483,7 @@ jobs:
               fi
               if [ "$JOB_STATUS" = success ] && [ "$DEPLOY_CHANGED" = true ] \
                   && [ "$DEPLOY_VERIFIED" = true ]; then
+                echo "- Outcome: Promoted to PROD - ${REQUEST_MESSAGE#Promote to PROD - }."
                 echo "- Deployment succeeded and readback matched version $DEPLOY_VERSION."
               elif [ "$JOB_STATUS" = success ]; then
                 echo "- Deployment was already current; no alias update was needed."
