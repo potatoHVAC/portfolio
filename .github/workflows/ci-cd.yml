@@ -70,12 +70,14 @@ jobs:
       group: portfolio-container-${{ github.event_name }}-${{ github.ref }}
       cancel-in-progress: ${{ github.event_name != 'push' }}
     permissions:
+      actions: read
       contents: read
       id-token: write
     outputs:
       digest: ${{ steps.image.outputs.digest }}
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_CI_ROLE_ARN: ${{ secrets.AWS_CI_ROLE_ARN }}
       AWS_DEV_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEV_DEPLOY_ROLE_ARN }}
       IMAGE_NAME: portfolio:ci-${{ github.sha }}
       DEV_ECR_REPOSITORY: dev/portfolio
@@ -98,6 +100,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v6
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Check dev publish configuration
@@ -303,3 +306,28 @@ jobs:
               echo '- Result: built and smoke-tested; nothing published'
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Informational and non-blocking. By this point every delivery check has
+      # passed; include this run even though GitHub marks it successful only
+      # after the job exits.
+      - name: Configure read-only deployment state credentials
+        id: catalog_credentials
+        if: steps.publish.outputs.enabled == 'true'
+        continue-on-error: true
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_CI_ROLE_ARN }}
+          role-session-name: portfolio-state-${{ github.run_id }}
+
+      - name: List what can now be promoted
+        if: steps.publish.outputs.enabled == 'true' && steps.catalog_credentials.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INCLUDE_CURRENT_COMMIT: ${{ github.sha }}
+          PROD_ECR_REPOSITORY: prod/portfolio
+          PROD_FUNCTION_NAME: portfolio-prod
+        run: |
+          bin/promotion-candidates
+          cat "$RUNNER_TEMP/promotion-candidates.md" >> "$GITHUB_STEP_SUMMARY"
