@@ -46,5 +46,9 @@ crash.*.log
 # the sources in app/assets are what is committed.
 /public/assets
 
+# Owner media sources and hydrated derivatives stay out of Git and images.
+/media-source/
+/public/media/
+
 # config/master.key is not listed: this app has no encrypted credentials.
 # SECRET_KEY_BASE is supplied at runtime from SSM Parameter Store.

@@ -37,6 +37,8 @@ module "site" {
 
   image_uri = "${data.terraform_remote_state.bootstrap.outputs.prod_ecr_repository_url}@${var.bootstrap_image_digest}"
 
+  media_bucket_regional_domain_name = data.terraform_remote_state.global.outputs.media_delivery_bucket_regional_domain_name
+
   create_dns_records = true
   private            = false
 

@@ -1,5 +1,6 @@
 locals {
-  origin_id = var.compute
+  origin_id       = var.compute
+  media_origin_id = "media"
 
   # https://<id>.lambda-url.<region>.on.aws/ -> host only
   origin_domain_name = trimsuffix(trimprefix(aws_lambda_function_url.live.function_url, "https://"), "/")
@@ -51,6 +52,14 @@ resource "aws_cloudfront_origin_access_control" "lambda" {
   name                              = "${local.name}-lambda"
   description                       = "Signs CloudFront's requests to the ${var.environment} function URL."
   origin_access_control_origin_type = "lambda"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "aws_cloudfront_origin_access_control" "media" {
+  name                              = "${local.name}-media"
+  description                       = "Signs CloudFront's requests to the portfolio media bucket."
+  origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 }
@@ -143,6 +152,12 @@ resource "aws_cloudfront_distribution" "site" {
     }
   }
 
+  origin {
+    domain_name              = var.media_bucket_regional_domain_name
+    origin_id                = local.media_origin_id
+    origin_access_control_id = aws_cloudfront_origin_access_control.media.id
+  }
+
   # Caching disabled on the page itself. Rails sends no Cache-Control on HTML,
   # so a caching policy would hold it for the policy default of 24 hours and a
   # merge would not reach the environment until it expired.
@@ -189,11 +204,11 @@ resource "aws_cloudfront_distribution" "site" {
     }
   }
 
-  # Nothing serves /media/* yet. It exists now so the media pipeline attaches to
-  # an existing behaviour instead of reshaping the cache policy later.
+  # The delivery bucket stays private. CloudFront's signed request becomes
+  # readable when the exact distribution policy lands in the media-access state.
   ordered_cache_behavior {
     path_pattern           = "/media/*"
-    target_origin_id       = local.origin_id
+    target_origin_id       = local.media_origin_id
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]

@@ -1,9 +1,12 @@
 <main class="home">
   <h1><%= t("site.tagline") %></h1>
 
-  <%= image_tag "hero.jpg",
-        alt: "SPEERD portfolio hero image",
-        width: 1200,
-        height: 800,
+  <%= portfolio_picture "validation/p-20231021-194531",
+        sizes: "(min-width: 72rem) 64rem, 100vw",
+        loading: "eager",
+        fetchpriority: "high",
         class: "home__hero" %>
+
+  <%= portfolio_video "validation/v-20231013-144526-es3",
+        class: "home__video" %>
 </main>
