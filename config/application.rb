@@ -38,5 +38,6 @@ module Portfolio
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    # Demo image marker: 1
   end
 end
