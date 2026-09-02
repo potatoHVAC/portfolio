@@ -91,6 +91,13 @@ Production receives an already-validated dev digest through the promotion
 workflow before the production Lambda is created. CI never pushes a locally
 built image directly to `prod/portfolio`.
 
+After a successful push to `main`, CI uses the read-only role to append the
+current promotion candidates to its job summary. `Promote to PROD` action
+`latest` snapshots the newest retained `git-<sha>` image whose push workflow
+has completed successfully. Failed and in-progress runs are skipped, including
+a newer merge whose CI run has not finished when promotion starts. Action
+`specific` enforces the same successful-run requirement.
+
 ## Things that will bite
 
 - **The `sub` conditions are exact strings.** A wildcard `sub` on a public

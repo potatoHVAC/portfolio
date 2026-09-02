@@ -179,9 +179,9 @@ jobs:
                 digest="$current_digest"
               else
                 prod_detail=$(printf '%s' "$prod_images" | jq -c --arg tag "git-$sha" \
-                  'first(.[] | select((.imageTags // []) | index($tag))) // empty')
+                  'map(select((.imageTags // []) | index($tag))) | .[0] // empty')
                 dev_detail=$(printf '%s' "$dev_images" | jq -c --arg tag "git-$sha" \
-                  'first(.[] | select((.imageTags // []) | index($tag))) // empty')
+                  'map(select((.imageTags // []) | index($tag))) | .[0] // empty')
                 if [ -n "$prod_detail" ]; then
                   digest=$(printf '%s' "$prod_detail" | jq -r .imageDigest)
                   if grep -Fxq "$digest" "$RUNNER_TEMP/live-digests.txt"; then
