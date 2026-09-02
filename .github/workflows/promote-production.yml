@@ -121,15 +121,31 @@ jobs:
           LATEST_COMMIT: ${{ steps.candidates.outputs.latest }}
           FUNCTION_EXISTS: ${{ steps.candidates.outputs.function_exists }}
           DEPLOYED_COMMIT: ${{ steps.candidates.outputs.deployed_commit }}
+          DEPLOYED_DIGEST: ${{ steps.candidates.outputs.deployed_digest }}
         run: |
           set -euo pipefail
 
           if [ "$ACTION" = latest ]; then
             target="$LATEST_COMMIT"
-            [ -n "$target" ] || {
-              echo "PROD already runs the newest proven build; nothing to promote."
+            if [ -z "$target" ]; then
+              if [ "$FUNCTION_EXISTS" = true ] \
+                  && [[ "$DEPLOYED_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+                message="Promote to PROD - latest $DEPLOYED_COMMIT"
+                {
+                  echo "commit=$DEPLOYED_COMMIT"
+                  echo "digest=$DEPLOYED_DIGEST"
+                  echo "tag=git-$DEPLOYED_COMMIT"
+                  echo "message=$message"
+                  echo "noop=true"
+                  echo "noop_reason=already_latest"
+                } >> "$GITHUB_OUTPUT"
+                echo "::notice title=Promote to PROD::$message"
+                echo "Production already runs the newest proven commit. No deployment was needed."
+                exit 0
+              fi
+              echo "No proven build is available to promote."
               exit 1
-            }
+            fi
             echo "Resolved 'latest' to $target."
           else
             target="$INPUT_COMMIT"
@@ -164,7 +180,7 @@ jobs:
             }
             git merge-base --is-ancestor "$DEPLOYED_COMMIT" "$commit" || {
               echo "$(printf '%.7s' "$commit") is not ahead of PROD ($(printf '%.7s' "$DEPLOYED_COMMIT"))."
-              echo "Promotion only moves production forward. Use Revert PROD to go back."
+              echo "Promotion only moves production forward. Use Rollback PROD to go back."
               exit 1
             }
           fi
@@ -205,13 +221,14 @@ jobs:
             echo "digest=$digest"
             echo "tag=$tag"
             echo "message=Promote to PROD - $ACTION $commit"
+            echo "noop=false"
           } >> "$GITHUB_OUTPUT"
           echo "::notice title=Promote to PROD::Promote to PROD - $ACTION $commit"
           echo "Resolved $tag to $digest"
 
       - name: Read the current production target
         id: current
-        if: steps.mode.outputs.deploying == 'true'
+        if: steps.mode.outputs.deploying == 'true' && steps.source.outputs.noop != 'true'
         env:
           EXPECTED_FUNCTION_EXISTS: ${{ steps.candidates.outputs.function_exists }}
           EXPECTED_DIGEST: ${{ steps.candidates.outputs.deployed_digest }}
@@ -285,7 +302,7 @@ jobs:
 
       - name: Copy the validated image into production
         id: copy
-        if: steps.mode.outputs.deploying == 'true'
+        if: steps.mode.outputs.deploying == 'true' && steps.source.outputs.noop != 'true'
         env:
           SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
           TAG: ${{ steps.source.outputs.tag }}
@@ -329,7 +346,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Assert production holds the same bytes
-        if: steps.mode.outputs.deploying == 'true'
+        if: steps.mode.outputs.deploying == 'true' && steps.source.outputs.noop != 'true'
         env:
           SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
           TAG: ${{ steps.source.outputs.tag }}
@@ -349,7 +366,7 @@ jobs:
 
       - name: Deploy the selected digest when production Lambda exists
         id: deploy
-        if: steps.mode.outputs.deploying == 'true'
+        if: steps.mode.outputs.deploying == 'true' && steps.source.outputs.noop != 'true'
         env:
           FUNCTION_EXISTS: ${{ steps.current.outputs.exists }}
           PREVIOUS_DIGEST: ${{ steps.current.outputs.digest }}
@@ -432,10 +449,14 @@ jobs:
           echo "$PROD_FUNCTION_NAME live now runs $SOURCE_DIGEST on version $version"
 
       - name: Write job summary
-        if: always() && steps.mode.outputs.deploying == 'true' && steps.source.outcome == 'success' && steps.current.outcome == 'success'
+        if: always() && steps.mode.outputs.deploying == 'true' && steps.source.outcome == 'success' && (steps.source.outputs.noop == 'true' || steps.current.outcome == 'success')
         env:
           JOB_STATUS: ${{ job.status }}
+          ACTION: ${{ inputs.action }}
           REQUEST_MESSAGE: ${{ steps.source.outputs.message }}
+          TARGET_COMMIT: ${{ steps.source.outputs.commit }}
+          NOOP: ${{ steps.source.outputs.noop }}
+          NOOP_REASON: ${{ steps.source.outputs.noop_reason }}
           SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
           TAG: ${{ steps.source.outputs.tag }}
           FUNCTION_EXISTS: ${{ steps.current.outputs.exists }}
@@ -448,6 +469,15 @@ jobs:
           DEPLOY_VERSION: ${{ steps.deploy.outputs.version }}
         run: |
           set -u
+          if [ "$NOOP" = true ] && [ "$NOOP_REASON" = already_latest ]; then
+            {
+              echo "## $REQUEST_MESSAGE"
+              echo "- Outcome: Production already runs the newest proven commit."
+              echo "- No image copy or Lambda update was needed."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
           current_digest=""
           current_version=""
           if [ "$FUNCTION_EXISTS" = true ]; then
@@ -485,11 +515,17 @@ jobs:
                   && [ "$DEPLOY_VERIFIED" = true ]; then
                 echo "- Outcome: Promoted to PROD - ${REQUEST_MESSAGE#Promote to PROD - }."
                 echo "- Deployment succeeded and readback matched version $DEPLOY_VERSION."
+              elif [ "$JOB_STATUS" = success ] && [ "$ACTION" = latest ] \
+                  && [ "$TARGET_COMMIT" != "$PREVIOUS_COMMIT" ] \
+                  && [ "$SOURCE_DIGEST" = "$PREVIOUS_DIGEST" ]; then
+                echo "- Outcome: The newest proven commit produces the same image already running in production."
+                echo "- The commit was recorded; no Lambda update was needed."
               elif [ "$JOB_STATUS" = success ]; then
-                echo "- Deployment was already current; no alias update was needed."
+                echo "- Outcome: Production already runs the requested image."
+                echo "- No Lambda update was needed."
               else
                 echo "- Promotion failed. Alias live should still reference the previous published version; verify it before retrying."
               fi
-              echo "- Roll back: gh workflow run revert-production.yml --ref main -f action=specific -f commit=$PREVIOUS_COMMIT"
+              echo "- Roll back: gh workflow run rollback-production.yml --ref main -f action=specific -f commit=$PREVIOUS_COMMIT"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
