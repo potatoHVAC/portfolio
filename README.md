@@ -49,6 +49,8 @@ bin/smoke.sh portfolio:dev
 The smoke test runs the container as shipped with a read-only root filesystem;
 only `/tmp` is writable. The image serves on port 8080 as a non-root user.
 
+Pushes to `main` publish the validated image to the development environment.
+
 ## Image metadata
 
 Requires ExifTool, `file`, and `jq`. Check every committed image before it is
