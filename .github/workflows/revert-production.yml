@@ -1,0 +1,500 @@
+name: Revert PROD
+run-name: ${{ inputs.action == 'specific' && format('Revert PROD - specific {0}', inputs.commit) || format('Revert PROD - {0}', inputs.action) }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list shows candidates and deploys nothing; specific reverts to the commit below"
+        required: true
+        default: list
+        type: choice
+        options:
+          - list
+          - specific
+      commit:
+        description: "Commit SHA to restore. Read only when action is 'specific'."
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-24.04
+    environment: production
+    concurrency:
+      group: portfolio-deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_PROD_DEPLOY_ROLE_ARN: ${{ secrets.AWS_PROD_DEPLOY_ROLE_ARN }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      DEV_ECR_REPOSITORY: dev/portfolio
+      PROD_ECR_REPOSITORY: prod/portfolio
+      PROD_FUNCTION_NAME: portfolio-prod
+    steps:
+      - name: Decide what this run does
+        id: mode
+        env:
+          ACTION: ${{ inputs.action }}
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+          case "$ACTION" in
+            list|specific) ;;
+            *) echo "action must be list or specific, got '$ACTION'."; exit 1 ;;
+          esac
+          if [ "$ACTION" = specific ] && [ -z "$COMMIT" ]; then
+            echo "action 'specific' needs a commit."
+            exit 1
+          fi
+          if [ "$ACTION" = list ]; then
+            echo "deploying=false" >> "$GITHUB_OUTPUT"
+            echo "This run lists candidates and deploys nothing."
+          else
+            echo "deploying=true" >> "$GITHUB_OUTPUT"
+            echo "This run reverts to $COMMIT."
+          fi
+
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check deployment configuration
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/main || {
+            echo "Production deploys run from main only, got $GITHUB_REF."
+            exit 1
+          }
+          test -n "$AWS_REGION" || { echo "Missing AWS_REGION repository variable"; exit 1; }
+          test -n "$AWS_PROD_DEPLOY_ROLE_ARN" || {
+            echo "Missing AWS_PROD_DEPLOY_ROLE_ARN repository secret"
+            exit 1
+          }
+          test -n "$AWS_ACCOUNT_ID" || {
+            echo "Missing AWS_ACCOUNT_ID repository secret; it is required for log masking"
+            exit 1
+          }
+          echo "::add-mask::$AWS_ACCOUNT_ID"
+
+      - name: Configure production AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_PROD_DEPLOY_ROLE_ARN }}
+          role-session-name: portfolio-deploy-${{ github.run_id }}
+
+      - name: Resolve and optionally list revert candidates
+        id: candidates
+        env:
+          ACTION: ${{ inputs.action }}
+        run: |
+          set -euo pipefail
+
+          aws lambda get-function \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --qualifier live \
+            --output json > "$RUNNER_TEMP/current-function.json"
+          current_image=$(jq -r '.Code.ResolvedImageUri' "$RUNNER_TEMP/current-function.json")
+          current_digest="${current_image##*@}"
+          current_version=$(jq -r '.Configuration.Version' "$RUNNER_TEMP/current-function.json")
+          [[ "$current_digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "Production is not digest-pinned; found $current_digest."
+            exit 1
+          }
+          [[ "$current_version" =~ ^[0-9]+$ ]] || {
+            echo "The live alias did not resolve to a published version."
+            exit 1
+          }
+
+          # shellcheck disable=SC2016
+          current_tags=$(aws ecr describe-images \
+            --repository-name "$PROD_ECR_REPOSITORY" \
+            --image-ids "imageDigest=$current_digest" \
+            --query 'imageDetails[0].imageTags[?starts_with(@, `git-`)]' \
+            --output text 2>/dev/null | tr '\t' ' ' || true)
+          current_commit=""
+          while read -r sha; do
+            case " $current_tags " in
+              *" git-$sha "*) current_commit="$sha"; break ;;
+            esac
+          done < <(git rev-list --first-parent HEAD)
+          [[ "$current_commit" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "The running digest has no retained git-<sha> tag on the first-parent history of main."
+            echo "Refusing to offer a revert without a direction boundary."
+            exit 1
+          }
+
+          prod_images=$(aws ecr describe-images \
+            --repository-name "$PROD_ECR_REPOSITORY" \
+            --query imageDetails \
+            --output json)
+          dev_images=$(aws ecr describe-images \
+            --repository-name "$DEV_ECR_REPOSITORY" \
+            --query imageDetails \
+            --output json)
+
+          : > "$RUNNER_TEMP/live-digests.txt"
+          for ((version=current_version; version>=1; version--)); do
+            if aws lambda get-function \
+                --function-name "$PROD_FUNCTION_NAME" \
+                --qualifier "$version" \
+                --output json > "$RUNNER_TEMP/version.json" \
+                2> "$RUNNER_TEMP/version-error.txt"; then
+              version_image=$(jq -r '.Code.ResolvedImageUri' "$RUNNER_TEMP/version.json")
+              version_digest="${version_image##*@}"
+              if [[ "$version_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+                echo "$version_digest" >> "$RUNNER_TEMP/live-digests.txt"
+              fi
+            elif ! grep -q ResourceNotFoundException "$RUNNER_TEMP/version-error.txt"; then
+              sed -E 's/[0-9]{12}/<ACCOUNT>/g' "$RUNNER_TEMP/version-error.txt"
+              exit 1
+            fi
+          done
+          sort -u "$RUNNER_TEMP/live-digests.txt" -o "$RUNNER_TEMP/live-digests.txt"
+
+          revertable=0
+          {
+            echo "## Revert candidates — Portfolio PROD"
+            echo
+            echo "Copy a commit SHA and run this workflow again with action specific."
+            echo "The default list action deploys nothing."
+            echo
+            echo "| Commit SHA | Message | Digest | State |"
+            echo "|---|---|---|---|"
+            while read -r sha; do
+              state=""
+              digest=""
+              if [ "$sha" = "$current_commit" ]; then
+                state=PROD
+                digest="$current_digest"
+              else
+                prod_detail=$(printf '%s' "$prod_images" | jq -c --arg tag "git-$sha" \
+                  'first(.[] | select((.imageTags // []) | index($tag))) // empty')
+                dev_detail=$(printf '%s' "$dev_images" | jq -c --arg tag "git-$sha" \
+                  'first(.[] | select((.imageTags // []) | index($tag))) // empty')
+                if [ -n "$prod_detail" ]; then
+                  digest=$(printf '%s' "$prod_detail" | jq -r .imageDigest)
+                  if grep -Fxq "$digest" "$RUNNER_TEMP/live-digests.txt"; then
+                    state=published
+                  else
+                    [ -n "$dev_detail" ] || continue
+                    dev_digest=$(printf '%s' "$dev_detail" | jq -r .imageDigest)
+                    test "$dev_digest" = "$digest" || {
+                      echo "Digest mismatch for git-$sha between dev and production ECR."
+                      exit 1
+                    }
+                    state="never promoted"
+                  fi
+                else
+                  [ -n "$dev_detail" ] || continue
+                  digest=$(printf '%s' "$dev_detail" | jq -r .imageDigest)
+                  state="never promoted"
+                fi
+                revertable=$((revertable + 1))
+              fi
+              subject=$(git log -1 --format=%s "$sha" | tr '|' '/')
+              short=$(printf '%.7s' "$sha")
+              digest_short=$(printf '%.19s' "$digest")
+              echo "| [$short]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$sha) | ${subject:0:60} | $digest_short… | $state |"
+            done < <(git rev-list --first-parent "$current_commit")
+            echo
+            if [ "$revertable" -eq 0 ]; then
+              echo "No retained image can be used to move PROD backward."
+            else
+              echo "**$revertable** revert candidate(s)."
+            fi
+            echo
+            echo "published means a retained production digest is pinned by a Lambda version."
+            echo "never promoted means the older validated dev image remains available."
+            echo "A copied but unpinned production image is eligible only while the matching dev image remains."
+          } > "$RUNNER_TEMP/revert-candidates.md"
+
+          if [ "$ACTION" = list ]; then
+            {
+              cat "$RUNNER_TEMP/revert-candidates.md"
+              echo
+              echo "Nothing was copied and nothing was deployed."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          {
+            echo "deployed_commit=$current_commit"
+            echo "deployed_digest=$current_digest"
+            echo "deployed_tag=git-$current_commit"
+            echo "deployed_version=$current_version"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Resolve the selected historical image
+        id: source
+        if: steps.mode.outputs.deploying == 'true'
+        env:
+          INPUT_COMMIT: ${{ inputs.commit }}
+          DEPLOYED_COMMIT: ${{ steps.candidates.outputs.deployed_commit }}
+        run: |
+          set -euo pipefail
+          [[ "$INPUT_COMMIT" =~ ^[0-9a-f]{7,40}$ ]] || {
+            echo "Bad commit SHA '$INPUT_COMMIT'; expected 7 to 40 lowercase hexadecimal characters."
+            exit 1
+          }
+          commit=$(git rev-parse --verify --quiet "$INPUT_COMMIT^{commit}") || {
+            echo "No commit '$INPUT_COMMIT' in this repository."
+            exit 1
+          }
+          grep -Fx "$commit" < <(git rev-list --first-parent HEAD) >/dev/null || {
+            echo "$commit was never a first-parent tip of main."
+            exit 1
+          }
+          git merge-base --is-ancestor "$commit" "$DEPLOYED_COMMIT" || {
+            echo "$(printf '%.7s' "$commit") is not behind PROD ($(printf '%.7s' "$DEPLOYED_COMMIT"))."
+            echo "Revert only moves production backward. Use Promote to PROD to move forward."
+            exit 1
+          }
+
+          tag="git-$commit"
+          prod_result=$(aws ecr batch-get-image \
+            --repository-name "$PROD_ECR_REPOSITORY" \
+            --image-ids "imageTag=$tag" \
+            --query '{digest:images[0].imageId.imageDigest,failure:failures[0].failureCode}' \
+            --output json)
+          prod_digest=$(printf '%s' "$prod_result" | jq -r '.digest // empty')
+          prod_failure=$(printf '%s' "$prod_result" | jq -r '.failure // empty')
+          if [ -n "$prod_digest" ] \
+              && grep -Fxq "$prod_digest" "$RUNNER_TEMP/live-digests.txt"; then
+            digest="$prod_digest"
+            source_repository="$PROD_ECR_REPOSITORY"
+          else
+            if [ -z "$prod_digest" ] && [ "$prod_failure" != ImageNotFound ]; then
+              echo "Could not resolve $tag in production ECR: ${prod_failure:-unknown error}"
+              exit 1
+            fi
+            dev_result=$(aws ecr batch-get-image \
+              --repository-name "$DEV_ECR_REPOSITORY" \
+              --image-ids "imageTag=$tag" \
+              --query '{digest:images[0].imageId.imageDigest,failure:failures[0].failureCode}' \
+              --output json)
+            dev_digest=$(printf '%s' "$dev_result" | jq -r '.digest // empty')
+            dev_failure=$(printf '%s' "$dev_result" | jq -r '.failure // empty')
+            [ -n "$dev_digest" ] || {
+              if [ -n "$prod_digest" ]; then
+                echo "$tag was copied to production but never version-pinned, and its dev image is gone."
+              else
+                echo "No retained image for $tag in production or dev ECR (${dev_failure:-unknown error})."
+              fi
+              echo "Run this workflow with action 'list' to see what remains."
+              exit 1
+            }
+            if [ -n "$prod_digest" ] && [ "$prod_digest" != "$dev_digest" ]; then
+              echo "Digest mismatch for $tag between dev and production ECR."
+              exit 1
+            fi
+            digest="$dev_digest"
+            source_repository="$DEV_ECR_REPOSITORY"
+          fi
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "Registry returned malformed digest '$digest'."
+            exit 1
+          }
+
+          {
+            echo "commit=$commit"
+            echo "digest=$digest"
+            echo "tag=$tag"
+            echo "repository=$source_repository"
+          } >> "$GITHUB_OUTPUT"
+          echo "Resolved $source_repository@$digest as $tag"
+
+      - name: Copy the selected image into production
+        id: copy
+        if: steps.mode.outputs.deploying == 'true'
+        env:
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          SOURCE_REPOSITORY: ${{ steps.source.outputs.repository }}
+          TAG: ${{ steps.source.outputs.tag }}
+          REGISTRY_AUTH_FILE: ${{ runner.temp }}/registry-auth.json
+        run: |
+          set -euo pipefail
+          registry="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+          destination="$registry/$PROD_ECR_REPOSITORY@$SOURCE_DIGEST"
+
+          existing=$(aws ecr batch-get-image \
+            --repository-name "$PROD_ECR_REPOSITORY" \
+            --image-ids "imageTag=$TAG" \
+            --query '{digest:images[0].imageId.imageDigest,failure:failures[0].failureCode}' \
+            --output json)
+          destination_digest=$(printf '%s' "$existing" | jq -r '.digest // empty')
+          if [ -n "$destination_digest" ]; then
+            test "$destination_digest" = "$SOURCE_DIGEST" || {
+              echo "$TAG already names $destination_digest, not $SOURCE_DIGEST."
+              exit 1
+            }
+            echo "$TAG already exists at the requested digest; copy is idempotently complete."
+            copied=false
+          else
+            failure=$(printf '%s' "$existing" | jq -r '.failure // empty')
+            test "$failure" = ImageNotFound || {
+              echo "Could not resolve production tag: ${failure:-unknown error}"
+              exit 1
+            }
+            test "$SOURCE_REPOSITORY" = "$DEV_ECR_REPOSITORY" || {
+              echo "$TAG resolved from production but disappeared before deployment."
+              exit 1
+            }
+            aws ecr get-login-password --region "$AWS_REGION" \
+              | skopeo login --username AWS --password-stdin "$registry"
+            skopeo copy --preserve-digests \
+              "docker://$registry/$SOURCE_REPOSITORY@$SOURCE_DIGEST" \
+              "docker://$registry/$PROD_ECR_REPOSITORY:$TAG"
+            copied=true
+          fi
+
+          {
+            echo "copied=$copied"
+            echo "uri=$destination"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Assert production holds the same bytes
+        if: steps.mode.outputs.deploying == 'true'
+        env:
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          TAG: ${{ steps.source.outputs.tag }}
+        run: |
+          set -euo pipefail
+          destination_digest=$(aws ecr batch-get-image \
+            --repository-name "$PROD_ECR_REPOSITORY" \
+            --image-ids "imageTag=$TAG" \
+            --query 'images[0].imageId.imageDigest' \
+            --output text)
+          test "$destination_digest" = "$SOURCE_DIGEST" || {
+            echo "Digest changed in copy: source $SOURCE_DIGEST, prod $destination_digest."
+            echo "Production Lambda was not touched."
+            exit 1
+          }
+          echo "Production copy matches $destination_digest"
+
+      - name: Deploy the selected digest
+        id: deploy
+        if: steps.mode.outputs.deploying == 'true'
+        env:
+          PREVIOUS_DIGEST: ${{ steps.candidates.outputs.deployed_digest }}
+          PREVIOUS_VERSION: ${{ steps.candidates.outputs.deployed_version }}
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          TAG: ${{ steps.source.outputs.tag }}
+          IMAGE_URI: ${{ steps.copy.outputs.uri }}
+        run: |
+          set -euo pipefail
+
+          aws lambda get-function \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --qualifier live \
+            --output json > "$RUNNER_TEMP/predeploy-function.json"
+          live_image=$(jq -r '.Code.ResolvedImageUri' "$RUNNER_TEMP/predeploy-function.json")
+          live_digest="${live_image##*@}"
+          live_version=$(jq -r '.Configuration.Version' "$RUNNER_TEMP/predeploy-function.json")
+          test "$live_digest" = "$PREVIOUS_DIGEST" || {
+            echo "Production changed before deployment: expected $PREVIOUS_DIGEST, found $live_digest."
+            exit 1
+          }
+          test "$live_version" = "$PREVIOUS_VERSION" || {
+            echo "Production version changed before deployment: expected $PREVIOUS_VERSION, found $live_version."
+            exit 1
+          }
+
+          if [ "$PREVIOUS_DIGEST" = "$SOURCE_DIGEST" ]; then
+            {
+              echo "changed=false"
+              echo "verified=true"
+              echo "version=$PREVIOUS_VERSION"
+            } >> "$GITHUB_OUTPUT"
+            echo "$PROD_FUNCTION_NAME live already runs $SOURCE_DIGEST"
+            exit 0
+          fi
+
+          aws lambda update-function-code \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --image-uri "$IMAGE_URI" >/dev/null
+          aws lambda wait function-updated-v2 \
+            --function-name "$PROD_FUNCTION_NAME"
+
+          version=$(aws lambda publish-version \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --description "${TAG#git-}" \
+            --query Version \
+            --output text)
+          aws lambda update-alias \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --name live \
+            --function-version "$version" >/dev/null
+
+          deployed_uri=$(aws lambda get-function \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --qualifier live \
+            --query 'Code.ResolvedImageUri' \
+            --output text)
+          test "$deployed_uri" = "$IMAGE_URI" || {
+            echo "Production live resolved to $deployed_uri, not $IMAGE_URI."
+            exit 1
+          }
+
+          {
+            echo "changed=true"
+            echo "verified=true"
+            echo "version=$version"
+          } >> "$GITHUB_OUTPUT"
+          echo "$PROD_FUNCTION_NAME live now runs $SOURCE_DIGEST on version $version"
+
+      - name: Write job summary
+        if: always() && steps.mode.outputs.deploying == 'true' && steps.source.outcome == 'success'
+        env:
+          JOB_STATUS: ${{ job.status }}
+          SOURCE_REPOSITORY: ${{ steps.source.outputs.repository }}
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+          TAG: ${{ steps.source.outputs.tag }}
+          PREVIOUS_DIGEST: ${{ steps.candidates.outputs.deployed_digest }}
+          PREVIOUS_TAG: ${{ steps.candidates.outputs.deployed_tag }}
+          PREVIOUS_COMMIT: ${{ steps.candidates.outputs.deployed_commit }}
+          PREVIOUS_VERSION: ${{ steps.candidates.outputs.deployed_version }}
+          DEPLOY_CHANGED: ${{ steps.deploy.outputs.changed }}
+          DEPLOY_VERIFIED: ${{ steps.deploy.outputs.verified }}
+          DEPLOY_VERSION: ${{ steps.deploy.outputs.version }}
+        run: |
+          set -u
+          current_image=$(aws lambda get-function \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --qualifier live \
+            --query 'Code.ResolvedImageUri' \
+            --output text 2>/dev/null || true)
+          current_digest="${current_image##*@}"
+          current_version=$(aws lambda get-alias \
+            --function-name "$PROD_FUNCTION_NAME" \
+            --name live \
+            --query FunctionVersion \
+            --output text 2>/dev/null || true)
+
+          {
+            echo "## Revert PROD"
+            echo "- Source: $SOURCE_REPOSITORY@$SOURCE_DIGEST as $TAG"
+            echo "- Previous: $PREVIOUS_TAG at $PREVIOUS_DIGEST, Lambda version $PREVIOUS_VERSION."
+            if [[ "$current_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "- Now: $current_digest, Lambda version $current_version."
+            else
+              echo "- Now: readback failed; inspect production Lambda before retrying."
+            fi
+            if [ "$JOB_STATUS" = success ] && [ "$DEPLOY_CHANGED" = true ] \
+                && [ "$DEPLOY_VERIFIED" = true ]; then
+              echo "- Revert succeeded and readback matched version $DEPLOY_VERSION."
+            elif [ "$JOB_STATUS" = success ]; then
+              echo "- Production was already at the requested digest; no alias update was needed."
+            else
+              echo "- Revert failed. Verify the live alias before retrying."
+            fi
+            echo "- Restore: gh workflow run promote-production.yml --ref main -f action=specific -f commit=$PREVIOUS_COMMIT"
+          } >> "$GITHUB_STEP_SUMMARY"
