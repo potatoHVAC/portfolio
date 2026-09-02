@@ -50,6 +50,7 @@ The smoke test runs the container as shipped with a read-only root filesystem;
 only `/tmp` is writable. The image serves on port 8080 as a non-root user.
 
 Pushes to `main` publish the validated image to the development environment.
+Production promotion is a separate manually dispatched workflow.
 
 ## Image metadata
 
