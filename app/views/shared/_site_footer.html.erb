@@ -1,6 +1,6 @@
 <footer class="site-footer">
   <div class="site-footer__inner">
-    <p class="site-footer__mark">SPEERD <span aria-hidden="true">/</span> light, costume, metal</p>
+    <p class="site-footer__mark"><%= portfolio_catalog.site.fetch("name") %> <span aria-hidden="true">—</span> built in the <%= portfolio_catalog.site.fetch("shop") %></p>
     <nav aria-label="Footer navigation">
       <%= link_to "Galleries", galleries_path %>
       <%= link_to "About", about_path %>

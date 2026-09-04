@@ -77,6 +77,13 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
     assert_match "cover must be included", error.message
   end
 
+  test "rejects an accent with no stylesheet counterpart" do
+    unknown_accent = copy_data
+    unknown_accent["sections"][0]["accent"] = "chartreuse"
+    error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(unknown_accent) }
+    assert_match "accent must be one of", error.message
+  end
+
   test "raises a typed error for unknown public entries" do
     catalog = build_catalog(copy_data)
 
