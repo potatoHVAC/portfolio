@@ -3,8 +3,8 @@
 <main id="main-content">
   <section class="home-hero accent--electric" aria-labelledby="home-title">
     <div class="home-hero__copy">
-      <p class="eyebrow">Electronics / fabrication / spectacle</p>
-      <h1 id="home-title">Built to <em>glow.</em><br>Forged to last.</h1>
+      <p class="eyebrow">Built in the <%= portfolio_catalog.site.fetch("shop") %></p>
+      <h1 id="home-title">Built to <em>glow.</em><br>Forged to <em class="accent--ember">last.</em></h1>
       <p class="home-hero__lede">SPEERD makes responsive light, ambitious costumes, and metalwork that refuses to behave like an accessory.</p>
       <div class="button-row">
         <%= link_to "Explore LED art", led_art_path, class: "button-link" %>
@@ -38,7 +38,7 @@
     <div class="section-heading section-heading--light">
       <div>
         <p class="eyebrow">The rest of the workshop</p>
-        <h2 id="disciplines-title">Three practices.<br>One set of hands.</h2>
+        <h2 id="disciplines-title">Three practices.<br>One Chaos Factory.</h2>
       </div>
     </div>
     <div class="discipline-list">
@@ -55,7 +55,7 @@
 
   <section class="manifesto" aria-labelledby="manifesto-title">
     <p class="eyebrow">Working principle</p>
-    <h2 id="manifesto-title">If the idea sounds slightly impractical, it is probably worth building.</h2>
+    <h2 id="manifesto-title"><%= portfolio_catalog.site.fetch("manifesto") %></h2>
     <p>Code, steel, foam, wire, patience. The material changes; the practice is learning what the object wants to become.</p>
     <%= link_to "Read the README", about_path, class: "text-link" %>
   </section>

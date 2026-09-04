@@ -2,8 +2,11 @@ version: 1
 
 site:
   name: SPEERD
+  shop: Chaos Factory
   tagline: Built to glow. Forged to last.
-  description: LED installations, ambitious cosplay, and hand-built metalwork by SPEERD.
+  manifesto: If the idea sounds slightly impractical, it’s probably worth doing.
+  invitation: Bring the strange idea.
+  description: LED installations, ambitious cosplay, and hand-built metalwork from the Chaos Factory.
 
 sections:
   - id: led-art
