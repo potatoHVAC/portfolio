@@ -20,7 +20,7 @@ RUN bundle install && \
 COPY app/ app/
 COPY bin/rails bin/rake bin/
 COPY config/application.rb config/boot.rb config/environment.rb config/media.json \
-    config/puma.rb config/routes.rb config/
+    config/portfolio.yml config/puma.rb config/routes.rb config/
 COPY config/environments/production.rb config/environments/
 COPY config/initializers/ config/initializers/
 COPY config/locales/ config/locales/
