@@ -8,6 +8,7 @@ module ApplicationHelper
     [ "About", "/about" ],
     [ "Contact", "/contact" ]
   ].freeze
+  SPECTRUM_STOPS = 7
 
   def set_page_meta(title:, description:)
     content_for(:title, title)
@@ -32,6 +33,12 @@ module ApplicationHelper
     options = { class: "site-nav__link" }
     options[:aria] = { current: "page" } if active
     link_to label, path, **options
+  end
+
+  # Walks the spectrum for numbered details that belong to the site as a whole
+  # rather than to one section, which keeps its own accent.
+  def spectrum_class(index)
+    "spectrum--#{(index % SPECTRUM_STOPS) + 1}"
   end
 
   def accent_class(entry)
