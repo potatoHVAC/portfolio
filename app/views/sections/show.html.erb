@@ -1,0 +1,48 @@
+<% set_page_meta title: @section.fetch("title"), description: @section.fetch("summary") %>
+
+<main id="main-content" class="accent--<%= @section.fetch("accent") %>">
+  <header class="page-hero section-hero">
+    <div class="page-hero__copy">
+      <p class="eyebrow"><%= @section.fetch("eyebrow") %></p>
+      <h1><%= @section.fetch("title") %></h1>
+      <p class="page-hero__lede"><%= @section.fetch("summary") %></p>
+    </div>
+    <div class="page-hero__mark" aria-hidden="true">
+      <span><%= @section.fetch("title").split.map(&:first).join %></span>
+    </div>
+  </header>
+
+  <% if @projects.any? %>
+    <section class="page-section" aria-labelledby="featured-projects-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Selected work</p>
+          <h2 id="featured-projects-title">Projects</h2>
+        </div>
+        <p>Stories from the finished object back to the first unreasonable idea.</p>
+      </div>
+      <div class="project-grid">
+        <% @projects.each_with_index do |project, index| %>
+          <%= render "shared/project_card", project: project, index: index %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <section class="page-section page-section--ruled" aria-labelledby="section-galleries-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Look closer</p>
+        <h2 id="section-galleries-title"><%= @section.fetch("title") %> galleries</h2>
+      </div>
+      <%= link_to "See the gallery directory", galleries_path, class: "text-link" %>
+    </div>
+    <div class="gallery-grid gallery-grid--cards">
+      <% @galleries.each do |gallery| %>
+        <%= render "shared/gallery_card", gallery: gallery %>
+      <% end %>
+    </div>
+  </section>
+
+  <%= render "shared/contact_cta" %>
+</main>

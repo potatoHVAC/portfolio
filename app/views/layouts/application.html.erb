@@ -1,8 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= content_for(:title) || t("site.tagline") %></title>
+    <title><%= document_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= page_description %>">
+    <meta property="og:site_name" content="<%= portfolio_catalog.site.fetch("name") %>">
+    <meta property="og:title" content="<%= document_title %>">
+    <meta property="og:description" content="<%= page_description %>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= canonical_url %>">
+    <link rel="canonical" href="<%= canonical_url %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
@@ -14,11 +21,13 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app %>
   </head>
 
   <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <%= render "shared/site_header" %>
     <%= yield %>
+    <%= render "shared/site_footer" %>
   </body>
 </html>

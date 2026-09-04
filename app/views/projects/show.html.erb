@@ -1,0 +1,60 @@
+<% set_page_meta title: @project.fetch("title"), description: @project.fetch("summary") %>
+
+<main id="main-content" class="accent--<%= @section.fetch("accent") %>">
+  <header class="project-hero">
+    <div class="project-hero__copy">
+      <p class="breadcrumb"><%= link_to @section.fetch("title"), @section.fetch("path") %> <span aria-hidden="true">/</span> Project</p>
+      <p class="eyebrow"><%= @project.fetch("kicker") %></p>
+      <h1><%= @project.fetch("title") %></h1>
+      <p class="page-hero__lede"><%= @project.fetch("summary") %></p>
+    </div>
+    <div class="project-hero__media">
+      <% if @project["hero_media_id"].present? %>
+        <%= portfolio_media @project.fetch("hero_media_id"), sizes: "(min-width: 70rem) 46vw, 100vw", loading: "eager", fetchpriority: "high" %>
+      <% else %>
+        <div class="media-placeholder" aria-label="Project media is being prepared">
+          <span class="media-placeholder__index"><%= @project.fetch("title").split.map(&:first).join %></span>
+          <span>Project media<br>being prepared</span>
+        </div>
+      <% end %>
+    </div>
+  </header>
+
+  <section class="project-facts" aria-label="Project facts">
+    <dl>
+      <% @project.fetch("facts").each do |fact| %>
+        <div>
+          <dt><%= fact.fetch("label") %></dt>
+          <dd><%= fact.fetch("value") %></dd>
+        </div>
+      <% end %>
+    </dl>
+  </section>
+
+  <section class="project-story" aria-labelledby="project-story-title">
+    <div class="project-story__intro">
+      <p class="eyebrow">Behind the build</p>
+      <h2 id="project-story-title">From premise to presence.</h2>
+    </div>
+    <div class="story-list">
+      <% @project.fetch("stories").each_with_index do |story, index| %>
+        <article class="story-step">
+          <span class="story-step__number"><%= format("%02d", index + 1) %></span>
+          <div>
+            <h3><%= story.fetch("heading") %></h3>
+            <p><%= story.fetch("body") %></p>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="project-gallery-link" aria-labelledby="project-gallery-title">
+    <p class="eyebrow"><%= @gallery.fetch("status") %></p>
+    <h2 id="project-gallery-title">See <%= @project.fetch("title") %> from every angle.</h2>
+    <p><%= @gallery.fetch("summary") %></p>
+    <%= link_to "Open the gallery", @gallery.fetch("path"), class: "button-link" %>
+  </section>
+
+  <%= render "shared/contact_cta" %>
+</main>

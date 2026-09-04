@@ -1,0 +1,13 @@
+<article class="gallery-card <%= accent_class(gallery) %>">
+  <%= link_to gallery.fetch("path"), class: "gallery-card__link" do %>
+    <div class="gallery-card__visual" aria-hidden="true">
+      <span><%= gallery.fetch("title").first(2).upcase %></span>
+    </div>
+    <div class="gallery-card__body">
+      <span class="gallery-card__status"><%= gallery.fetch("status") %></span>
+      <h3><%= gallery.fetch("title") %></h3>
+      <p><%= gallery.fetch("summary") %></p>
+      <span class="text-link">View gallery <span aria-hidden="true">↗</span></span>
+    </div>
+  <% end %>
+</article>

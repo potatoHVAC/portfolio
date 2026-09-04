@@ -1,12 +1,64 @@
-<main class="home">
-  <h1><%= t("site.tagline") %></h1>
+<% set_page_meta title: "Light, costume, and metal", description: portfolio_catalog.site.fetch("description") %>
 
-  <%= portfolio_picture "validation/p-20231021-194531",
-        sizes: "(min-width: 72rem) 64rem, 100vw",
-        loading: "eager",
-        fetchpriority: "high",
-        class: "home__hero" %>
+<main id="main-content">
+  <section class="home-hero accent--electric" aria-labelledby="home-title">
+    <div class="home-hero__copy">
+      <p class="eyebrow">Electronics / fabrication / spectacle</p>
+      <h1 id="home-title">Built to <em>glow.</em><br>Forged to last.</h1>
+      <p class="home-hero__lede">SPEERD makes responsive light, ambitious costumes, and metalwork that refuses to behave like an accessory.</p>
+      <div class="button-row">
+        <%= link_to "Explore LED art", led_art_path, class: "button-link" %>
+        <%= link_to "Browse every gallery", galleries_path, class: "button-link button-link--quiet" %>
+      </div>
+    </div>
+    <div class="home-hero__signal" aria-hidden="true">
+      <span class="signal-orbit signal-orbit--one"></span>
+      <span class="signal-orbit signal-orbit--two"></span>
+      <span class="signal-core"></span>
+      <span class="signal-label">LIGHT<br>AS<br>MATERIAL</span>
+    </div>
+  </section>
 
-  <%= portfolio_video "validation/v-20231013-144526-es3",
-        class: "home__video" %>
+  <section class="page-section" aria-labelledby="led-work-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Primary practice</p>
+        <h2 id="led-work-title">LED art</h2>
+      </div>
+      <p>Light built into the object—not added after it.</p>
+    </div>
+    <div class="project-grid project-grid--featured">
+      <% @led_projects.each_with_index do |project, index| %>
+        <%= render "shared/project_card", project: project, index: index %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="discipline-band" aria-labelledby="disciplines-title">
+    <div class="section-heading section-heading--light">
+      <div>
+        <p class="eyebrow">The rest of the workshop</p>
+        <h2 id="disciplines-title">Three practices.<br>One set of hands.</h2>
+      </div>
+    </div>
+    <div class="discipline-list">
+      <% @sections.each_with_index do |section, index| %>
+        <%= link_to section.fetch("path"), class: "discipline-row #{accent_class(section)}" do %>
+          <span class="discipline-row__number"><%= format("%02d", index + 1) %></span>
+          <span class="discipline-row__title"><%= section.fetch("title") %></span>
+          <span class="discipline-row__summary"><%= section.fetch("summary") %></span>
+          <span class="discipline-row__arrow" aria-hidden="true">↗</span>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="manifesto" aria-labelledby="manifesto-title">
+    <p class="eyebrow">Working principle</p>
+    <h2 id="manifesto-title">If the idea sounds slightly impractical, it is probably worth building.</h2>
+    <p>Code, steel, foam, wire, patience. The material changes; the practice is learning what the object wants to become.</p>
+    <%= link_to "Read the README", about_path, class: "text-link" %>
+  </section>
+
+  <%= render "shared/contact_cta" %>
 </main>

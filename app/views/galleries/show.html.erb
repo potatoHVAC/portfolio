@@ -1,0 +1,33 @@
+<% set_page_meta title: "#{@gallery.fetch("title")} gallery", description: @gallery.fetch("summary") %>
+
+<main id="main-content" class="accent--<%= @section.fetch("accent") %>">
+  <header class="page-hero gallery-hero">
+    <div class="page-hero__copy">
+      <p class="breadcrumb"><%= link_to "Galleries", galleries_path %> <span aria-hidden="true">/</span> <%= @section.fetch("title") %></p>
+      <p class="eyebrow"><%= @gallery.fetch("status") %></p>
+      <h1><%= @gallery.fetch("title") %></h1>
+      <p class="page-hero__lede"><%= @gallery.fetch("summary") %></p>
+    </div>
+  </header>
+
+  <% if @gallery.fetch("media_ids").any? %>
+    <section class="media-gallery" aria-label="<%= @gallery.fetch("title") %> media">
+      <% @gallery.fetch("media_ids").each_with_index do |media_id, index| %>
+        <article class="media-gallery__item">
+          <span class="media-gallery__number"><%= format("%02d", index + 1) %></span>
+          <%= portfolio_media media_id, sizes: "(min-width: 76rem) 60rem, 100vw" %>
+        </article>
+      <% end %>
+    </section>
+  <% else %>
+    <section class="empty-gallery" aria-labelledby="empty-gallery-title">
+      <span class="empty-gallery__pulse" aria-hidden="true"></span>
+      <p class="eyebrow">The work exists. The pixels are in transit.</p>
+      <h2 id="empty-gallery-title">This gallery is being prepared.</h2>
+      <p>The image framework is ready; selected, captioned media will arrive in the next content pass.</p>
+      <%= link_to "Browse the other galleries", galleries_path, class: "text-link" %>
+    </section>
+  <% end %>
+
+  <%= render "shared/contact_cta" %>
+</main>

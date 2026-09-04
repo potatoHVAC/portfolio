@@ -1,0 +1,218 @@
+version: 1
+
+site:
+  name: SPEERD
+  tagline: Built to glow. Forged to last.
+  description: LED installations, ambitious cosplay, and hand-built metalwork by SPEERD.
+
+sections:
+  - id: led-art
+    title: LED Art
+    eyebrow: Light as a material
+    summary: Custom electronics and illuminated objects built to move with music, performers, and a room.
+    path: /led-art
+    accent: electric
+    featured_project_ids:
+      - instrument-art
+      - cadenza
+  - id: cosplay
+    title: Cosplay
+    eyebrow: Character, engineered
+    summary: Large-scale costumes where fabrication, electronics, and a little theatrical excess meet.
+    path: /cosplay
+    accent: spectacle
+    featured_project_ids:
+      - disco-chief
+      - russell-glow
+      - darth-daddy
+  - id: forge
+    title: Forge & Metalwork
+    eyebrow: Pattern, pressure, patience
+    summary: Damascus steel, chainmaille, and wearable metalwork made one deliberate detail at a time.
+    path: /forge
+    accent: ember
+    featured_project_ids: []
+
+projects:
+  - id: instrument-art
+    section_id: led-art
+    title: Instrument Art
+    kicker: Custom-mounted light for working instruments
+    summary: Stage-ready LED systems shaped around how an instrument is held, played, transported, and seen.
+    path: /led-art/instrument-art
+    hero_media_id:
+    gallery_id: instrument-art
+    facts:
+      - label: Practice
+        value: LED integration
+      - label: Priorities
+        value: Playability, serviceability, stage presence
+    stories:
+      - heading: Built around the musician
+        body: Every installation begins with the performer. The light has to amplify the instrument without getting between the player and the work.
+      - heading: Hardware that belongs there
+        body: Mounts, wiring paths, diffusion, and controls are treated as part of the instrument instead of an accessory taped on at the end.
+      - heading: Ready for the stage
+        body: The final test is simple—does it disappear for the performer and become unforgettable for the audience?
+  - id: cadenza
+    section_id: led-art
+    title: Cadenza
+    kicker: A synchronized light show made from independent objects
+    summary: A network of LED controllers that shares time, holds its choreography, and turns distributed hardware into one visual instrument.
+    path: /led-art/cadenza
+    hero_media_id:
+    gallery_id: cadenza
+    facts:
+      - label: System
+        value: ESP32 mesh + custom firmware
+      - label: Focus
+        value: Deterministic, time-anchored light
+    stories:
+      - heading: One show, many clocks
+        body: Cadenza coordinates independent controllers around a shared sense of time so each object renders the same moment without streaming frames across the room.
+      - heading: Choreography as compact state
+        body: Patterns travel as small parameters and a time anchor. Late arrivals calculate where the show is now and join in phase.
+      - heading: Built from bench to room
+        body: Custom boards, firmware, controls, and fixtures evolve together. The result is less a strip of pixels than a material for shaping space.
+  - id: disco-chief
+    section_id: cosplay
+    title: Disco Chief
+    kicker: Armor with a nightlife problem
+    summary: A luminous armored build that trades battlefield camouflage for mirrored color, motion, and unapologetic dance-floor energy.
+    path: /cosplay/disco-chief
+    hero_media_id:
+    gallery_id: disco-chief
+    facts:
+      - label: Build
+        value: Armor, electronics, performance
+      - label: Mood
+        value: Legendary difficulty, party mode
+    stories:
+      - heading: Start with the silhouette
+        body: The familiar armored profile makes the joke land from across a room. Light and finish push it somewhere entirely new up close.
+      - heading: Hide the engineering
+        body: Power, controls, cable routes, and wearable structure are distributed through the suit so the performance stays bigger than the hardware.
+      - heading: Make it survive the party
+        body: A costume this visible has to move, travel, and recover from enthusiastic use. Service access is part of the design.
+  - id: russell-glow
+    section_id: cosplay
+    title: Russell Glow
+    kicker: A bright idea with too many merit badges
+    summary: A character build expanded with illuminated details, playful scale, and the kind of finish that rewards a closer look.
+    path: /cosplay/russell-glow
+    hero_media_id:
+    gallery_id: russell-glow
+    facts:
+      - label: Build
+        value: Costume, props, embedded light
+      - label: Focus
+        value: Character first, electronics second
+    stories:
+      - heading: Keep the character readable
+        body: Added technology only works when the original personality still arrives first. Shape, color, and posture establish the story before anything lights up.
+      - heading: Details for the second look
+        body: Small fabricated elements and controlled points of light turn a recognizable costume into a personal interpretation.
+      - heading: Comfortable enough to inhabit
+        body: Wearability, weight, and access matter because the best costume is the one that can stay in character all day.
+  - id: darth-daddy
+    section_id: cosplay
+    title: Darth Daddy
+    kicker: The dark side, tailored
+    summary: A playful villain build balancing theatrical menace, wearable fabrication, and just enough self-awareness.
+    path: /cosplay/darth-daddy
+    hero_media_id:
+    gallery_id: darth-daddy
+    facts:
+      - label: Build
+        value: Costume, helmet, character work
+      - label: Tone
+        value: Dramatic with a deliberate wink
+    stories:
+      - heading: Readable from the doorway
+        body: Strong proportion and a controlled palette establish the character immediately, leaving room for the details to carry the joke.
+      - heading: Wearable structure
+        body: The hidden work is balance—rigid enough to hold the silhouette, flexible enough to move through a crowded room.
+      - heading: Performance completes the build
+        body: The costume is designed as a stage for posture, timing, and interaction rather than a static object.
+
+galleries:
+  - id: instrument-art
+    section_id: led-art
+    title: Instrument Art
+    summary: Illuminated instruments, mounting details, and stage tests.
+    path: /galleries/instrument-art
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: cadenza
+    section_id: led-art
+    title: Cadenza
+    summary: Hardware, synchronized patterns, control surfaces, and installations in motion.
+    path: /galleries/cadenza
+    status: Media needed
+    cover_media_id:
+    media_ids: []
+  - id: led-experiments
+    section_id: led-art
+    title: LED Experiments
+    summary: Studies in diffusion, reflection, movement, and color.
+    path: /galleries/led-experiments
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: disco-chief
+    section_id: cosplay
+    title: Disco Chief
+    summary: Finished armor, illuminated details, and the build in action.
+    path: /galleries/disco-chief
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: russell-glow
+    section_id: cosplay
+    title: Russell Glow
+    summary: Character studies, fabrication details, and the illuminated final build.
+    path: /galleries/russell-glow
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: darth-daddy
+    section_id: cosplay
+    title: Darth Daddy
+    summary: Portraits, wearable details, and convention-floor field tests.
+    path: /galleries/darth-daddy
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: cosplay
+    section_id: cosplay
+    title: Other Cosplay & Costume Art
+    summary: One-off characters, props, experiments, and costume work beyond the flagship builds.
+    path: /galleries/cosplay
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: damascus-rings
+    section_id: forge
+    title: Damascus Rings
+    summary: Pattern-welded steel shaped into small objects with a long visual memory.
+    path: /galleries/damascus-rings
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: chainmaille
+    section_id: forge
+    title: Chainmaille
+    summary: Repeated links turned into structure, texture, and wearable movement.
+    path: /galleries/chainmaille
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: damascus-press-on-nails
+    section_id: forge
+    title: Damascus Press-on Nails
+    summary: Pattern-welded steel refined into a dramatic, improbable wearable surface.
+    path: /galleries/damascus-press-on-nails
+    status: Media queued
+    cover_media_id:
+    media_ids: []
