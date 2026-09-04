@@ -30,23 +30,6 @@ jobs:
       - name: Lint Ruby
         run: bundle exec rubocop
 
-  test:
-    name: rails-test
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Run Rails tests
-        run: bin/rails test
-
   media:
     name: media-ci
     runs-on: ubuntu-24.04
@@ -63,7 +46,6 @@ jobs:
     name: container-arm64
     needs:
       - lint
-      - test
       - media
     runs-on: ubuntu-24.04-arm
     concurrency:
@@ -80,6 +62,7 @@ jobs:
       AWS_CI_ROLE_ARN: ${{ secrets.AWS_CI_ROLE_ARN }}
       AWS_DEV_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEV_DEPLOY_ROLE_ARN }}
       IMAGE_NAME: portfolio:ci-${{ github.sha }}
+      TEST_IMAGE_NAME: portfolio:test-${{ github.sha }}
       DEV_ECR_REPOSITORY: dev/portfolio
       DEV_IMAGE_TAG: git-${{ github.sha }}
       DEV_MUTABLE_TAG: main
@@ -109,8 +92,21 @@ jobs:
           test -n "$AWS_REGION" || { echo 'Missing AWS_REGION repository variable'; exit 1; }
           test -n "$AWS_DEV_DEPLOY_ROLE_ARN" || { echo 'Missing AWS_DEV_DEPLOY_ROLE_ARN repository secret'; exit 1; }
 
-      - name: Build image
-        run: docker build --platform linux/arm64 --tag "$IMAGE_NAME" .
+      - name: Build test image
+        run: docker build --platform linux/arm64 --target test --tag "$TEST_IMAGE_NAME" .
+
+      - name: Run Rails tests in the test image
+        run: |
+          docker run --rm --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,size=64m,mode=1777 \
+            --tmpfs /rails/log:rw,noexec,nosuid,size=16m,mode=1777 \
+            --tmpfs /rails/tmp:rw,noexec,nosuid,size=64m,mode=1777 \
+            --env CI=true \
+            --env HOME=/tmp \
+            "$TEST_IMAGE_NAME"
+
+      - name: Build production image
+        run: docker build --platform linux/arm64 --target prod --tag "$IMAGE_NAME" .
 
       - name: Smoke-test image
         run: bin/smoke.sh "$IMAGE_NAME"

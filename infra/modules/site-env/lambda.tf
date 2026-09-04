@@ -84,8 +84,7 @@ resource "aws_lambda_function" "site" {
   timeout       = var.timeout
   publish       = true
 
-  # Also baked into the image. Set here so the IAM grant above and the path the
-  # entrypoint actually reads cannot drift apart.
+  # Keep the runtime path aligned with the IAM grant above.
   environment {
     variables = {
       SECRET_KEY_BASE_PARAMETER = var.secret_parameter_name
