@@ -26,6 +26,15 @@ cleanup() {
 }
 trap cleanup EXIT
 
+docker run --rm --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+  --entrypoint /bin/sh \
+  "$image" -c '
+    bundle check >/dev/null
+    test ! -e /rails/test
+    test ! -e /rails/config/environments/test.rb
+  '
+
 secret_key_base=$(openssl rand -hex 64)
 docker run --detach \
   --name "$container_name" \
