@@ -67,6 +67,6 @@ if [[ $ready != true ]]; then
 fi
 
 curl --fail --silent --show-error --max-time 5 \
-  http://127.0.0.1:8080/ | grep --fixed-strings --quiet "speerd things"
+  http://127.0.0.1:8080/ | grep --fixed-strings --quiet "SPEERD makes responsive light"
 
 echo "Smoke test passed: $image"

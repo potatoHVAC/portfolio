@@ -14,7 +14,8 @@ Website: [www.speerd.com](https://www.speerd.com)
 
 | Path | What |
 |---|---|
-| `app/`, `config/`, `test/` | The Rails application — one page, no database |
+| `app/`, `config/`, `test/` | The database-free Rails portfolio application |
+| `config/portfolio.yml` | Validated sections, projects, gallery order, and editable draft copy |
 | `infra/bootstrap/` | State bucket, GitHub OIDC identity, ECR repositories |
 | `infra/modules/baseline/` | CloudTrail, budget, and the alert topic |
 | `infra/modules/media-storage/` | Private original-media archive and derivative-delivery buckets |
@@ -36,6 +37,12 @@ bin/rails server    # http://localhost:3000
 ```
 
 `/up` is the health endpoint; it returns 200 when the app boots cleanly.
+
+The public framework is server-rendered and database-free. Edit project,
+gallery, and temporary story copy in `config/portfolio.yml`; its schema and
+cross-references are validated by `PortfolioCatalog`, while ERB views own the
+markup. Empty galleries render an explicit media-pending state until approved
+assets have been published and added to the catalog.
 
 ## Container
 
@@ -139,8 +146,9 @@ manifest-referenced public derivatives.
 ```
 
 Run `bin/media hydrate` after a manifest change to reproduce the root-relative
-`public/media/` hierarchy locally. The home page renders both published
-validation assets through these helpers.
+`public/media/` hierarchy locally. Portfolio pages render only asset IDs listed
+in `config/portfolio.yml`; the existing `validation/*` assets remain pipeline
+fixtures and are not public portfolio content.
 
 ## Configuration
 

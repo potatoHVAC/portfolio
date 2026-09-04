@@ -29,6 +29,4 @@
 
 en:
   site:
-    # The one user-visible string on the site. Referenced by the view, the
-    # controller test, and the container smoke check — keep it here only.
-    tagline: "speerd things"
+    tagline: "Built to glow. Forged to last."

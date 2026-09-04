@@ -1,0 +1,32 @@
+<% set_page_meta title: "Galleries", description: "Browse separate galleries of SPEERD LED art, cosplay, and metalwork." %>
+
+<main id="main-content">
+  <header class="page-hero directory-hero">
+    <div class="page-hero__copy">
+      <p class="eyebrow">The visual index</p>
+      <h1>Galleries</h1>
+      <p class="page-hero__lede">Every body of work has its own room. Pick a thread and follow it—nothing here is flattened into one endless feed.</p>
+    </div>
+    <p class="directory-hero__count"><strong><%= portfolio_catalog.galleries.size %></strong> distinct collections</p>
+  </header>
+
+  <div class="gallery-directory">
+    <% @sections.each_with_index do |section, section_index| %>
+      <section class="gallery-group <%= accent_class(section) %>" aria-labelledby="gallery-group-<%= section.fetch("id") %>">
+        <header class="gallery-group__header">
+          <span class="gallery-group__number"><%= format("%02d", section_index + 1) %></span>
+          <div>
+            <p class="eyebrow"><%= section.fetch("eyebrow") %></p>
+            <h2 id="gallery-group-<%= section.fetch("id") %>"><%= section.fetch("title") %></h2>
+          </div>
+          <%= link_to "Explore the discipline", section.fetch("path"), class: "text-link" %>
+        </header>
+        <div class="gallery-grid gallery-grid--cards">
+          <% portfolio_catalog.galleries_for(section.fetch("id")).each do |gallery| %>
+            <%= render "shared/gallery_card", gallery: gallery %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  </div>
+</main>
