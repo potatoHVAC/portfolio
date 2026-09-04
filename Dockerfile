@@ -18,7 +18,7 @@ RUN bundle install && \
     rm -rf /root/.bundle "${BUNDLE_PATH}"/ruby/*/cache
 
 COPY app/ app/
-COPY bin/rails bin/rake bin/
+COPY bin/rails bin/rake bin/smoke bin/
 COPY config/application.rb config/boot.rb config/environment.rb config/media.json \
     config/portfolio.yml config/puma.rb config/routes.rb config/
 COPY config/environments/production.rb config/environments/

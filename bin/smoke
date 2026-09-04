@@ -1,0 +1,120 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# The smoke check for the production image, run *inside* that image.
+#
+# This is the only check that sees the image that ships, so it is where the
+# assertions about what production must not carry belong. It prints one flat
+# JSON object of scalars on stdout; everything else, Rails' own logging
+# included, is redirected to stderr so that object is the only thing on it.
+#
+# Usage: docker run --rm --read-only --tmpfs /tmp \
+#          --entrypoint /rails/bin/smoke IMAGE
+
+require "json"
+require "net/http"
+require "securerandom"
+
+PORT = Integer(ENV.fetch("PORT", "8080"))
+BOOT_TIMEOUT = Integer(ENV.fetch("SMOKE_BOOT_TIMEOUT", "60"))
+
+# Structural, not editorial. The homepage copy is the owner's to change without
+# breaking a deploy; what this asserts is that the home view rendered at all
+# rather than an error page returning 200.
+MARKER = "home-hero"
+
+def fail!(reason)
+  warn("smoke: #{reason}")
+  exit 1
+end
+
+def get(path)
+  Net::HTTP.start("127.0.0.1", PORT, open_timeout: 2, read_timeout: 10) do |http|
+    http.get(path)
+  end
+end
+
+def monotonic
+  Process.clock_gettime(Process::CLOCK_MONOTONIC)
+end
+
+# Production must not carry the test environment or the suite.
+{
+  "/rails/test" => "the test suite",
+  "/rails/config/environments/test.rb" => "the test environment"
+}.each do |path, what|
+  fail!("#{what} is present at #{path}") if File.exist?(path)
+end
+
+# Lambda gives this image a read-only root filesystem with a writable /tmp, so
+# the check runs under one too. Assert it rather than trust the flag was passed:
+# a check that silently ran writable would prove nothing about production.
+#
+# Read the mount table rather than probing with a write. A probe only proves the
+# probed path is unwritable, which /rails already is whether or not the root is
+# read-only, so it passes when the flag is missing.
+root_read_only = File.read("/proc/mounts").lines.any? do |line|
+  _device, mount, _type, options = line.split
+  mount == "/" && options.to_s.split(",").include?("ro")
+end
+unless root_read_only
+  fail!("the root filesystem is writable; this is not how Lambda runs the image")
+end
+
+fail!("/tmp is not writable") unless File.writable?("/tmp")
+
+# The gems the image will run with, not the ones it was built with.
+system("bundle", "check", out: :err, err: :err) || fail!("bundle check failed")
+
+boot_started = monotonic
+server = Process.spawn(
+  {
+    "SECRET_KEY_BASE" => SecureRandom.hex(64),
+    "PORT" => PORT.to_s
+  },
+  "bundle", "exec", "puma", "-C", "config/puma.rb",
+  out: :err, err: :err
+)
+
+begin
+  until (
+    begin
+      get("/up").is_a?(Net::HTTPSuccess)
+    rescue StandardError
+      false
+    end
+  )
+    fail!("the server exited before answering /up") if Process.wait(server, Process::WNOHANG)
+    if monotonic - boot_started > BOOT_TIMEOUT
+      fail!("the server did not answer /up within #{BOOT_TIMEOUT}s")
+    end
+    sleep 0.25
+  end
+  boot_seconds = monotonic - boot_started
+
+  homepage = get("/")
+  unless homepage.is_a?(Net::HTTPSuccess)
+    fail!("GET / returned #{homepage.code}")
+  end
+  unless homepage.body.include?(MARKER)
+    fail!("GET / returned 200 without the home view; the error page renders too")
+  end
+
+  puts JSON.generate(
+    image: "portfolio",
+    rails_env: ENV.fetch("RAILS_ENV", "unset"),
+    architecture: RbConfig::CONFIG["host_cpu"],
+    ruby: RUBY_VERSION,
+    read_only_root: true,
+    test_material_present: false,
+    boot_seconds: boot_seconds.round(2),
+    homepage_bytes: homepage.body.bytesize
+  )
+ensure
+  begin
+    Process.kill("TERM", server)
+    Process.wait(server)
+  rescue Errno::ESRCH, Errno::ECHILD
+    # Already gone.
+  end
+end

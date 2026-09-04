@@ -42,163 +42,107 @@ jobs:
       - name: Run media gates
         run: bin/media ci
 
+  # Building, testing, smoke-checking and publishing the image is the shared
+  # pipeline's job. What stays here is what is specific to this repository: the
+  # image's inputs, and what to do with the digest afterwards.
+  #
+  # production_target is deliberately unset. That builds the Dockerfile's final
+  # stage, which asserts prod is last — a build that forgets --target cannot
+  # then publish an image carrying the test suite.
   container:
-    name: container-arm64
+    name: container
     needs:
       - lint
       - media
-    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      id-token: write
     concurrency:
       group: portfolio-container-${{ github.event_name }}-${{ github.ref }}
       cancel-in-progress: ${{ github.event_name != 'push' }}
+    uses: potatoHVAC/speerd-devops/.github/workflows/container-ci.yml@container-ci/v1
+    with:
+      name: portfolio
+      context: .
+      platform: linux/arm64
+      runner: ubuntu-24.04-arm
+      test_target: test
+      test_command: '["/rails/bin/rails","test"]'
+      # Lambda runs this image with a read-only root and a writable /tmp, so
+      # both checks run that way too. bin/smoke asserts it rather than trusting
+      # the flags arrived.
+      test_run_args: >-
+        ["--read-only",
+         "--tmpfs","/tmp:rw,noexec,nosuid,size=64m,mode=1777",
+         "--tmpfs","/rails/log:rw,noexec,nosuid,size=16m,mode=1777",
+         "--tmpfs","/rails/tmp:rw,noexec,nosuid,size=64m,mode=1777",
+         "--env","CI=true",
+         "--env","HOME=/tmp"]
+      smoke_command: '["/rails/bin/smoke"]'
+      smoke_run_args: >-
+        ["--read-only",
+         "--tmpfs","/tmp:rw,noexec,nosuid,size=64m"]
+      publish: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      aws_region: ${{ vars.AWS_REGION }}
+      registry_repository: dev/portfolio
+      image_tag: git-${{ github.sha }}
+      mutable_tag: main
+    secrets:
+      aws_role_arn: ${{ secrets.AWS_DEV_DEPLOY_ROLE_ARN }}
+
+  deploy:
+    name: deploy-dev
+    needs: container
+    if: needs.container.outputs.published == 'true'
+    runs-on: ubuntu-24.04
     permissions:
+      # actions: read is for bin/promotion-candidates, which lists this
+      # workflow's successful runs to decide what is promotable.
       actions: read
       contents: read
       id-token: write
-    outputs:
-      digest: ${{ steps.image.outputs.digest }}
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       AWS_CI_ROLE_ARN: ${{ secrets.AWS_CI_ROLE_ARN }}
       AWS_DEV_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEV_DEPLOY_ROLE_ARN }}
-      IMAGE_NAME: portfolio:ci-${{ github.sha }}
-      TEST_IMAGE_NAME: portfolio:test-${{ github.sha }}
       DEV_ECR_REPOSITORY: dev/portfolio
-      DEV_IMAGE_TAG: git-${{ github.sha }}
-      DEV_MUTABLE_TAG: main
+      DEV_IMAGE_DIGEST: ${{ needs.container.outputs.digest }}
       DEV_FUNCTION_NAME: portfolio-dev
       DEV_ALIAS: live
     steps:
-      - name: Decide whether this run publishes
-        id: publish
-        run: |
-          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF" = refs/heads/main ]; then
-            echo 'Push to main: this run publishes to dev.'
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "$GITHUB_EVENT_NAME on $GITHUB_REF: validation only, nothing is published."
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Check out source
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Check dev publish configuration
-        if: steps.publish.outputs.enabled == 'true'
-        run: |
-          test -n "$AWS_REGION" || { echo 'Missing AWS_REGION repository variable'; exit 1; }
-          test -n "$AWS_DEV_DEPLOY_ROLE_ARN" || { echo 'Missing AWS_DEV_DEPLOY_ROLE_ARN repository secret'; exit 1; }
-
-      - name: Build test image
-        run: docker build --platform linux/arm64 --target test --tag "$TEST_IMAGE_NAME" .
-
-      - name: Run Rails tests in the test image
-        run: |
-          docker run --rm --read-only \
-            --tmpfs /tmp:rw,noexec,nosuid,size=64m,mode=1777 \
-            --tmpfs /rails/log:rw,noexec,nosuid,size=16m,mode=1777 \
-            --tmpfs /rails/tmp:rw,noexec,nosuid,size=64m,mode=1777 \
-            --env CI=true \
-            --env HOME=/tmp \
-            "$TEST_IMAGE_NAME"
-
-      - name: Build production image
-        run: docker build --platform linux/arm64 --target prod --tag "$IMAGE_NAME" .
-
-      - name: Smoke-test image
-        run: bin/smoke.sh "$IMAGE_NAME"
-
-      - name: Verify architecture
-        run: docker image inspect "$IMAGE_NAME" --format "{{.Architecture}}" | grep --fixed-strings --line-regexp arm64
-
       - name: Mask the AWS account ID
-        if: steps.publish.outputs.enabled == 'true'
         run: echo "::add-mask::${{ secrets.AWS_ACCOUNT_ID }}"
 
       - name: Configure dev deploy AWS credentials
-        if: steps.publish.outputs.enabled == 'true'
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ env.AWS_DEV_DEPLOY_ROLE_ARN }}
-          role-session-name: portfolio-dev-publish-${{ github.run_id }}
+          role-session-name: portfolio-dev-deploy-${{ github.run_id }}
 
-      - name: Publish the validated image to dev
+      # The shared workflow returns the digest but not the registry host: the
+      # host carries the account ID, which is masked, and GitHub drops job
+      # outputs containing masked values. Resolving it here costs one call.
+      - name: Resolve the published image URI
         id: image
-        if: steps.publish.outputs.enabled == 'true'
         run: |
           set -euo pipefail
-          account_id=$(aws sts get-caller-identity --query Account --output text)
-          registry="$account_id.dkr.ecr.$AWS_REGION.amazonaws.com"
-          repository="$registry/$DEV_ECR_REPOSITORY"
-
-          aws ecr get-login-password --region "$AWS_REGION" \
-            | docker login --username AWS --password-stdin "$registry"
-          docker tag "$IMAGE_NAME" "$repository:$DEV_IMAGE_TAG"
-
-          commit_image=$(aws ecr batch-get-image \
-            --repository-name "$DEV_ECR_REPOSITORY" \
-            --image-ids imageTag="$DEV_IMAGE_TAG" \
-            --output json)
-          image_digest=$(printf '%s' "$commit_image" | jq -r '.images[0].imageId.imageDigest // empty')
-          if [ -z "$image_digest" ]; then
-            failure=$(printf '%s' "$commit_image" | jq -r '.failures[0].failureCode // empty')
-            test "$failure" = ImageNotFound || {
-              echo "Could not resolve $DEV_IMAGE_TAG: ${failure:-unknown error}"
-              exit 1
-            }
-            docker push "$repository:$DEV_IMAGE_TAG"
-            commit_image=$(aws ecr batch-get-image \
-              --repository-name "$DEV_ECR_REPOSITORY" \
-              --image-ids imageTag="$DEV_IMAGE_TAG" \
-              --output json)
-            image_digest=$(printf '%s' "$commit_image" | jq -r '.images[0].imageId.imageDigest // empty')
-          else
-            echo "$DEV_IMAGE_TAG already exists at $image_digest"
-          fi
-          [[ "$image_digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
-            echo "Invalid ECR digest: $image_digest"
+          [[ "$DEV_IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "Invalid digest from the container workflow: $DEV_IMAGE_DIGEST"
             exit 1
           }
-
-          image_manifest=$(printf '%s' "$commit_image" | jq -r '.images[0].imageManifest // empty')
-          test -n "$image_manifest" || { echo "Missing manifest for $DEV_IMAGE_TAG"; exit 1; }
-          main_image=$(aws ecr batch-get-image \
-            --repository-name "$DEV_ECR_REPOSITORY" \
-            --image-ids imageTag="$DEV_MUTABLE_TAG" \
-            --output json)
-          main_digest=$(printf '%s' "$main_image" | jq -r '.images[0].imageId.imageDigest // empty')
-          if [ -z "$main_digest" ]; then
-            failure=$(printf '%s' "$main_image" | jq -r '.failures[0].failureCode // empty')
-            test "$failure" = ImageNotFound || {
-              echo "Could not resolve $DEV_MUTABLE_TAG: ${failure:-unknown error}"
-              exit 1
-            }
-          fi
-          if [ "$main_digest" != "$image_digest" ]; then
-            published=$(aws ecr put-image \
-              --repository-name "$DEV_ECR_REPOSITORY" \
-              --image-tag "$DEV_MUTABLE_TAG" \
-              --image-manifest "$image_manifest" \
-              --output json)
-            main_digest=$(printf '%s' "$published" | jq -r '.image.imageId.imageDigest // empty')
-            test "$main_digest" = "$image_digest" || {
-              echo "$DEV_MUTABLE_TAG resolved to $main_digest, not $image_digest"
-              exit 1
-            }
-          else
-            echo "$DEV_MUTABLE_TAG already points at $image_digest"
-          fi
-
-          echo "digest=$image_digest" >> "$GITHUB_OUTPUT"
-          echo "uri=$repository@$image_digest" >> "$GITHUB_OUTPUT"
+          account_id=$(aws sts get-caller-identity --query Account --output text)
+          registry="$account_id.dkr.ecr.$AWS_REGION.amazonaws.com"
+          echo "uri=$registry/$DEV_ECR_REPOSITORY@$DEV_IMAGE_DIGEST" >> "$GITHUB_OUTPUT"
 
       - name: Deploy the published image to dev
         id: deploy
-        if: steps.publish.outputs.enabled == 'true'
         env:
           IMAGE_URI: ${{ steps.image.outputs.uri }}
         run: |
@@ -267,39 +211,29 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Verify public media delivery
-        if: steps.publish.outputs.enabled == 'true'
         run: bin/media verify-manifest --remote https://speerd.com
 
       - name: Write job summary
         if: always()
         env:
-          PUBLISHED: ${{ steps.publish.outputs.enabled }}
-          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
           IMAGE_URI: ${{ steps.image.outputs.uri }}
           DEPLOYED: ${{ steps.deploy.outputs.deployed }}
           VERSION: ${{ steps.deploy.outputs.version }}
           PREVIOUS: ${{ steps.deploy.outputs.previous }}
         run: |
           {
-            echo '## Portfolio image'
+            echo '## Portfolio dev deploy'
             echo "- Commit: \`$GITHUB_SHA\`"
-            echo "- Platform: \`linux/arm64\`"
-            if [ "$PUBLISHED" = true ]; then
-              echo '- Result: built, smoke-tested, and published to dev'
-              echo "- Commit tag: \`$DEV_IMAGE_TAG\`"
-              echo "- Mutable tag: \`$DEV_MUTABLE_TAG\`"
-              echo "- Digest: \`$IMAGE_DIGEST\`"
-              echo "- URI: \`$IMAGE_URI\`"
-              if [ "$DEPLOYED" = true ]; then
-                echo "- Deployed: alias \`$DEV_ALIAS\` now on version \`$VERSION\`"
-                echo "- Roll back: \`aws lambda update-alias --function-name $DEV_FUNCTION_NAME --name $DEV_ALIAS --function-version $PREVIOUS\`"
-              elif [ -n "$VERSION" ]; then
-                echo "- Deployed: no change; alias \`$DEV_ALIAS\` already on version \`$VERSION\`"
-              else
-                echo "- Deployed: nothing; the dev function does not exist yet"
-              fi
+            echo "- Commit tag: \`git-$GITHUB_SHA\`"
+            echo "- Digest: \`$DEV_IMAGE_DIGEST\`"
+            echo "- URI: \`$IMAGE_URI\`"
+            if [ "$DEPLOYED" = true ]; then
+              echo "- Deployed: alias \`$DEV_ALIAS\` now on version \`$VERSION\`"
+              echo "- Roll back: \`aws lambda update-alias --function-name $DEV_FUNCTION_NAME --name $DEV_ALIAS --function-version $PREVIOUS\`"
+            elif [ -n "$VERSION" ]; then
+              echo "- Deployed: no change; alias \`$DEV_ALIAS\` already on version \`$VERSION\`"
             else
-              echo '- Result: built and smoke-tested; nothing published'
+              echo "- Deployed: nothing; the dev function does not exist yet"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -308,7 +242,6 @@ jobs:
       # after the job exits.
       - name: Configure read-only deployment state credentials
         id: catalog_credentials
-        if: steps.publish.outputs.enabled == 'true'
         continue-on-error: true
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -317,7 +250,7 @@ jobs:
           role-session-name: portfolio-state-${{ github.run_id }}
 
       - name: List what can now be promoted
-        if: steps.publish.outputs.enabled == 'true' && steps.catalog_credentials.outcome == 'success'
+        if: steps.catalog_credentials.outcome == 'success'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
