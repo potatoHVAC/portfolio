@@ -1,18 +1,13 @@
 # syntax=docker/dockerfile:1
 
 ARG RUBY_VERSION=3.4.4
-FROM ruby:${RUBY_VERSION}-slim AS runtime
+FROM ruby:${RUBY_VERSION}-slim AS build
 
 WORKDIR /rails
 
 ENV BUNDLE_DEPLOYMENT=1 \
     BUNDLE_PATH=/usr/local/bundle \
     BUNDLE_WITHOUT=development:test
-
-RUN groupadd --system --gid 1000 rails && \
-    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash --no-log-init
-
-FROM runtime AS build
 
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential pkg-config && \
@@ -37,7 +32,16 @@ RUN SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
 
 # The installed application shared by test and production. Build-only packages
 # and source files outside the explicit runtime set never enter this stage.
-FROM runtime AS base
+FROM ruby:${RUBY_VERSION}-slim AS base
+
+WORKDIR /rails
+
+ENV BUNDLE_DEPLOYMENT=1 \
+    BUNDLE_PATH=/usr/local/bundle \
+    BUNDLE_WITHOUT=development:test
+
+RUN groupadd --system --gid 1000 rails && \
+    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash --no-log-init
 
 COPY --chown=rails:rails --from=build /usr/local/bundle /usr/local/bundle
 COPY --chown=rails:rails --from=build /rails /rails
