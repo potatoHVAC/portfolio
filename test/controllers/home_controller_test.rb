@@ -1,54 +1,26 @@
 require "test_helper"
 
 class HomeControllerTest < ActionDispatch::IntegrationTest
-  test "the home page renders the tagline" do
+  test "the home page leads with LED work and the full site navigation" do
     get root_url
 
     assert_response :success
-    assert_includes response.body, I18n.t("site.tagline")
+    assert_equal "Built to glow.Forged to last.", css_select("h1").first.text.strip
+    assert_includes response.body, "Primary practice"
+    assert_includes response.body, "Instrument Art"
+    assert_includes response.body, "Cadenza"
+    assert_equal ApplicationHelper::NAVIGATION.map(&:first), css_select("nav[aria-label='Primary navigation'] a").map(&:text)
+    assert_equal 1, css_select("main#main-content").size
+    assert_equal 1, css_select("h1").size
   end
 
-  test "the home page renders the published responsive hero" do
+  test "the home page publishes canonical and social metadata" do
     get root_url
 
-    image = css_select("img.home__hero").first
-    assert image, "expected a hero image on the home page"
-
-    assert_match %r{\A/media/validation/p-20231021-194531/}, image["src"]
-    refute_match %r{\A/assets/}, image["src"]
-    assert_equal "3072", image["width"]
-    assert_equal "4096", image["height"]
-    assert_equal "", image["alt"]
-    assert_equal "eager", image["loading"]
-    assert_equal "high", image["fetchpriority"]
-    assert_equal "(min-width: 72rem) 64rem, 100vw", image["sizes"]
-
-    sources = css_select("picture source")
-    assert_equal %w[image/avif image/webp image/jpeg], sources.map { |source| source["type"] }
-    assert sources.all? { |source| source["srcset"].include?("/media/validation/p-20231021-194531/") }
-    assert sources.all? { |source| source["srcset"].split(", ").size == 5 }
-  end
-
-  test "the home page renders the published selected video" do
-    get root_url
-
-    video = css_select("figure.portfolio-video > video.home__video").first
-    assert video, "expected a video on the home page"
-    assert video.key?("controls")
-    assert video.key?("playsinline")
-    refute video.key?("autoplay")
-    assert_equal "metadata", video["preload"]
-    assert_match %r{\A/media/validation/v-20231013-144526-es3/}, video["src"]
-    assert_match %r{\A/media/validation/v-20231013-144526-es3/}, video["poster"]
-    assert_equal "608", video["width"]
-    assert_equal "1080", video["height"]
-    assert_equal "Video pipeline validation", video["aria-label"]
-
-    caption = css_select("figcaption##{video["aria-describedby"]}").first
-    assert caption
-    assert_includes caption.text, "Video pipeline validation"
-    assert_includes caption.text, "A short video used to validate media publication."
-    assert_empty css_select("video.home__video track")
+    assert_equal "https://speerd.com/", css_select("link[rel='canonical']").first["href"]
+    assert_equal "https://speerd.com/", css_select("meta[property='og:url']").first["content"]
+    assert_equal "Light, costume, and metal — SPEERD", css_select("meta[property='og:title']").first["content"]
+    assert_equal 1, css_select("a.skip-link[href='#main-content']").size
   end
 
   test "the health endpoint reports up" do

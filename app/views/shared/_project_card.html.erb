@@ -1,0 +1,9 @@
+<article class="project-card <%= accent_class(project) %>">
+  <%= link_to project.fetch("path"), class: "project-card__link" do %>
+    <span class="project-card__number" aria-hidden="true"><%= format("%02d", index + 1) %></span>
+    <span class="eyebrow"><%= project.fetch("kicker") %></span>
+    <h3><%= project.fetch("title") %></h3>
+    <p><%= project.fetch("summary") %></p>
+    <span class="text-link">Open project <span aria-hidden="true">↗</span></span>
+  <% end %>
+</article>

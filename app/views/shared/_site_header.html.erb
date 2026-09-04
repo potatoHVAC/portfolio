@@ -1,0 +1,16 @@
+<header class="site-header">
+  <div class="site-header__inner">
+    <%= link_to root_path, class: "wordmark", aria: { label: "SPEERD home" } do %>
+      <span class="wordmark__signal" aria-hidden="true"></span>
+      <span>SPEERD</span>
+    <% end %>
+
+    <nav class="site-nav" aria-label="Primary navigation">
+      <ul class="site-nav__list">
+        <% ApplicationHelper::NAVIGATION.each do |label, path| %>
+          <li><%= navigation_link label, path %></li>
+        <% end %>
+      </ul>
+    </nav>
+  </div>
+</header>
