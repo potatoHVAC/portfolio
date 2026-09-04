@@ -39,15 +39,28 @@ bin/rails server    # http://localhost:3000
 
 ## Container
 
-Build the deployable arm64 image, then smoke-test that exact artifact:
+Build the test target and run the Rails suite inside it:
 
 ```sh
-docker build --platform linux/arm64 -t portfolio:dev .
-bin/smoke.sh portfolio:dev
+docker build --platform linux/arm64 --target test -t portfolio:test .
+docker run --rm --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid,size=64m,mode=1777 \
+  --tmpfs /rails/log:rw,noexec,nosuid,size=16m,mode=1777 \
+  --tmpfs /rails/tmp:rw,noexec,nosuid,size=64m,mode=1777 \
+  --env CI=true --env HOME=/tmp portfolio:test
 ```
 
-The smoke test runs the container as shipped with a read-only root filesystem;
-only `/tmp` is writable. The image serves on port 8080 as a non-root user.
+Then build and smoke-test the production target:
+
+```sh
+docker build --platform linux/arm64 --target prod -t portfolio:prod .
+bin/smoke.sh portfolio:prod
+```
+
+Both targets inherit the installed application from `base`. The test target
+adds the test environment and suite; the production target contains neither.
+The smoke test runs production with a read-only root filesystem and only
+`/tmp` writable. Both targets run as the same non-root user.
 
 Pushes to `main` publish the validated image to the development environment.
 Production promotion is a separate manually dispatched workflow.

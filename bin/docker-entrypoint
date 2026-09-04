@@ -4,9 +4,11 @@ set -eu
 if [ -z "${SECRET_KEY_BASE:-}" ]; then
   SECRET_KEY_BASE="$({
     bundle exec ruby -raws-sdk-ssm -e '
-      client = Aws::SSM::Client.new
+      client = Aws::SSM::Client.new(
+        region: ENV.fetch("AWS_REGION", "us-west-2")
+      )
       response = client.get_parameter(
-        name: ENV.fetch("SECRET_KEY_BASE_PARAMETER"),
+        name: ENV.fetch("SECRET_KEY_BASE_PARAMETER", "/portfolio/secret_key_base"),
         with_decryption: true
       )
       print response.parameter.value
