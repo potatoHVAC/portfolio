@@ -1,7 +1,7 @@
 # These become GitHub repository variables — AWS_CI_ROLE_ARN,
-# AWS_DEV_DEPLOY_ROLE_ARN, AWS_PROD_DEPLOY_ROLE_ARN — following the same shape
-# Reference_Pipeline_B uses. They carry the account ID, so they belong in GitHub's
-# settings and the Actions log, never in a pull request comment.
+# AWS_DEV_DEPLOY_ROLE_ARN, AWS_PROD_DEPLOY_ROLE_ARN. They carry the account ID,
+# so they belong in GitHub's settings and the Actions log, never in a pull
+# request comment.
 
 output "state_bucket" {
   description = "S3 bucket holding OpenTofu state for every stack."

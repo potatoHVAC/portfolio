@@ -75,8 +75,9 @@ output — implicit masking is not worth relying on:
 - run: echo "::add-mask::${{ secrets.AWS_ACCOUNT_ID }}"
 ```
 
-Note this diverges from `Reference_Pipeline_B`, which uses `vars.AWS_CI_ROLE_ARN`.
-That repository is private and staying private; this one is not.
+Note this diverges from the earlier pipeline this shape came from, which uses
+`vars.AWS_CI_ROLE_ARN`. That repository is private and staying private; this one
+is not.
 
 Beware `gh variable list` — it prints values. `gh secret list` prints only names.
 
