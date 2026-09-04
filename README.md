@@ -61,13 +61,19 @@ Then build and smoke-test the production target:
 
 ```sh
 docker build --platform linux/arm64 --target prod -t portfolio:prod .
-bin/smoke.sh portfolio:prod
+docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+  --entrypoint /rails/bin/smoke portfolio:prod
 ```
 
 Both targets inherit the installed application from `base`. The test target
 adds the test environment and suite; the production target contains neither.
-The smoke test runs production with a read-only root filesystem and only
-`/tmp` writable. Both targets run as the same non-root user.
+
+`bin/smoke` runs *inside* the image, which is what lets CI check the artefact
+that ships rather than the workspace it was built from. It prints one flat JSON
+object on stdout and sends everything else to stderr. It asserts the root
+filesystem is read-only, because that is how Lambda runs the image, so the flags
+above are part of the check rather than decoration. Both targets run as the same
+non-root user.
 
 Pushes to `main` publish the validated image to the development environment.
 Production promotion is a separate manually dispatched workflow.
