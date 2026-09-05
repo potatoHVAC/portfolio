@@ -181,7 +181,9 @@ data "aws_iam_policy_document" "dev_deploy" {
       "ecr:PutImage",
       "ecr:UploadLayerPart",
     ]
-    resources = [aws_ecr_repository.dev.arn]
+    # Every dev repository by name. Widening this to * would let any future
+    # consumer in this account overwrite another's images.
+    resources = [for repository in aws_ecr_repository.dev : repository.arn]
   }
 
   statement {
@@ -233,7 +235,9 @@ data "aws_iam_policy_document" "prod_deploy" {
       "ecr:GetDownloadUrlForLayer",
       "ecr:ListImages",
     ]
-    resources = [aws_ecr_repository.dev.arn]
+    # The application image only. Tool images are never promoted, so the
+    # production role has no reason to read them and does not get it.
+    resources = [aws_ecr_repository.dev["portfolio"].arn]
   }
 
   statement {
