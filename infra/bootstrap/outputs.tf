@@ -23,8 +23,9 @@ output "prod_deploy_role_arn" {
   value       = aws_iam_role.prod_deploy.arn
 }
 
-output "dev_ecr_repository_url" {
-  value = aws_ecr_repository.dev.repository_url
+output "dev_ecr_repository_urls" {
+  description = "Registry URL per dev image, keyed by image name."
+  value       = { for name, repository in aws_ecr_repository.dev : name => repository.repository_url }
 }
 
 output "prod_ecr_repository_url" {

@@ -2,8 +2,21 @@
 # contents then are a complete, self-evident record of what has ever been
 # production, and the dev deploy role has no write path into it.
 
+# One repository per image rather than one shared repository. Retention is then
+# a property of each image: a build tool that churns tags cannot expire the
+# application's rollback window, which is what a shared repository would let it
+# do. Adding an image here is the only place a new one has to be declared.
+locals {
+  dev_images = toset([
+    "portfolio",       # the Rails application image
+    "portfolio-media", # the media build tool, pulled by CI rather than rebuilt
+  ])
+}
+
 resource "aws_ecr_repository" "dev" {
-  name = "dev/portfolio"
+  for_each = local.dev_images
+
+  name = "dev/${each.key}"
 
   # MUTABLE because the `main` tag has to move onto each new build. Nothing
   # running ever references it — deployments resolve a digest first.
@@ -15,13 +28,15 @@ resource "aws_ecr_repository" "dev" {
 }
 
 resource "aws_ecr_lifecycle_policy" "dev" {
-  repository = aws_ecr_repository.dev.name
+  for_each = local.dev_images
+
+  repository = aws_ecr_repository.dev[each.key].name
 
   policy = jsonencode({
     rules = [
       {
         rulePriority = 1
-        description  = "Keep the 5 most recent commit-tagged images"
+        description  = "Keep the ${var.dev_image_retention_count} most recent commit-tagged images"
         selection = {
           tagStatus     = "tagged"
           tagPrefixList = ["git-"]
@@ -43,6 +58,19 @@ resource "aws_ecr_lifecycle_policy" "dev" {
       },
     ]
   })
+}
+
+# dev/portfolio predates the for_each above. Without these, renaming the state
+# address reads as destroy-and-create, which would delete the repository and
+# every image in it.
+moved {
+  from = aws_ecr_repository.dev
+  to   = aws_ecr_repository.dev["portfolio"]
+}
+
+moved {
+  from = aws_ecr_lifecycle_policy.dev
+  to   = aws_ecr_lifecycle_policy.dev["portfolio"]
 }
 
 resource "aws_ecr_repository" "prod" {
