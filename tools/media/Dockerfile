@@ -1,8 +1,5 @@
 FROM node:24.19.0-bookworm-slim@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df
 
-# Debian drops superseded versions from the archive, so a pinned package breaks
-# the build the next time the base image moves.
-# hadolint ignore=DL3008
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
       awscli \

@@ -9,10 +9,6 @@ ENV BUNDLE_DEPLOYMENT=1 \
     BUNDLE_PATH=/usr/local/bundle \
     BUNDLE_WITHOUT=development:test
 
-# Not version-pinned deliberately. Debian drops superseded versions from the
-# archive, so a pinned build package breaks the build the next time the base
-# image moves. These are build-stage only and reach no shipped image.
-# hadolint ignore=DL3008
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential pkg-config && \
     rm -rf /var/lib/apt/lists/*
@@ -22,7 +18,7 @@ RUN bundle install && \
     rm -rf /root/.bundle "${BUNDLE_PATH}"/ruby/*/cache
 
 COPY app/ app/
-COPY bin/rails bin/rake bin/smoke bin/
+COPY bin/rails bin/rake bin/
 COPY config/application.rb config/boot.rb config/environment.rb config/media.json \
     config/portfolio.yml config/puma.rb config/routes.rb config/
 COPY config/environments/production.rb config/environments/
