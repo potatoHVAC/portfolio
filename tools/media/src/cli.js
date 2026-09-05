@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import sharp from "sharp";
@@ -35,6 +36,52 @@ function runTool(name, arguments_, options = {}) {
   if (result.status !== 0) throw new Error(`${name} failed with status ${result.status}`);
 }
 
+function firstLine(name, arguments_) {
+  const result = spawnSync(name, arguments_, { encoding: "utf8" });
+  if (result.error || result.status !== 0) return null;
+  return `${result.stdout}${result.stderr}`.trim().split("\n")[0];
+}
+
+function toolVersion(name, arguments_) {
+  const line = firstLine(name, arguments_);
+  if (line === null) return null;
+  return (/(?:version )?v?(\d[\w.+~-]*)/.exec(line) ?? ["", line])[1];
+}
+
+async function selftest() {
+  const metadataCheck = process.env.MEDIA_METADATA_CHECK ?? "";
+  let metadataCheckExecutable;
+  try {
+    fs.accessSync(metadataCheck, fs.constants.X_OK);
+    metadataCheckExecutable = true;
+  } catch {
+    metadataCheckExecutable = false;
+  }
+
+  const report = {
+    node: process.versions.node,
+    libvips: sharp.versions.vips,
+    ffmpeg: toolVersion("ffmpeg", ["-version"]),
+    ffprobe: toolVersion("ffprobe", ["-version"]),
+    exiftool: toolVersion("exiftool", ["-ver"]),
+    aws: toolVersion("aws", ["--version"]),
+    file: toolVersion("file", ["--version"]),
+    jq: toolVersion("jq", ["--version"]),
+    metadata_check: metadataCheckExecutable,
+  };
+
+  const missing = Object.entries(report)
+    .filter(([, value]) => value === null || value === false)
+    .map(([key]) => key);
+  if (missing.length > 0) throw new Error(`Missing from the image: ${missing.join(", ")}`);
+
+  await sharp({ create: { width: 1, height: 1, channels: 3, background: "black" } })
+    .jpeg()
+    .toBuffer();
+
+  process.stdout.write(`${JSON.stringify(report)}\n`);
+}
+
 async function check(validateManifest) {
   for (const binary of ["aws", "exiftool", "ffmpeg", "ffprobe", "file", "jq"]) {
     requireBinary(binary);
@@ -66,6 +113,11 @@ function parseRemoteOptions(values) {
 
 async function run() {
   const [command, ...arguments_] = process.argv.slice(2);
+
+  // The image carries no repository, so this has to answer before anything
+  // below reads config/ out of the working directory.
+  if (command === "selftest") return selftest();
+
   const validateManifest = await createManifestValidator(schemaPath);
 
   if (command === "check") return check(validateManifest);

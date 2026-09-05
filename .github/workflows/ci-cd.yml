@@ -30,16 +30,73 @@ jobs:
       - name: Lint Ruby
         run: bundle exec rubocop
 
-  media:
-    name: media-ci
+  # bin/media is the single source of truth for the hash, so CI asks it rather
+  # than recomputing it here and drifting.
+  media-tool-tag:
+    name: media-tool-tag
     runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
       - name: Check out source
         uses: actions/checkout@v6
         with:
           persist-credentials: false
 
+      - name: Compute the media tool image tag
+        id: tag
+        run: echo "tag=$(bin/media image-tag)" >> "$GITHUB_OUTPUT"
+
+  media-tool:
+    name: media-tool
+    needs: media-tool-tag
+    permissions:
+      contents: read
+      id-token: write
+    uses: potatoHVAC/speerd-devops/.github/workflows/container-ci.yml@container-ci/v1
+    with:
+      name: portfolio-media
+      context: tools/media
+      smoke_command: '["node","/app/src/cli.js","selftest"]'
+      publish: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      aws_region: ${{ vars.AWS_REGION }}
+      registry_repository: dev/portfolio-media
+      image_tag: ${{ needs.media-tool-tag.outputs.tag }}
+    secrets:
+      aws_role_arn: ${{ secrets.AWS_DEV_DEPLOY_ROLE_ARN }}
+
+  # Deliberately not waiting on media-tool. The tag is a content hash, so the
+  # pull hits on any run that did not change tools/media — which is nearly all
+  # of them — and the two jobs stay parallel.
+  media:
+    name: media-ci
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Mask the AWS account ID
+        run: echo "::add-mask::${{ secrets.AWS_ACCOUNT_ID }}"
+
+      - name: Configure read-only AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
+          role-session-name: portfolio-media-${{ github.run_id }}
+
+      - name: Log in to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Run media gates
+        env:
+          SPEERD_MEDIA_TOOL_REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: bin/media ci
 
   # Building, testing, smoke-checking and publishing the image is the shared
@@ -54,6 +111,7 @@ jobs:
     needs:
       - lint
       - media
+      - media-tool
     permissions:
       contents: read
       id-token: write
@@ -126,20 +184,24 @@ jobs:
           role-to-assume: ${{ env.AWS_DEV_DEPLOY_ROLE_ARN }}
           role-session-name: portfolio-dev-deploy-${{ github.run_id }}
 
+      - name: Log in to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
       # The shared workflow returns the digest but not the registry host: the
       # host carries the account ID, which is masked, and GitHub drops job
-      # outputs containing masked values. Resolving it here costs one call.
+      # outputs containing masked values.
       - name: Resolve the published image URI
         id: image
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
           set -euo pipefail
           [[ "$DEV_IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || {
             echo "Invalid digest from the container workflow: $DEV_IMAGE_DIGEST"
             exit 1
           }
-          account_id=$(aws sts get-caller-identity --query Account --output text)
-          registry="$account_id.dkr.ecr.$AWS_REGION.amazonaws.com"
-          echo "uri=$registry/$DEV_ECR_REPOSITORY@$DEV_IMAGE_DIGEST" >> "$GITHUB_OUTPUT"
+          echo "uri=$REGISTRY/$DEV_ECR_REPOSITORY@$DEV_IMAGE_DIGEST" >> "$GITHUB_OUTPUT"
 
       - name: Deploy the published image to dev
         id: deploy
@@ -211,6 +273,8 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Verify public media delivery
+        env:
+          SPEERD_MEDIA_TOOL_REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: bin/media verify-manifest --remote https://speerd.com
 
       - name: Write job summary

@@ -127,6 +127,10 @@ metadata, and rejects tracked source or hydrated files. Pushes to `main` also
 verify every manifest object through the public CloudFront origin with HEAD and
 video Range requests after the development deployment.
 
+The media tool image is tagged with a content hash of `tools/media` and
+published to `dev/portfolio-media`. CI pulls that tag; a local run builds the
+image when the pull misses or no registry is configured.
+
 Publication handles one selected asset at a time. It archives the source bytes,
 publishes metadata-free content-addressed derivatives, and updates
 `config/media.json` only after object readback succeeds. Reusing an asset ID

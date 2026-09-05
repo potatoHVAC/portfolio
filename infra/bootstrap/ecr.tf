@@ -7,10 +7,12 @@
 # application's rollback window, which is what a shared repository would let it
 # do. Adding an image here is the only place a new one has to be declared.
 locals {
-  dev_images = toset([
-    "portfolio",       # the Rails application image
-    "portfolio-media", # the media build tool, pulled by CI rather than rebuilt
-  ])
+  dev_images = {
+    # tag_prefix is what retention keys off, so an image whose tags do not carry
+    # it accumulates forever.
+    "portfolio"       = { tag_prefix = "git-" }  # the Rails application image
+    "portfolio-media" = { tag_prefix = "tool-" } # the media build tool, tagged by content hash
+  }
 }
 
 resource "aws_ecr_repository" "dev" {
@@ -36,10 +38,10 @@ resource "aws_ecr_lifecycle_policy" "dev" {
     rules = [
       {
         rulePriority = 1
-        description  = "Keep the ${var.dev_image_retention_count} most recent commit-tagged images"
+        description  = "Keep the ${var.dev_image_retention_count} most recent ${each.value.tag_prefix} images"
         selection = {
           tagStatus     = "tagged"
-          tagPrefixList = ["git-"]
+          tagPrefixList = [each.value.tag_prefix]
           countType     = "imageCountMoreThan"
           countNumber   = var.dev_image_retention_count
         }
