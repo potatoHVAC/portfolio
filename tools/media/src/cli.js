@@ -114,8 +114,8 @@ function parseRemoteOptions(values) {
 async function run() {
   const [command, ...arguments_] = process.argv.slice(2);
 
-  // The image carries no repository, so this has to answer before anything
-  // below reads config/ out of the working directory.
+  // The image carries no repository, so this answers before
+  // createManifestValidator reads config/ out of the working directory.
   if (command === "selftest") return selftest();
 
   const validateManifest = await createManifestValidator(schemaPath);

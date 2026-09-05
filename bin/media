@@ -32,8 +32,6 @@ host_architecture() {
   esac
 }
 
-# Local, then registry, then build. The tag is a content hash of tools/media, so
-# a pull can only ever return the image this checkout would have built.
 ensure_image() {
   docker image inspect "$image_name" >/dev/null 2>&1 && return 0
 
@@ -41,8 +39,8 @@ ensure_image() {
   if [[ -n "$registry" ]]; then
     local remote="$registry/dev/portfolio-media:$image_tag"
     if docker pull --quiet "$remote" >/dev/null; then
-      # Docker will happily run a foreign-architecture image under emulation
-      # rather than fail, which reads as a mysteriously slow build.
+      # Docker runs a foreign-architecture image under emulation rather than
+      # failing, which reads as a mysteriously slow build.
       if [[ "$(docker image inspect "$remote" --format '{{.Architecture}}')" == "$(host_architecture)" ]]; then
         docker tag "$remote" "$image_name"
         return 0
@@ -117,7 +115,7 @@ run_ci_container() {
 command_name="${1:-}"
 [[ -n "$command_name" ]] || fail "Usage: bin/media <check|ci|publish|verify-manifest|hydrate|image-tag>"
 
-# Answers without Docker or the image: CI needs the tag to build the image.
+# Answers before require_command docker, so CI can get the tag without an image.
 if [[ "$command_name" == image-tag ]]; then
   printf '%s\n' "$image_tag"
   exit 0

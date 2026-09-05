@@ -1,11 +1,4 @@
-# Two repositories, not one with tag conventions. The production repository's
-# contents then are a complete, self-evident record of what has ever been
-# production, and the dev deploy role has no write path into it.
-
-# One repository per image rather than one shared repository. Retention is then
-# a property of each image: a build tool that churns tags cannot expire the
-# application's rollback window, which is what a shared repository would let it
-# do. Adding an image here is the only place a new one has to be declared.
+# Adding an image here is the only place a new one has to be declared.
 locals {
   dev_images = {
     # tag_prefix is what retention keys off, so an image whose tags do not carry
@@ -20,8 +13,7 @@ resource "aws_ecr_repository" "dev" {
 
   name = "dev/${each.key}"
 
-  # MUTABLE because the `main` tag has to move onto each new build. Nothing
-  # running ever references it — deployments resolve a digest first.
+  # MUTABLE: the `main` tag has to move onto each new build.
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -62,9 +54,8 @@ resource "aws_ecr_lifecycle_policy" "dev" {
   })
 }
 
-# dev/portfolio predates the for_each above. Without these, renaming the state
-# address reads as destroy-and-create, which would delete the repository and
-# every image in it.
+# dev/portfolio predates the for_each above. Without these, the renamed state
+# address plans as destroy-and-create, deleting the repository and its images.
 moved {
   from = aws_ecr_repository.dev
   to   = aws_ecr_repository.dev["portfolio"]
@@ -78,10 +69,8 @@ moved {
 resource "aws_ecr_repository" "prod" {
   name = "prod/portfolio"
 
-  # IMMUTABLE: a promoted git-<sha> tag can never be repointed, so production is
-  # pinned to bytes by name as well as by digest. Re-promoting a SHA already
-  # present therefore fails the copy — the promotion workflow checks first and
-  # treats "already there at the same digest" as success.
+  # IMMUTABLE: re-promoting a SHA already present fails the copy, so the
+  # promotion workflow checks first and treats a matching digest as success.
   image_tag_mutability = "IMMUTABLE"
 
   image_scanning_configuration {
@@ -89,9 +78,8 @@ resource "aws_ecr_repository" "prod" {
   }
 }
 
-# Retention on prod/portfolio, added 2026-08-22 at the owner's request to cap
-# cost. Lambda versions retain deployed code, but a digest that ages out of ECR
-# cannot be promoted again by commit SHA. Five images is the rollback window.
+# A digest that ages out of ECR cannot be promoted again by commit SHA, even
+# though the Lambda version still runs it. Five images is the rollback window.
 resource "aws_ecr_lifecycle_policy" "prod" {
   repository = aws_ecr_repository.prod.name
 

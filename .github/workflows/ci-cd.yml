@@ -30,8 +30,6 @@ jobs:
       - name: Lint Ruby
         run: bundle exec rubocop
 
-  # bin/media is the single source of truth for the hash, so CI asks it rather
-  # than recomputing it here and drifting.
   media-tool-tag:
     name: media-tool-tag
     runs-on: ubuntu-24.04
@@ -65,9 +63,6 @@ jobs:
     secrets:
       aws_role_arn: ${{ secrets.AWS_DEV_DEPLOY_ROLE_ARN }}
 
-  # Deliberately not waiting on media-tool. The tag is a content hash, so the
-  # pull hits on any run that did not change tools/media — which is nearly all
-  # of them — and the two jobs stay parallel.
   media:
     name: media-ci
     runs-on: ubuntu-24.04
@@ -99,13 +94,8 @@ jobs:
           SPEERD_MEDIA_TOOL_REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: bin/media ci
 
-  # Building, testing, smoke-checking and publishing the image is the shared
-  # pipeline's job. What stays here is what is specific to this repository: the
-  # image's inputs, and what to do with the digest afterwards.
-  #
-  # production_target is deliberately unset. That builds the Dockerfile's final
-  # stage, which asserts prod is last — a build that forgets --target cannot
-  # then publish an image carrying the test suite.
+  # production_target is unset on purpose: that builds the Dockerfile's final
+  # stage, which is prod.
   container:
     name: container
     needs:
@@ -126,9 +116,7 @@ jobs:
       runner: ubuntu-24.04-arm
       test_target: test
       test_command: '["/rails/bin/rails","test"]'
-      # Lambda runs this image with a read-only root and a writable /tmp, so
-      # both checks run that way too. bin/smoke asserts it rather than trusting
-      # the flags arrived.
+      # Lambda runs this image with a read-only root and a writable /tmp.
       test_run_args: >-
         ["--read-only",
          "--tmpfs","/tmp:rw,noexec,nosuid,size=64m,mode=1777",
@@ -154,8 +142,7 @@ jobs:
     if: needs.container.outputs.published == 'true'
     runs-on: ubuntu-24.04
     permissions:
-      # actions: read is for bin/promotion-candidates, which lists this
-      # workflow's successful runs to decide what is promotable.
+      # actions: read lets bin/promotion-candidates list this workflow's runs.
       actions: read
       contents: read
       id-token: write
@@ -188,9 +175,8 @@ jobs:
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # The shared workflow returns the digest but not the registry host: the
-      # host carries the account ID, which is masked, and GitHub drops job
-      # outputs containing masked values.
+      # GitHub drops job outputs containing masked values, and the registry
+      # host carries the masked account ID, so it is resolved here.
       - name: Resolve the published image URI
         id: image
         env:
@@ -210,7 +196,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Publishing succeeds on its own before the environment exists.
+          # The dev function may not exist yet; publishing still succeeded.
           if ! aws lambda get-function \
             --function-name "$DEV_FUNCTION_NAME" >/dev/null 2>&1; then
             echo "$DEV_FUNCTION_NAME does not exist; image published, nothing deployed."
@@ -247,7 +233,7 @@ jobs:
           aws lambda wait function-updated-v2 \
             --function-name "$DEV_FUNCTION_NAME"
 
-          # Publishing freezes the code; moving the alias is what makes it live.
+          # publish-version freezes the code; moving the alias makes it live.
           version=$(aws lambda publish-version \
             --function-name "$DEV_FUNCTION_NAME" \
             --description "$GITHUB_SHA" \
@@ -301,9 +287,8 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # Informational and non-blocking. By this point every delivery check has
-      # passed; include this run even though GitHub marks it successful only
-      # after the job exits.
+      # Informational and non-blocking: this run is included even though GitHub
+      # marks it successful only after the job exits.
       - name: Configure read-only deployment state credentials
         id: catalog_credentials
         continue-on-error: true
