@@ -30,30 +30,78 @@ jobs:
       - name: Lint Ruby
         run: bundle exec rubocop
 
-  media:
-    name: media-ci
+  media-tool-tag:
+    name: media-tool-tag
     runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
       - name: Check out source
         uses: actions/checkout@v6
         with:
           persist-credentials: false
 
+      - name: Compute the media tool image tag
+        id: tag
+        run: echo "tag=$(bin/media image-tag)" >> "$GITHUB_OUTPUT"
+
+  media-tool:
+    name: media-tool
+    needs: media-tool-tag
+    permissions:
+      contents: read
+      id-token: write
+    uses: potatoHVAC/speerd-devops/.github/workflows/container-ci.yml@container-ci/v1
+    with:
+      name: portfolio-media
+      context: tools/media
+      smoke_command: '["node","/app/src/cli.js","selftest"]'
+      publish: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      aws_region: ${{ vars.AWS_REGION }}
+      registry_repository: dev/portfolio-media
+      image_tag: ${{ needs.media-tool-tag.outputs.tag }}
+    secrets:
+      aws_role_arn: ${{ secrets.AWS_DEV_DEPLOY_ROLE_ARN }}
+
+  media:
+    name: media-ci
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Mask the AWS account ID
+        run: echo "::add-mask::${{ secrets.AWS_ACCOUNT_ID }}"
+
+      - name: Configure read-only AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
+          role-session-name: portfolio-media-${{ github.run_id }}
+
+      - name: Log in to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Run media gates
+        env:
+          SPEERD_MEDIA_TOOL_REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: bin/media ci
 
-  # Building, testing, smoke-checking and publishing the image is the shared
-  # pipeline's job. What stays here is what is specific to this repository: the
-  # image's inputs, and what to do with the digest afterwards.
-  #
-  # production_target is deliberately unset. That builds the Dockerfile's final
-  # stage, which asserts prod is last — a build that forgets --target cannot
-  # then publish an image carrying the test suite.
+  # production_target is unset on purpose: that builds the Dockerfile's final
+  # stage, which is prod.
   container:
     name: container
     needs:
       - lint
       - media
+      - media-tool
     permissions:
       contents: read
       id-token: write
@@ -68,9 +116,7 @@ jobs:
       runner: ubuntu-24.04-arm
       test_target: test
       test_command: '["/rails/bin/rails","test"]'
-      # Lambda runs this image with a read-only root and a writable /tmp, so
-      # both checks run that way too. bin/smoke asserts it rather than trusting
-      # the flags arrived.
+      # Lambda runs this image with a read-only root and a writable /tmp.
       test_run_args: >-
         ["--read-only",
          "--tmpfs","/tmp:rw,noexec,nosuid,size=64m,mode=1777",
@@ -96,8 +142,7 @@ jobs:
     if: needs.container.outputs.published == 'true'
     runs-on: ubuntu-24.04
     permissions:
-      # actions: read is for bin/promotion-candidates, which lists this
-      # workflow's successful runs to decide what is promotable.
+      # actions: read lets bin/promotion-candidates list this workflow's runs.
       actions: read
       contents: read
       id-token: write
@@ -126,20 +171,23 @@ jobs:
           role-to-assume: ${{ env.AWS_DEV_DEPLOY_ROLE_ARN }}
           role-session-name: portfolio-dev-deploy-${{ github.run_id }}
 
-      # The shared workflow returns the digest but not the registry host: the
-      # host carries the account ID, which is masked, and GitHub drops job
-      # outputs containing masked values. Resolving it here costs one call.
+      - name: Log in to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # GitHub drops job outputs containing masked values, and the registry
+      # host carries the masked account ID, so it is resolved here.
       - name: Resolve the published image URI
         id: image
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
           set -euo pipefail
           [[ "$DEV_IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || {
             echo "Invalid digest from the container workflow: $DEV_IMAGE_DIGEST"
             exit 1
           }
-          account_id=$(aws sts get-caller-identity --query Account --output text)
-          registry="$account_id.dkr.ecr.$AWS_REGION.amazonaws.com"
-          echo "uri=$registry/$DEV_ECR_REPOSITORY@$DEV_IMAGE_DIGEST" >> "$GITHUB_OUTPUT"
+          echo "uri=$REGISTRY/$DEV_ECR_REPOSITORY@$DEV_IMAGE_DIGEST" >> "$GITHUB_OUTPUT"
 
       - name: Deploy the published image to dev
         id: deploy
@@ -148,7 +196,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Publishing succeeds on its own before the environment exists.
+          # The dev function may not exist yet; publishing still succeeded.
           if ! aws lambda get-function \
             --function-name "$DEV_FUNCTION_NAME" >/dev/null 2>&1; then
             echo "$DEV_FUNCTION_NAME does not exist; image published, nothing deployed."
@@ -185,7 +233,7 @@ jobs:
           aws lambda wait function-updated-v2 \
             --function-name "$DEV_FUNCTION_NAME"
 
-          # Publishing freezes the code; moving the alias is what makes it live.
+          # publish-version freezes the code; moving the alias makes it live.
           version=$(aws lambda publish-version \
             --function-name "$DEV_FUNCTION_NAME" \
             --description "$GITHUB_SHA" \
@@ -211,6 +259,8 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Verify public media delivery
+        env:
+          SPEERD_MEDIA_TOOL_REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: bin/media verify-manifest --remote https://speerd.com
 
       - name: Write job summary
@@ -237,9 +287,8 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # Informational and non-blocking. By this point every delivery check has
-      # passed; include this run even though GitHub marks it successful only
-      # after the job exits.
+      # Informational and non-blocking: this run is included even though GitHub
+      # marks it successful only after the job exits.
       - name: Configure read-only deployment state credentials
         id: catalog_credentials
         continue-on-error: true
