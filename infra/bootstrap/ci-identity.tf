@@ -181,9 +181,7 @@ data "aws_iam_policy_document" "dev_deploy" {
       "ecr:PutImage",
       "ecr:UploadLayerPart",
     ]
-    # Every dev repository by name; * would let a future consumer in this
-    # account overwrite these images.
-    resources = [for repository in aws_ecr_repository.dev : repository.arn]
+    resources = [aws_ecr_repository.dev.arn]
   }
 
   statement {
@@ -235,8 +233,7 @@ data "aws_iam_policy_document" "prod_deploy" {
       "ecr:GetDownloadUrlForLayer",
       "ecr:ListImages",
     ]
-    # The application image only; tool images are never promoted.
-    resources = [aws_ecr_repository.dev["portfolio"].arn]
+    resources = [aws_ecr_repository.dev.arn]
   }
 
   statement {

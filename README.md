@@ -61,19 +61,13 @@ Then build and smoke-test the production target:
 
 ```sh
 docker build --platform linux/arm64 --target prod -t portfolio:prod .
-docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-  --entrypoint /rails/bin/smoke portfolio:prod
+bin/smoke.sh portfolio:prod
 ```
 
 Both targets inherit the installed application from `base`. The test target
 adds the test environment and suite; the production target contains neither.
-
-`bin/smoke` runs *inside* the image, which is what lets CI check the artefact
-that ships rather than the workspace it was built from. It prints one flat JSON
-object on stdout and sends everything else to stderr. It asserts the root
-filesystem is read-only, because that is how Lambda runs the image, so the flags
-above are part of the check rather than decoration. Both targets run as the same
-non-root user.
+The smoke test runs production with a read-only root filesystem and only
+`/tmp` writable. Both targets run as the same non-root user.
 
 Pushes to `main` publish the validated image to the development environment.
 Production promotion is a separate manually dispatched workflow.
@@ -126,10 +120,6 @@ test suite, validates the committed manifest, scans committed public media for
 metadata, and rejects tracked source or hydrated files. Pushes to `main` also
 verify every manifest object through the public CloudFront origin with HEAD and
 video Range requests after the development deployment.
-
-The media tool image is tagged with a content hash of `tools/media` and
-published to `dev/portfolio-media`. CI pulls that tag; a local run builds the
-image when the pull misses or no registry is configured.
 
 Publication handles one selected asset at a time. It archives the source bytes,
 publishes metadata-free content-addressed derivatives, and updates
