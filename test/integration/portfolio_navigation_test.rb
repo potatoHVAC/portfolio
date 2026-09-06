@@ -40,6 +40,10 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     get gallery_path("damascus-rings")
     assert_response :success
     assert_equal 1, css_select("main.accent--ember").size
+    assert_predicate css_select("article.media-gallery__item"), :any?
+
+    get gallery_path("cadenza")
+    assert_response :success
     assert_includes response.body, "This gallery is being prepared."
   end
 
