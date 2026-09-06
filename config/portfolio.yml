@@ -44,6 +44,7 @@ projects:
     summary: Stage-ready LED systems shaped around how an instrument is held, played, transported, and seen.
     path: /led-art/instrument-art
     hero_media_id:
+    feature_media_id:
     gallery_id: instrument-art
     facts:
       - label: Practice
@@ -64,6 +65,7 @@ projects:
     summary: A network of LED controllers that shares time, holds its choreography, and turns distributed hardware into one visual instrument.
     path: /led-art/cadenza
     hero_media_id:
+    feature_media_id:
     gallery_id: cadenza
     facts:
       - label: System
@@ -84,6 +86,7 @@ projects:
     summary: A luminous armored build that trades battlefield camouflage for mirrored color, motion, and unapologetic dance-floor energy.
     path: /cosplay/disco-chief
     hero_media_id:
+    feature_media_id:
     gallery_id: disco-chief
     facts:
       - label: Build
@@ -104,6 +107,7 @@ projects:
     summary: A character build expanded with illuminated details, playful scale, and the kind of finish that rewards a closer look.
     path: /cosplay/russell-glow
     hero_media_id:
+    feature_media_id:
     gallery_id: russell-glow
     facts:
       - label: Build
@@ -124,6 +128,7 @@ projects:
     summary: A playful villain build balancing theatrical menace, wearable fabrication, and just enough self-awareness.
     path: /cosplay/darth-daddy
     hero_media_id:
+    feature_media_id:
     gallery_id: darth-daddy
     facts:
       - label: Build
@@ -216,6 +221,14 @@ galleries:
     title: Damascus Press-on Nails
     summary: Pattern-welded steel refined into a dramatic, improbable wearable surface.
     path: /galleries/damascus-press-on-nails
+    status: Media queued
+    cover_media_id:
+    media_ids: []
+  - id: misc-art
+    section_id:
+    title: Miscellaneous Art
+    summary: Duct tape portraits, hand-made leatherwork, and one-off pieces that fit nowhere else.
+    path: /galleries/misc-art
     status: Media queued
     cover_media_id:
     media_ids: []

@@ -1,9 +1,9 @@
 <% set_page_meta title: "#{@gallery.fetch("title")} gallery", description: @gallery.fetch("summary") %>
 
-<main id="main-content" class="accent--<%= @section.fetch("accent") %>">
+<main id="main-content" class="<%= accent_class(@gallery) %>">
   <header class="page-hero gallery-hero">
     <div class="page-hero__copy">
-      <p class="breadcrumb"><%= link_to "Galleries", galleries_path %> <span aria-hidden="true">/</span> <%= @section.fetch("title") %></p>
+      <p class="breadcrumb"><%= link_to "Galleries", galleries_path %><% if @section %> <span aria-hidden="true">/</span> <%= @section.fetch("title") %><% end %></p>
       <p class="eyebrow"><%= @gallery.fetch("status") %></p>
       <h1><%= @gallery.fetch("title") %></h1>
       <p class="page-hero__lede"><%= @gallery.fetch("summary") %></p>

@@ -28,5 +28,22 @@
         </div>
       </section>
     <% end %>
+
+    <% if portfolio_catalog.unsectioned_galleries.any? %>
+      <section class="gallery-group" aria-labelledby="gallery-group-other">
+        <header class="gallery-group__header">
+          <span class="gallery-group__number"><%= format("%02d", @sections.size + 1) %></span>
+          <div>
+            <p class="eyebrow">Everything else</p>
+            <h2 id="gallery-group-other">Outside the disciplines</h2>
+          </div>
+        </header>
+        <div class="gallery-grid gallery-grid--cards">
+          <% portfolio_catalog.unsectioned_galleries.each do |gallery| %>
+            <%= render "shared/gallery_card", gallery: gallery %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
   </div>
 </main>

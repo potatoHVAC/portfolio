@@ -8,7 +8,7 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
       permitted_symbols: [],
       aliases: false
     )
-    @media_catalog = MediaCatalog.new(manifest: MediaManifestFixture.manifest)
+    @media_catalog = MediaCatalog.new
   end
 
   test "loads and freezes the public content graph without AWS" do
@@ -17,8 +17,8 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
 
     assert_equal 3, catalog.sections.size
     assert_equal 5, catalog.projects.size
-    assert_equal 10, catalog.galleries.size
-    assert_equal 22, catalog.public_paths.size
+    assert_equal 11, catalog.galleries.size
+    assert_equal 23, catalog.public_paths.size
     assert_equal %w[instrument-art cadenza], catalog.featured_projects_for("led-art").pluck("id")
     assert_predicate catalog.site, :frozen?
     assert_predicate catalog.projects.first.fetch("stories"), :frozen?
@@ -72,7 +72,9 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
     assert_match "references invalid media", error.message
 
     missing_cover = copy_data
-    missing_cover["galleries"][0]["cover_media_id"] = "rings/home/hero"
+    gallery = missing_cover["galleries"][0]
+    outside = @media_catalog.assets.keys.find { |id| gallery["media_ids"].exclude?(id) }
+    gallery["cover_media_id"] = outside
     error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(missing_cover) }
     assert_match "cover must be included", error.message
   end

@@ -5,7 +5,8 @@ class GalleriesController < ApplicationController
 
   def show
     @gallery = portfolio_catalog.gallery!(params[:id])
-    @section = portfolio_catalog.section!(@gallery.fetch("section_id"))
+    section_id = @gallery["section_id"]
+    @section = section_id && portfolio_catalog.section!(section_id)
   rescue PortfolioCatalog::UnknownEntry
     head :not_found
   end
