@@ -14,10 +14,21 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
   test "the gallery directory groups destinations without combining media" do
     get galleries_path
 
-    assert_equal 3, css_select("section.gallery-group").size
-    assert_equal 10, css_select("article.gallery-card").size
+    assert_equal 4, css_select("section.gallery-group").size
+    assert_equal 11, css_select("article.gallery-card").size
     assert_empty css_select("section.media-gallery")
     assert_empty css_select("picture, video")
+  end
+
+  test "a gallery without a section still lists and renders on its own" do
+    get galleries_path
+    assert_select "section.gallery-group h2", text: "Outside the disciplines"
+    assert_select "a[href=?]", "/galleries/misc-art"
+
+    get gallery_path("misc-art")
+    assert_response :success
+    assert_equal "Miscellaneous Art", css_select("h1").first.text
+    assert_equal "Galleries", css_select("p.breadcrumb").first.text.strip
   end
 
   test "project and gallery pages retain their section accent" do
@@ -29,6 +40,10 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     get gallery_path("damascus-rings")
     assert_response :success
     assert_equal 1, css_select("main.accent--ember").size
+    assert_predicate css_select("article.media-gallery__item"), :any?
+
+    get gallery_path("cadenza")
+    assert_response :success
     assert_includes response.body, "This gallery is being prepared."
   end
 

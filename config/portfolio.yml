@@ -43,7 +43,8 @@ projects:
     kicker: Custom-mounted light for working instruments
     summary: Stage-ready LED systems shaped around how an instrument is held, played, transported, and seen.
     path: /led-art/instrument-art
-    hero_media_id:
+    hero_media_id: led/instrument/instrument-012
+    feature_media_id:
     gallery_id: instrument-art
     facts:
       - label: Practice
@@ -64,6 +65,7 @@ projects:
     summary: A network of LED controllers that shares time, holds its choreography, and turns distributed hardware into one visual instrument.
     path: /led-art/cadenza
     hero_media_id:
+    feature_media_id:
     gallery_id: cadenza
     facts:
       - label: System
@@ -83,7 +85,8 @@ projects:
     kicker: Armor with a nightlife problem
     summary: A luminous armored build that trades battlefield camouflage for mirrored color, motion, and unapologetic dance-floor energy.
     path: /cosplay/disco-chief
-    hero_media_id:
+    hero_media_id: cosplay/disco-chief/disco-chief-003
+    feature_media_id: cosplay/disco-chief/disco-chief-009
     gallery_id: disco-chief
     facts:
       - label: Build
@@ -103,7 +106,8 @@ projects:
     kicker: A bright idea with too many merit badges
     summary: A character build expanded with illuminated details, playful scale, and the kind of finish that rewards a closer look.
     path: /cosplay/russell-glow
-    hero_media_id:
+    hero_media_id: cosplay/russell-glow/russell-glow-013
+    feature_media_id:
     gallery_id: russell-glow
     facts:
       - label: Build
@@ -123,7 +127,8 @@ projects:
     kicker: The dark side, tailored
     summary: A playful villain build balancing theatrical menace, wearable fabrication, and just enough self-awareness.
     path: /cosplay/darth-daddy
-    hero_media_id:
+    hero_media_id: cosplay/darth-daddy/darth-daddy-003
+    feature_media_id: cosplay/darth-daddy/darth-daddy-005
     gallery_id: darth-daddy
     facts:
       - label: Build
@@ -144,9 +149,24 @@ galleries:
     title: Instrument Art
     summary: Illuminated instruments, mounting details, and stage tests.
     path: /galleries/instrument-art
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: led/instrument/instrument-012
+    media_ids:
+      - led/instrument/instrument-001
+      - led/instrument/instrument-002
+      - led/instrument/instrument-003
+      - led/instrument/instrument-004
+      - led/instrument/instrument-005
+      - led/instrument/instrument-006
+      - led/instrument/instrument-007
+      - led/instrument/instrument-008
+      - led/instrument/instrument-009
+      - led/instrument/instrument-010
+      - led/instrument/instrument-011
+      - led/instrument/instrument-012
+      - led/instrument/instrument-013
+      - led/instrument/instrument-014
+      - led/instrument/instrument-015
   - id: cadenza
     section_id: led-art
     title: Cadenza
@@ -160,62 +180,164 @@ galleries:
     title: LED Experiments
     summary: Studies in diffusion, reflection, movement, and color.
     path: /galleries/led-experiments
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: led/led-gallery/led-gallery-001
+    media_ids:
+      - led/led-gallery/led-gallery-001
+      - led/led-gallery/led-gallery-002
+      - led/led-gallery/led-gallery-003
+      - led/led-gallery/led-gallery-004
+      - led/led-gallery/led-gallery-005
+      - led/led-gallery/led-gallery-006
+      - led/led-gallery/led-gallery-007
+      - led/led-gallery/led-gallery-008
+      - led/led-gallery/led-gallery-009
+      - led/led-gallery/led-gallery-010
+      - led/led-gallery/led-gallery-011
+      - led/led-gallery/led-gallery-012
+      - led/led-gallery/led-gallery-013
   - id: disco-chief
     section_id: cosplay
     title: Disco Chief
     summary: Finished armor, illuminated details, and the build in action.
     path: /galleries/disco-chief
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: cosplay/disco-chief/disco-chief-003
+    media_ids:
+      - cosplay/disco-chief/disco-chief-001
+      - cosplay/disco-chief/disco-chief-003
+      - cosplay/disco-chief/disco-chief-004
+      - cosplay/disco-chief/disco-chief-005
+      - cosplay/disco-chief/disco-chief-006
+      - cosplay/disco-chief/disco-chief-007
+      - cosplay/disco-chief/disco-chief-008
+      - cosplay/disco-chief/disco-chief-009
+      - led/led-gallery/led-gallery-006
   - id: russell-glow
     section_id: cosplay
     title: Russell Glow
     summary: Character studies, fabrication details, and the illuminated final build.
     path: /galleries/russell-glow
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: cosplay/russell-glow/russell-glow-013
+    media_ids:
+      - cosplay/russell-glow/russell-glow-001
+      - cosplay/russell-glow/russell-glow-002
+      - cosplay/russell-glow/russell-glow-003
+      - cosplay/russell-glow/russell-glow-004
+      - cosplay/russell-glow/russell-glow-005
+      - cosplay/russell-glow/russell-glow-006
+      - cosplay/russell-glow/russell-glow-007
+      - cosplay/russell-glow/russell-glow-008
+      - cosplay/russell-glow/russell-glow-009
+      - cosplay/russell-glow/russell-glow-010
+      - cosplay/russell-glow/russell-glow-011
+      - cosplay/russell-glow/russell-glow-012
+      - cosplay/russell-glow/russell-glow-013
   - id: darth-daddy
     section_id: cosplay
     title: Darth Daddy
     summary: Portraits, wearable details, and convention-floor field tests.
     path: /galleries/darth-daddy
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: cosplay/darth-daddy/darth-daddy-003
+    media_ids:
+      - cosplay/darth-daddy/darth-daddy-001
+      - cosplay/darth-daddy/darth-daddy-002
+      - cosplay/darth-daddy/darth-daddy-003
+      - cosplay/darth-daddy/darth-daddy-004
+      - cosplay/darth-daddy/darth-daddy-005
+      - cosplay/darth-daddy/darth-daddy-007
+      - cosplay/darth-daddy/darth-daddy-008
   - id: cosplay
     section_id: cosplay
     title: Other Cosplay & Costume Art
     summary: One-off characters, props, experiments, and costume work beyond the flagship builds.
     path: /galleries/cosplay
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: cosplay/cosplay-gallery/cosplay-gallery-001
+    media_ids:
+      - cosplay/cosplay-gallery/cosplay-gallery-001
+      - cosplay/cosplay-gallery/cosplay-gallery-002
+      - cosplay/cosplay-gallery/cosplay-gallery-003
+      - cosplay/cosplay-gallery/cosplay-gallery-004
+      - cosplay/cosplay-gallery/cosplay-gallery-005
   - id: damascus-rings
     section_id: forge
     title: Damascus Rings
     summary: Pattern-welded steel shaped into small objects with a long visual memory.
     path: /galleries/damascus-rings
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: metal/damascus/damascus-010
+    media_ids:
+      - metal/damascus/damascus-010
+      - metal/damascus/damascus-001
+      - metal/damascus/damascus-002
+      - metal/damascus/damascus-003
+      - metal/damascus/damascus-005
+      - metal/damascus/damascus-006
+      - metal/damascus/damascus-007
+      - metal/damascus/damascus-008
+      - metal/damascus/damascus-009
+      - metal/damascus/damascus-011
+      - metal/damascus/damascus-013
   - id: chainmaille
     section_id: forge
     title: Chainmaille
     summary: Repeated links turned into structure, texture, and wearable movement.
     path: /galleries/chainmaille
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: metal/chainmaille/chainmaille-001
+    media_ids:
+      - metal/chainmaille/chainmaille-001
+      - metal/chainmaille/chainmaille-002
+      - metal/chainmaille/chainmaille-003
+      - metal/chainmaille/chainmaille-004
+      - metal/chainmaille/chainmaille-005
+      - metal/chainmaille/chainmaille-007
+      - metal/chainmaille/chainmaille-008
+      - metal/chainmaille/chainmaille-009
+      - metal/chainmaille/chainmaille-010
+      - metal/chainmaille/chainmaille-011
   - id: damascus-press-on-nails
     section_id: forge
     title: Damascus Press-on Nails
     summary: Pattern-welded steel refined into a dramatic, improbable wearable surface.
     path: /galleries/damascus-press-on-nails
-    status: Media queued
-    cover_media_id:
-    media_ids: []
+    status: Selected work
+    cover_media_id: metal/nails/nails-001
+    media_ids:
+      - metal/nails/nails-001
+      - metal/nails/nails-002
+      - metal/nails/nails-003
+      - metal/nails/nails-004
+      - metal/nails/nails-005
+      - metal/nails/nails-006
+      - metal/nails/nails-007
+      - metal/nails/nails-008
+      - metal/nails/nails-009
+      - metal/nails/nails-010
+  - id: misc-art
+    section_id:
+    title: Miscellaneous Art
+    summary: Duct tape portraits, hand-made leatherwork, and one-off pieces that fit nowhere else.
+    path: /galleries/misc-art
+    status: Selected work
+    cover_media_id: msc-art/msc-art-001
+    media_ids:
+      - msc-art/msc-art-001
+      - msc-art/msc-art-002
+      - msc-art/msc-art-003
+      - msc-art/msc-art-004
+      - msc-art/msc-art-005
+      - msc-art/msc-art-006
+      - msc-art/msc-art-007
+      - msc-art/msc-art-008
+      - msc-art/msc-art-009
+      - msc-art/msc-art-010
+      - msc-art/msc-art-011
+      - msc-art/msc-art-012
+      - msc-art/msc-art-013
+      - msc-art/msc-art-014
+      - msc-art/msc-art-015
+      - msc-art/msc-art-016

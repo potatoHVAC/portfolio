@@ -42,7 +42,8 @@ module ApplicationHelper
   end
 
   def accent_class(entry)
-    accent = entry["accent"] || portfolio_catalog.section!(entry.fetch("section_id")).fetch("accent")
-    "accent--#{accent}"
+    section_id = entry["section_id"]
+    accent = entry["accent"] || (section_id && portfolio_catalog.section!(section_id).fetch("accent"))
+    accent ? "accent--#{accent}" : nil
   end
 end

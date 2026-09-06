@@ -66,12 +66,14 @@ class MediaHelperTest < ActionView::TestCase
 
   test "video renders controls, poster, captions, dimensions, and accessible description" do
     fragment = html_fragment(
-      portfolio_video("videos/studio-tour", class: "studio-tour", autoplay: true)
+      portfolio_video("videos/studio-tour", class: "studio-tour")
     )
     video = fragment.at_css("figure.portfolio-video > video.studio-tour")
     assert video.key?("controls")
     assert video.key?("playsinline")
     refute video.key?("autoplay")
+    refute video.key?("muted")
+    refute video.key?("loop")
     assert_equal "metadata", video["preload"]
     assert_equal "/media/videos/studio-tour/#{"d" * 64}-1280x720.mp4", video["src"]
     assert_equal "/media/videos/studio-tour/#{"e" * 64}-poster.jpg", video["poster"]
@@ -86,6 +88,17 @@ class MediaHelperTest < ActionView::TestCase
     assert_equal "en-US", track["srclang"]
     assert_equal "English", track["label"]
     assert_equal "/media/videos/studio-tour/#{"f" * 64}-en-us.vtt", track["src"]
+  end
+
+  test "video autoplay opts in muted, looped, and still pausable" do
+    video = html_fragment(
+      portfolio_video("videos/studio-tour", autoplay: true, muted: false, loop: false)
+    ).at_css("video")
+    assert video.key?("autoplay")
+    assert video.key?("muted")
+    assert video.key?("loop")
+    assert video.key?("controls")
+    assert_equal "Studio tour", video["aria-label"]
   end
 
   test "generic helper dispatches by kind" do

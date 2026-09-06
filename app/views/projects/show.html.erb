@@ -20,6 +20,12 @@
     </div>
   </header>
 
+  <% if @project["feature_media_id"].present? %>
+    <section class="project-feature" aria-label="<%= @project.fetch("title") %> in motion">
+      <%= portfolio_media @project.fetch("feature_media_id"), sizes: "(min-width: 76rem) 60rem, 100vw", autoplay: true %>
+    </section>
+  <% end %>
+
   <section class="project-facts" aria-label="Project facts">
     <dl>
       <% @project.fetch("facts").each do |fact| %>

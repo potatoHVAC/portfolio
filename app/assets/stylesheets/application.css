@@ -696,6 +696,17 @@ main > * {
   letter-spacing: -0.12em;
 }
 
+.project-feature {
+  padding-block: clamp(2rem, 5vw, 4rem);
+}
+
+.project-feature picture img,
+.project-feature video {
+  width: 100%;
+  max-height: 40rem;
+  object-fit: cover;
+}
+
 .project-facts {
   border-block: 1px solid var(--line);
 }

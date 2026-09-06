@@ -13,7 +13,7 @@ class PortfolioCatalog
   SITE_KEYS = %w[name shop tagline manifesto invitation description].freeze
   ACCENTS = %w[electric spectacle ember].freeze
   SECTION_KEYS = %w[id title eyebrow summary path accent featured_project_ids].freeze
-  PROJECT_KEYS = %w[id section_id title kicker summary path hero_media_id gallery_id facts stories].freeze
+  PROJECT_KEYS = %w[id section_id title kicker summary path hero_media_id feature_media_id gallery_id facts stories].freeze
   GALLERY_KEYS = %w[id section_id title summary path status cover_media_id media_ids].freeze
   FACT_KEYS = %w[label value].freeze
   STORY_KEYS = %w[heading body].freeze
@@ -61,6 +61,10 @@ class PortfolioCatalog
 
   def galleries_for(section_id)
     galleries.select { |entry| entry.fetch("section_id") == section_id }
+  end
+
+  def unsectioned_galleries
+    galleries.reject { |entry| entry["section_id"] }
   end
 
   def featured_projects_for(section_id)
@@ -130,14 +134,16 @@ class PortfolioCatalog
     end
     path!(project.fetch("path"), "project #{project["id"]} path")
     optional_string!(project["hero_media_id"], "project #{project["id"]} hero media")
+    optional_string!(project["feature_media_id"], "project #{project["id"]} feature media")
     nested_entries!(project.fetch("facts"), FACT_KEYS, "project #{project["id"]} fact")
     nested_entries!(project.fetch("stories"), STORY_KEYS, "project #{project["id"]} story")
   end
 
   def validate_gallery!(gallery, media_catalog)
-    %w[section_id title summary path status].each do |key|
+    %w[title summary path status].each do |key|
       present_string!(gallery[key], "gallery #{gallery["id"]} #{key}")
     end
+    optional_string!(gallery["section_id"], "gallery #{gallery["id"]} section")
     path!(gallery.fetch("path"), "gallery #{gallery["id"]} path")
     optional_string!(gallery["cover_media_id"], "gallery #{gallery["id"]} cover media")
     media_ids = string_array!(gallery.fetch("media_ids"), "gallery #{gallery["id"]} media")
@@ -168,7 +174,9 @@ class PortfolioCatalog
     end
 
     catalog.fetch("galleries").each do |gallery|
-      unless sections.key?(gallery.fetch("section_id"))
+      section_id = gallery["section_id"]
+      next if section_id.nil?
+      unless sections.key?(section_id)
         raise InvalidCatalog, "Gallery #{gallery["id"]} has an unknown section"
       end
     end
