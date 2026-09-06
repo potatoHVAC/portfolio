@@ -38,7 +38,7 @@ module MediaHelper
     end
     fallback = asset.fetch("sources").fetch("jpeg").last
     image_options = { loading: "lazy" }.merge(
-      options.except(:src, :alt, :width, :height, :sizes)
+      options.except(:src, :alt, :width, :height, :sizes, :autoplay, :muted, :loop)
     ).merge(
       src: fallback.fetch("path"),
       alt: asset.fetch("alt"),
@@ -52,9 +52,11 @@ module MediaHelper
   def render_portfolio_video(id, asset, html_options)
     description_id = next_video_description_id(id)
     video = asset.fetch("video")
-    options = html_options.symbolize_keys.except(
+    requested = html_options.symbolize_keys
+    autoplay = requested[:autoplay].present?
+    options = requested.except(
       :src, :poster, :width, :height, :sizes, :controls, :playsinline, :preload, :autoplay,
-      :"aria-label", :"aria-describedby"
+      :muted, :loop, :"aria-label", :"aria-describedby"
     ).merge(
       src: video.fetch("path"),
       poster: asset.fetch("poster").fetch("path"),
@@ -66,6 +68,9 @@ module MediaHelper
       "aria-label": asset.fetch("title"),
       "aria-describedby": description_id
     )
+    # Autoplay is muted and looped, and keeps controls so playback can be paused.
+    options.merge!(autoplay: true, muted: true, loop: true) if autoplay
+
     tracks = asset.fetch("captions").map do |caption|
       tag.track(
         kind: "captions",
