@@ -163,4 +163,14 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "/cosplay/russell-glow/build-book"
   end
+
+  test "the reveal backdrop declares an image and floats the contact card" do
+    get root_path
+
+    assert_response :success
+    main = css_select("main.backdrop-reveal").first
+    assert main, "expected the home page to use the reveal backdrop"
+    assert_match %r{--page-backdrop: url\(/media/.+\)}, main["style"]
+    assert_equal 1, css_select("main.backdrop-reveal .contact-cta.backdrop-reveal__float").size
+  end
 end
