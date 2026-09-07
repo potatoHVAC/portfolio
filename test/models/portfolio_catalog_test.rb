@@ -94,6 +94,43 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
     assert_raises(PortfolioCatalog::UnknownEntry) { catalog.gallery!("missing") }
   end
 
+  test "gallery credits must name media the gallery actually lists" do
+    stray = copy_data
+    gallery = stray["galleries"].find { |entry| entry["id"] == "russell-glow" }
+    gallery["credits"][0]["media_ids"] << "cosplay/darth-daddy/darth-daddy-001"
+    error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(stray) }
+    assert_match "credits media it does not list", error.message
+  end
+
+  test "gallery credits may not claim one asset twice" do
+    doubled = copy_data
+    gallery = doubled["galleries"].find { |entry| entry["id"] == "russell-glow" }
+    gallery["credits"] << gallery["credits"][0].merge("name" => "Someone Else")
+    error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(doubled) }
+    assert_match "twice", error.message
+  end
+
+  test "gallery credits reject an empty group and a non-https url" do
+    empty = copy_data
+    empty["galleries"].find { |entry| entry["id"] == "russell-glow" }["credits"][0]["media_ids"] = []
+    assert_match "lists no media", assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(empty) }.message
+
+    insecure = copy_data
+    insecure["galleries"].find { |entry| entry["id"] == "russell-glow" }["credits"][0]["url"] = "http://example.com"
+    assert_match "must be an https URL", assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(insecure) }.message
+  end
+
+  test "credited media resolves to its group" do
+    catalog = PortfolioCatalog.new(catalog: @data, media_catalog: @media_catalog)
+    gallery = catalog.gallery!("russell-glow")
+    index = catalog.gallery_credits_by_media_id(gallery)
+
+    assert_equal 13, index.size
+    assert_equal "Girl with the Blue Hair Photography",
+                 index.fetch("cosplay/russell-glow/russell-glow-014").fetch("name")
+    assert_nil index["cosplay/russell-glow/russell-glow-001"]
+  end
+
   private
 
   def copy_data

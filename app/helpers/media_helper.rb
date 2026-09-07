@@ -17,7 +17,38 @@ module MediaHelper
     render_portfolio_video(id, media_catalog.fetch!(id, kind: :video), html_options)
   end
 
+  # Grid tile: a still for both kinds, so a tile never nests video controls.
+  def portfolio_media_thumbnail(id, **html_options)
+    asset = media_catalog.fetch!(id)
+    case asset.fetch("kind")
+    when "image" then render_portfolio_picture(asset, html_options)
+    when "video" then render_portfolio_poster(asset, html_options)
+    end
+  end
+
+  # One derivative path, for CSS backgrounds that cannot carry a srcset.
+  def portfolio_media_backdrop(id, width: 2400)
+    descriptors = media_catalog.fetch!(id, kind: :image).fetch("sources").fetch("jpeg")
+    (descriptors.find { |descriptor| descriptor.fetch("width") >= width } || descriptors.last).fetch("path")
+  end
+
   private
+
+  def render_portfolio_poster(asset, html_options)
+    poster = asset.fetch("poster")
+    options = html_options.symbolize_keys.except(
+      :src, :alt, :width, :height, :sizes, :autoplay, :muted, :loop
+    )
+    image = tag.img(
+      **{ loading: "lazy" }.merge(options).merge(
+        src: poster.fetch("path"),
+        alt: asset.fetch("title"),
+        width: poster.fetch("width"),
+        height: poster.fetch("height")
+      )
+    )
+    safe_join([ image, tag.span("", class: "media-tile__play", "aria-hidden": true) ])
+  end
 
   def media_catalog
     @media_catalog ||= MediaCatalog.new
@@ -68,8 +99,8 @@ module MediaHelper
       "aria-label": asset.fetch("title"),
       "aria-describedby": description_id
     )
-    # Autoplay is muted and looped, and keeps controls so playback can be paused.
-    options.merge!(autoplay: true, muted: true, loop: true) if autoplay
+    # Autoplay starts muted and keeps controls, so sound can be turned on.
+    options.merge!(autoplay: true, muted: true) if autoplay
 
     tracks = asset.fetch("captions").map do |caption|
       tag.track(

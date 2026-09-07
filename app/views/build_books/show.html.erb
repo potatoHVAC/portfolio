@@ -1,0 +1,96 @@
+<% set_page_meta title: "#{@build_book.fetch("title")} build book", description: @build_book.fetch("summary") %>
+
+<main id="main-content" class="accent--<%= @section.fetch("accent") %>">
+  <header class="page-hero build-book-hero">
+    <div class="page-hero__copy">
+      <p class="breadcrumb">
+        <%= link_to @section.fetch("title"), @section.fetch("path") %>
+        <span aria-hidden="true">/</span>
+        <%= link_to @project.fetch("title"), @project.fetch("path") %>
+      </p>
+      <p class="eyebrow"><%= @build_book.fetch("kicker") %></p>
+      <h1><%= @build_book.fetch("title") %></h1>
+      <p class="page-hero__lede"><%= @build_book.fetch("summary") %></p>
+      <p class="build-book-byline">
+        <%= @build_book.fetch("byline") %> <span aria-hidden="true">·</span> <%= @build_book.fetch("handle") %>
+      </p>
+    </div>
+    <div class="build-book-hero__media">
+      <%= portfolio_media @build_book.fetch("hero_media_id"),
+            sizes: "(min-width: 70rem) 46vw, 100vw", loading: "eager", fetchpriority: "high" %>
+    </div>
+  </header>
+
+  <nav class="build-book-contents" aria-label="Build book contents">
+    <ol>
+      <% @build_book.fetch("sections").each_with_index do |section, index| %>
+        <li>
+          <a href="#<%= section.fetch("id") %>">
+            <span class="build-book-contents__number <%= spectrum_class(index) %>"><%= format("%02d", index + 1) %></span>
+            <%= section.fetch("title") %>
+          </a>
+        </li>
+      <% end %>
+    </ol>
+  </nav>
+
+  <% @build_book.fetch("sections").each_with_index do |section, index| %>
+    <% title_id = "build-book-#{section.fetch("id")}-title" %>
+    <section class="build-book-section" id="<%= section.fetch("id") %>" aria-labelledby="<%= title_id %>">
+      <div class="build-book-section__head">
+        <p class="eyebrow"><span class="<%= spectrum_class(index) %>"><%= format("%02d", index + 1) %></span> <%= @build_book.fetch("kicker") %></p>
+        <h2 id="<%= title_id %>"><%= section.fetch("title") %></h2>
+        <% if section["lede"].present? %>
+          <p class="build-book-section__lede"><%= section.fetch("lede") %></p>
+        <% end %>
+        <%= render "shared/credit", name: section["credit"], url: section["credit_url"], label: "Photographs by" %>
+      </div>
+
+      <% if section["facts"].present? %>
+        <div class="build-book-facts">
+          <dl>
+            <% section.fetch("facts").each do |fact| %>
+              <div>
+                <dt><%= fact.fetch("label") %></dt>
+                <dd><%= fact.fetch("value") %></dd>
+              </div>
+            <% end %>
+          </dl>
+        </div>
+      <% end %>
+
+      <% section.fetch("beats").each do |beat| %>
+        <div class="build-book-beat">
+          <p><%= beat.fetch("text") %></p>
+          <% figures = beat["figures"].presence || [] %>
+          <% if figures.any? %>
+            <div class="build-book-figures" data-count="<%= [ figures.size, 3 ].min %>">
+              <% figures.each do |figure| %>
+                <figure class="build-book-figure">
+                  <%= portfolio_media figure.fetch("media_id"),
+                        sizes: figures.size > 1 ? "(min-width: 60rem) 30rem, 100vw" : "(min-width: 60rem) 46rem, 100vw" %>
+                  <figcaption>
+                    <%= figure.fetch("caption") %>
+                    <%= render "shared/credit", name: figure["credit"], url: figure["credit_url"], label: "Source" %>
+                  </figcaption>
+                </figure>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
+
+  <section class="project-gallery-link" aria-labelledby="build-book-outro-title">
+    <p class="eyebrow"><%= @gallery.fetch("status") %></p>
+    <h2 id="build-book-outro-title">Back to <%= @project.fetch("title") %>.</h2>
+    <p><%= @gallery.fetch("summary") %></p>
+    <div class="button-row">
+      <%= link_to "The project", @project.fetch("path"), class: "button-link" %>
+      <%= link_to "Open the gallery", @gallery.fetch("path"), class: "button-link button-link--quiet" %>
+    </div>
+  </section>
+
+  <%= render "shared/contact_cta" %>
+</main>

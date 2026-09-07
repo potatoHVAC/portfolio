@@ -90,13 +90,13 @@ class MediaHelperTest < ActionView::TestCase
     assert_equal "/media/videos/studio-tour/#{"f" * 64}-en-us.vtt", track["src"]
   end
 
-  test "video autoplay opts in muted, looped, and still pausable" do
+  test "video autoplay opts in muted, unmutable, and still pausable" do
     video = html_fragment(
-      portfolio_video("videos/studio-tour", autoplay: true, muted: false, loop: false)
+      portfolio_video("videos/studio-tour", autoplay: true, muted: false, loop: true)
     ).at_css("video")
     assert video.key?("autoplay")
     assert video.key?("muted")
-    assert video.key?("loop")
+    refute video.key?("loop")
     assert video.key?("controls")
     assert_equal "Studio tour", video["aria-label"]
   end

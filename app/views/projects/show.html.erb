@@ -55,6 +55,15 @@
     </div>
   </section>
 
+  <% if @build_book %>
+    <section class="project-build-book" aria-labelledby="project-build-book-title">
+      <p class="eyebrow"><%= @build_book.fetch("kicker") %></p>
+      <h2 id="project-build-book-title">How <%= @project.fetch("title") %> was built.</h2>
+      <p><%= @build_book.fetch("summary") %></p>
+      <%= link_to "Open the build book", @build_book.fetch("path"), class: "button-link" %>
+    </section>
+  <% end %>
+
   <section class="project-gallery-link" aria-labelledby="project-gallery-title">
     <p class="eyebrow"><%= @gallery.fetch("status") %></p>
     <h2 id="project-gallery-title">See <%= @project.fetch("title") %> from every angle.</h2>

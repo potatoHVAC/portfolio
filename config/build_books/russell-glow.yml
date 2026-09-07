@@ -1,0 +1,388 @@
+version: 1
+project_id: russell-glow
+title: Russell Glow
+kicker: Build book
+byline: Daniel Speer
+handle: "@speerdrings"
+summary: >-
+  A Gladiator costume rebuilt as a light source: a fibre-optic mohawk, an
+  infinity-mirror shield, 2,200 hand-linked scales, and roughly 10,000 rhinestones,
+  walked two miles of Mardi Gras parade on a baritone saxophone.
+path: /cosplay/russell-glow/build-book
+hero_media_id: cosplay/russell-glow-build/vest-002
+
+sections:
+  - id: inspiration
+    title: Inspiration
+    lede: Maximus Decimus Meridius — Gladiator (2000), Russell Crowe.
+    credit:
+    credit_url:
+    facts:
+      - label: Started as
+        value: A scale maille vest backed with LEDs
+      - label: Built for
+        value: The 8-Bit Brass Band
+      - label: Debut
+        value: A 2-mile Mardi Gras parade, on baritone sax
+    beats:
+      - text: >-
+          I did not start with the intention to make Russell Glow. I have been
+          making chainmaille and scale maille for 16 years and I have always
+          wanted to make a scale maille vest backed with LEDs. Once I joined the
+          8-Bit Brass Band I needed to come up with some cosplay for our
+          performances.
+        figures:
+          - media_id: cosplay/russell-glow-build/inspiration-001
+            caption: >-
+              The source silhouette: a spiked Roman helmet with a hard brow line,
+              which the leather shell keeps and the fibre optics interrupt.
+            credit: Gladiator (2000), dir. Ridley Scott — DreamWorks Pictures / Universal Pictures. Reference image.
+            credit_url:
+          - media_id: cosplay/russell-glow-build/inspiration-002
+            caption: >-
+              The breastplate horses that end up on the bracers, because the vest
+              had to stay clear to let the light out.
+            credit: Gladiator (2000), dir. Ridley Scott — DreamWorks Pictures / Universal Pictures. Reference image.
+            credit_url:
+      - text: >-
+          This costume was originally designed for a Mardi Gras parade that I
+          attended down in New Orleans, where I walked the entire 2 mile parade
+          with this costume while performing on a baritone saxophone.
+        figures: []
+
+  - id: helmet
+    title: Helmet
+    lede: Paper pattern to fibre-optic mohawk, and the hexagon that took over the costume.
+    credit:
+    credit_url:
+    facts:
+      - label: Rhinestones in the face
+        value: "1,500"
+      - label: Rhinestones in the costume
+        value: "~10,000, hand placed"
+      - label: Lights under the horns
+        value: "10"
+    beats:
+      - text: >-
+          I started with a simple helmet pattern that I made out of paper and duct
+          tape, and then transferred to veg tan leather and hand stitched together.
+          The base was painted and hand stamped with a hexagon pattern that became
+          a running theme throughout the entire costume.
+        figures:
+          - media_id: cosplay/russell-glow-build/helmet-001
+            caption: Both halves cut and hand stitched in veg tan, still undyed.
+            credit:
+            credit_url:
+      - text: >-
+          I created a channel out of diffuser that fit the shape of the helmet and
+          filled it with epoxy and fiber optic cables. The fiber optics were then
+          hand cut to shape into a mohawk. I left a small channel underneath that
+          allows me to slip LED strips underneath, and left access in the back to
+          allow for replacements as needed. I added a loop of leather for anchoring
+          the power cable in case it gets caught, to prevent ripping out the
+          controller and soldering contacts.
+        figures:
+          - media_id: cosplay/russell-glow-build/helmet-003
+            caption: >-
+              Fitting the epoxy-and-fibre-optic channel to the crown. The strip
+              slides in underneath, so a dead LED never means cutting the mohawk off.
+            credit:
+            credit_url:
+      - text: >-
+          The face plate was cut using a jigsaw out of a flat piece of acrylic then
+          heat shaped to fit the profile. I lined the sides with LEDs so the light
+          would bounce through the acrylic and give the entire face a rainbow glow.
+          Aurora Borealis rhinestones with clear backs were added to give it that
+          extra shine. There are approximately 10,000 hand placed rhinestones in the
+          entire costume, with 1,500 of them in the face alone.
+        figures:
+          - media_id: cosplay/russell-glow-build/helmet-004
+            caption: The heat-formed face plate held against the painted shell before stoning.
+            credit:
+            credit_url:
+      - text: >-
+          All the wiring is contained inside the helmet with leather covers to
+          protect the more sensitive components. There are 10 individual lights
+          placed under the horns. Each horn was 3D printed and stitched onto the top.
+        figures:
+          - media_id: cosplay/russell-glow-build/helmet-005
+            caption: Inside the shell — nodes, padding, and leather covers over the fragile joints.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/helmet-006
+            caption: >-
+              The hexagon stamp, a stitched-on printed horn, and the rhinestoned
+              edge of the face plate, all in one corner.
+            credit:
+            credit_url:
+      - text: >-
+          I didn't have much of a plan for the entire costume from the start. It was
+          organic decisions like the UV reactive hexagons and the rhinestones,
+          discovered during my initial helmet build, that propagated through the
+          rest of my build.
+        figures:
+          - media_id: cosplay/russell-glow-build/helmet-002
+            caption: The helmet finished and lit, with every decision that spread to the rest of the costume already in it.
+            credit:
+            credit_url:
+
+  - id: vests
+    title: LED and Scalemaille Vests
+    lede: Four mirrored light panels underneath, 2,200 scales on top.
+    credit:
+    credit_url:
+    facts:
+      - label: Lights in the undervest
+        value: "400+, hand stitched"
+      - label: Metal scales
+        value: "~2,200"
+      - label: Rings
+        value: "~8,000, one at a time"
+    beats:
+      - text: >-
+          The LED undervest has over 400 lights that were hand stitched into four
+          panels, two on the front and two on the back. Mirroring the layouts this
+          way made it easier to program interesting patterns into the lights. For
+          this competition I used off the shelf controllers for ease and
+          interchangeability, but I am experimenting with programming my own for
+          coordinating my costume with songs for my band.
+        figures:
+          - media_id: cosplay/russell-glow-build/vest-001
+            caption: One panel part-stitched. The serpentine keeps the run continuous and the mirrored layout keeps the patterns cheap to write.
+            credit:
+            credit_url:
+      - text: >-
+          The vest has two large leather pouches for holding the power banks. One
+          drives the vest and the other drives the helmet and kilt. When the vest is
+          on it is hard to reach the batteries, so I included a switch for disabling
+          the lights to give the batteries a break. I am using these batteries for
+          far more than they are intended. In the event of a catastrophic failure —
+          read fire (has not happened yet, but I was a boy scout) — I would not be
+          able to reach the batteries quickly, so I added flaps with snaps on the
+          bottom to dump out the batteries.
+        figures:
+          - media_id: cosplay/russell-glow-build/vest-003
+            caption: Both power banks in their pouches, with the inline switch and the snap flaps that drop a battery on the floor rather than keep it against my back.
+            credit:
+            credit_url:
+      - text: >-
+          The top of the vest consists of around 2200 metal scales and 8000 rings
+          that were each added one at a time with pliers. I trimmed the scales with
+          kingsmaille and handmade toggles using custom jigs that I create out of
+          wood blocks and steel rods. It was important to tailor fit the shoulders,
+          otherwise the weight of the vest would be unbearable after a short period
+          of time. I had to invent my own expansion pattern to allow for shaping the
+          scales around my shoulders without splitting for seams or introducing a
+          different pattern.
+        figures:
+          - media_id: cosplay/russell-glow-build/vest-004
+            caption: Kingsmaille trim at ring scale, blackened against the raw scales.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/vest-005
+            caption: The closure lit from behind — the scales are opaque, so all the colour arrives through the gaps.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/vest-002
+            caption: Helmet, vest, bracers, and kilt running together for the first time.
+            credit:
+            credit_url:
+
+  - id: shield
+    title: Shield
+    lede: A donated spartan shield, stripped to steel and rebuilt around an infinity mirror.
+    credit:
+    credit_url:
+    facts:
+      - label: Donor
+        value: A friend's spartan shield, stripped to mild steel
+      - label: Mirror mount
+        value: 6 interlocking printed sections
+      - label: Sword switching
+        value: Magnetic reed, cuts both pieces
+    beats:
+      - text: >-
+          I started with an old spartan shield that a friend donated. I cut a hole
+          for the mirrors and stripped several pounds of plastic off the metal,
+          leaving behind a circular sheet of mild steel.
+        figures:
+          - media_id: cosplay/russell-glow-build/shield-002
+            caption: The face after stamping and burning, with the printed ring waiting alongside.
+            credit:
+            credit_url:
+      - text: >-
+          I designed and 3D printed six interlocking sections that bolt together to
+          hold the mirrors and lights to the shield without introducing extra stress
+          to the acrylic. I then hexagon stamped the leather and contact cemented it
+          onto the front of the shield. The infinity mirror is created by separating
+          the back full mirror from the front partial mirror and lining the inside
+          with LEDs. The light bounces between the mirrors giving the tunnel effect.
+          It's important to have lights between the two mirrors, otherwise the outer
+          mirror will mostly reflect the observer instead of the internal space.
+        figures:
+          - media_id: cosplay/russell-glow-build/shield-001
+            caption: The printed ring bolted down to bare steel. Nothing clamps the acrylic itself.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/shield-003
+            caption: The tunnel, lit. The gap between the two mirrors is the whole trick.
+            credit:
+            credit_url:
+      - text: >-
+          I cut a piece of oak and shaped some angled offsets to mount the arm
+          bracket across the shield. It was important to stand this off the mirror
+          assembly so it would not warp or damage the mirrors. The wood was burned
+          and oiled.
+        figures:
+          - media_id: cosplay/russell-glow-build/shield-005
+            caption: The oak bracket on its offsets, carrying the arm load around the mirrors rather than through them.
+            credit:
+            credit_url:
+      - text: >-
+          I added a leather back plate to the mirror assembly as well as an arm
+          strap, scabbard, and battery pack holder. The top portion of the scabbard
+          was modeled and 3D printed. I embedded magnets and magnetic reed switches
+          in both the sword and shield. These disengage the electronics when the
+          sword is sheathed, disabling the lights in both pieces.
+        figures:
+          - media_id: cosplay/russell-glow-build/shield-004
+            caption: Sword sheathed, both circuits open. Putting it away is the off switch.
+            credit:
+            credit_url:
+
+  - id: sword
+    title: Sword
+    lede: An acrylic core, laminated printed panels, and a pound of lead.
+    credit:
+    credit_url:
+    facts:
+      - label: Core
+        value: Acrylic, with printed PLA diffusion panels
+      - label: Hilt ballast
+        value: 1 lb of lead
+      - label: Hilt also holds
+        value: Battery, controller, reed switch
+    beats:
+      - text: >-
+          The sword has an acrylic core with 3D printed white PLA panels to allow
+          for light diffusion. All the pieces were laminated together leaving a
+          channel on either side to allow LEDs to slip down the blade.
+        figures:
+          - media_id: cosplay/russell-glow-build/sword-005
+            caption: Every part of the blade before lamination, laid out along the acrylic core.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/sword-004
+            caption: The channel the strips slide into, held open during lamination.
+            credit:
+            credit_url:
+      - text: >-
+          The blade was sanded down to remove print lines and clear coated.
+        figures:
+          - media_id: cosplay/russell-glow-build/sword-001
+            caption: Lit on the bench, print lines sanded out so the diffusion reads as one surface.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/sword-002
+            caption: The same blade in the dark, which is the only place it has to work.
+            credit:
+            credit_url:
+      - text: >-
+          The hilt holds a battery pack and the controller as well as the magnetic
+          reed switch that connects with the shield. The hilt has one pound of lead
+          to help improve the sword's balance. The handle is wrapped in leather.
+        figures:
+          - media_id: cosplay/russell-glow-build/sword-003
+            caption: Stoned pommel and guard over a cross-wrapped grip, with the ballast hidden inside.
+            credit:
+            credit_url:
+
+  - id: kilt
+    title: Kilt
+    lede: Reversible leather, with the light pointed down instead of out.
+    credit:
+    credit_url:
+    facts:
+      - label: Construction
+        value: Leather panels, wires sandwiched between layers
+      - label: Reversible
+        value: Silver metallic, or rainbow and lights
+      - label: Light direction
+        value: Underglow, deliberately
+    beats:
+      - text: >-
+          The kilt is made out of leather panels. The top layer is a silver metallic
+          finished leather and the back is painted veg tan leather. I ran strings of
+          LEDs down each panel, sandwiching the wires between the layers of leather.
+        figures:
+          - media_id: cosplay/russell-glow-build/kilt-002
+            caption: Both faces of every panel, painted and metallic, each already trailing its own run.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/kilt-003
+            caption: The harness gathered at the belt line before it disappears between the layers.
+            credit:
+            credit_url:
+      - text: >-
+          The wires were hidden in between the belt layers and connected on one side.
+          The belt was stamped and painted in rainbows to match the lights. I added
+          most of the LEDs to the underside of the kilt to give myself an underglow
+          instead of creating a sheet of blinding lights. I made the kilt reversible
+          so I can switch to the rainbow and lights side to fit my mood.
+        figures:
+          - media_id: cosplay/russell-glow-build/kilt-004
+            caption: The belts, stamped and painted to match what the panels do underneath.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/kilt-001
+            caption: Worn, with the underglow doing its job — the kilt is lit, not glaring.
+            credit:
+            credit_url:
+
+  - id: armour
+    title: Bracers, Greaves, and Shoes
+    lede: Where the film's iconography went, once the vest had to stay clear.
+    credit:
+    credit_url:
+    facts:
+      - label: Motif
+        value: Maximus's horses, moved to the bracers
+      - label: Greaves
+        value: Rhinestone filigree, after the film's armour
+      - label: Power
+        value: A 9V pouch on the back of each piece
+    beats:
+      - text: >-
+          The bracers and greaves are made out of the same leather, stamps and
+          rhinestones as the helmet. In the movie, Maximus describes the horses on
+          his breastplate to the son of Lucilla. I decided to incorporate those
+          horses on my bracers instead, since they are iconic to the character but I
+          didn't want to obstruct the light vest. I also made the rhinestone designs
+          of the greaves pattern after the filigree used in Maximus's armor. I
+          included pouches for 9v batteries on the backs of each piece.
+        figures:
+          - media_id: cosplay/russell-glow-build/armour-001
+            caption: Greaves in filigree, bracers carrying the horses the breastplate could not.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/armour-003
+            caption: The backs — linings, punched straps, and buckles, where the fit actually lives.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/armour-002
+            caption: A 9V under a snap flap, so a dead piece is a thirty-second fix.
+            credit:
+            credit_url:
+      - text: >-
+          The shoes were purchased in a roman style brown leather. I added the same
+          hexagon stamps and painted them silver with white and UV lines. I also
+          added a few rhinestones for continuity.
+        figures:
+          - media_id: cosplay/russell-glow-build/armour-004
+            caption: Bought sandals, stamped and painted to match everything else.
+            credit:
+            credit_url:
+          - media_id: cosplay/russell-glow-build/armour-005
+            caption: Finished, with just enough stones to belong to the same costume.
+            credit:
+            credit_url:

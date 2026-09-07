@@ -1,0 +1,12 @@
+<%# One credit line, used wherever attribution appears: a build book section or
+    figure, a gallery tile, a gallery's group banner. url is optional. %>
+<% if name.present? %>
+  <p class="credit <%= local_assigns[:class] %>">
+    <span class="credit__label"><%= local_assigns.fetch(:label, "Photograph by") %></span>
+    <% if url.present? %>
+      <%= link_to name, url, class: "credit__name", rel: "noopener nofollow", target: "_blank" %>
+    <% else %>
+      <span class="credit__name"><%= name %></span>
+    <% end %>
+  </p>
+<% end %>

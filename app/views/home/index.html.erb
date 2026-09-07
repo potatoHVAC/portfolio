@@ -1,6 +1,7 @@
 <% set_page_meta title: "Light, costume, and metal", description: portfolio_catalog.site.fetch("description") %>
 
-<main id="main-content">
+<main id="main-content" class="home-backdrop"
+      style="--page-backdrop: url(<%= portfolio_media_backdrop("led/led-gallery/helmets-main-page") %>)">
   <section class="home-hero accent--electric" aria-labelledby="home-title">
     <div class="home-hero__copy">
       <p class="eyebrow">Built in the <%= portfolio_catalog.site.fetch("shop") %></p>
@@ -11,12 +12,11 @@
         <%= link_to "Browse every gallery", galleries_path, class: "button-link button-link--quiet" %>
       </div>
     </div>
-    <div class="home-hero__signal" aria-hidden="true">
-      <span class="signal-orbit signal-orbit--one"></span>
-      <span class="signal-orbit signal-orbit--two"></span>
-      <span class="signal-core"></span>
-      <span class="signal-label">LIGHT<br>AS<br>MATERIAL</span>
-    </div>
+    <figure class="home-hero__feature">
+      <%= portfolio_media "cosplay/disco-chief/armor-main-page",
+            sizes: "(min-width: 60rem) 42vw, 100vw", loading: "eager", fetchpriority: "high" %>
+      <figcaption class="home-hero__saying">Light as a material</figcaption>
+    </figure>
   </section>
 
   <section class="page-section" aria-labelledby="led-work-title">
