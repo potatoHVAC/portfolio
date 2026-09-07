@@ -425,6 +425,10 @@ main > * {
 
 .backdrop-reveal {
   position: relative;
+  /* The band bleed below is absolutely positioned past both edges, which is
+     real layout overflow. clip contains it without creating a scroll
+     container, so the fixed backdrop still escapes to the viewport. */
+  overflow-x: clip;
 }
 
 .backdrop-reveal::before {
