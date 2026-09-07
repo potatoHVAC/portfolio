@@ -21,6 +21,7 @@ COPY app/ app/
 COPY bin/rails bin/rake bin/
 COPY config/application.rb config/boot.rb config/environment.rb config/media.json \
     config/portfolio.yml config/puma.rb config/routes.rb config/
+COPY config/build_books/ config/build_books/
 COPY config/environments/production.rb config/environments/
 COPY config/initializers/ config/initializers/
 COPY config/locales/ config/locales/
