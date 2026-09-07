@@ -2,7 +2,9 @@ require "test_helper"
 
 class PortfolioNavigationTest < ActionDispatch::IntegrationTest
   test "every catalog route renders a single page landmark and heading" do
-    PortfolioCatalog.current.public_paths.each do |path|
+    paths = PortfolioCatalog.current.public_paths + BuildBookCatalog.current.public_paths
+
+    paths.each do |path|
       get path
 
       assert_response :success, "expected #{path} to render"
@@ -47,6 +49,18 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "This gallery is being prepared."
   end
 
+  test "gallery tiles open a lightbox and never nest video controls" do
+    get gallery_path("damascus-rings")
+    assert_response :success
+
+    items = css_select("article.media-gallery__item")
+    assert_equal items.size, css_select("button.media-gallery__trigger").size
+    assert_equal items.size, response.body.scan("data-lightbox-full").size
+    assert_predicate css_select("span.media-tile__play"), :any?
+    assert_empty css_select("button.media-gallery__trigger video")
+    assert_predicate css_select("script[src*='lightbox']"), :any?
+  end
+
   test "unknown galleries return not found" do
     get gallery_path("not-in-the-catalog")
 
@@ -59,7 +73,8 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "application/xml", response.media_type
     locations = Nokogiri::XML(response.body).xpath("//*[local-name()='loc']").map(&:text)
-    expected = PortfolioCatalog.current.public_paths.map { |path| "#{ApplicationHelper::SITE_ORIGIN}#{path}" }
+    paths = PortfolioCatalog.current.public_paths + BuildBookCatalog.current.public_paths
+    expected = paths.map { |path| "#{ApplicationHelper::SITE_ORIGIN}#{path}" }
     assert_equal expected, locations
   end
 
@@ -69,5 +84,83 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
 
     assert_equal ApplicationHelper::NAVIGATION.map(&:last), destinations
     destinations.each { |path| assert_includes PortfolioCatalog.current.public_paths, path }
+  end
+
+  test "the build book renders one heading per section behind a single h1" do
+    get russell_glow_build_book_path
+
+    assert_response :success
+    assert_equal 1, css_select("h1").size
+    assert_equal "Russell Glow", css_select("h1").first.text
+    assert_equal 7, css_select("section.build-book-section").size
+    assert_equal 7, css_select("nav.build-book-contents a").size
+    assert_equal 32, css_select("figure.build-book-figure").size
+    assert_equal 1, css_select("main.accent--spectacle").size
+  end
+
+  test "the build book contents nav anchors every section it lists" do
+    get russell_glow_build_book_path
+
+    anchors = css_select("nav.build-book-contents a").map { |a| a["href"].delete_prefix("#") }
+    ids = css_select("section.build-book-section").map { |s| s["id"] }
+
+    assert_equal ids, anchors
+    assert_equal ids.uniq, ids
+  end
+
+  test "the project page links its build book and omits the band without one" do
+    get russell_glow_path
+    assert_response :success
+    assert_select "section.project-build-book a[href=?]", "/cosplay/russell-glow/build-book"
+
+    get darth_daddy_path
+    assert_response :success
+    assert_empty css_select("section.project-build-book")
+  end
+
+  test "a source figure carries its citation" do
+    get russell_glow_build_book_path
+
+    credits = css_select("figure.build-book-figure .credit__name").map(&:text)
+    assert_equal 2, credits.size
+    assert(credits.all? { |credit| credit.include?("Gladiator") })
+  end
+
+  test "gallery credit groups name the photographer once and mark their tiles" do
+    get gallery_path("russell-glow")
+    assert_response :success
+
+    banner = css_select(".gallery-credits .credit__name")
+    assert_equal 1, banner.size
+    assert_equal "Girl with the Blue Hair Photography", banner.first.text
+    assert_equal "https://linktr.ee/girl_with_the_blue_hair", banner.first["href"]
+    assert_equal 13, css_select("article.media-gallery__item .credit--tile").size
+
+    get gallery_path("disco-chief")
+    assert_response :success
+    assert_equal "oke.bokeh", css_select(".gallery-credits .credit__name").first.text
+    assert_equal 5, css_select("article.media-gallery__item .credit--tile").size
+  end
+
+  test "an uncredited gallery renders no credit markup" do
+    get gallery_path("damascus-rings")
+
+    assert_response :success
+    assert_empty css_select(".gallery-credits")
+    assert_empty css_select(".credit")
+  end
+
+  test "the credited photographs lead their galleries" do
+    get gallery_path("russell-glow")
+    first = css_select("article.media-gallery__item").first
+
+    assert_predicate first.css(".credit--tile"), :any?
+  end
+
+  test "the sitemap carries build book paths" do
+    get "/sitemap.xml"
+
+    assert_response :success
+    assert_includes response.body, "/cosplay/russell-glow/build-book"
   end
 end

@@ -167,6 +167,7 @@ galleries:
       - led/instrument/instrument-013
       - led/instrument/instrument-014
       - led/instrument/instrument-015
+    credits: []
   - id: cadenza
     section_id: led-art
     title: Cadenza
@@ -175,6 +176,7 @@ galleries:
     status: Media needed
     cover_media_id:
     media_ids: []
+    credits: []
   - id: led-experiments
     section_id: led-art
     title: LED Experiments
@@ -196,6 +198,7 @@ galleries:
       - led/led-gallery/led-gallery-011
       - led/led-gallery/led-gallery-012
       - led/led-gallery/led-gallery-013
+    credits: []
   - id: disco-chief
     section_id: cosplay
     title: Disco Chief
@@ -204,6 +207,11 @@ galleries:
     status: Selected work
     cover_media_id: cosplay/disco-chief/disco-chief-003
     media_ids:
+      - cosplay/disco-chief/disco-chief-010
+      - cosplay/disco-chief/disco-chief-011
+      - cosplay/disco-chief/disco-chief-012
+      - cosplay/disco-chief/disco-chief-013
+      - cosplay/disco-chief/disco-chief-014
       - cosplay/disco-chief/disco-chief-001
       - cosplay/disco-chief/disco-chief-003
       - cosplay/disco-chief/disco-chief-004
@@ -213,6 +221,15 @@ galleries:
       - cosplay/disco-chief/disco-chief-008
       - cosplay/disco-chief/disco-chief-009
       - led/led-gallery/led-gallery-006
+    credits:
+      - name: oke.bokeh
+        url: https://www.instagram.com/oke.bokeh/
+        media_ids:
+          - cosplay/disco-chief/disco-chief-010
+          - cosplay/disco-chief/disco-chief-011
+          - cosplay/disco-chief/disco-chief-012
+          - cosplay/disco-chief/disco-chief-013
+          - cosplay/disco-chief/disco-chief-014
   - id: russell-glow
     section_id: cosplay
     title: Russell Glow
@@ -221,6 +238,19 @@ galleries:
     status: Selected work
     cover_media_id: cosplay/russell-glow/russell-glow-013
     media_ids:
+      - cosplay/russell-glow/russell-glow-014
+      - cosplay/russell-glow/russell-glow-015
+      - cosplay/russell-glow/russell-glow-016
+      - cosplay/russell-glow/russell-glow-017
+      - cosplay/russell-glow/russell-glow-018
+      - cosplay/russell-glow/russell-glow-019
+      - cosplay/russell-glow/russell-glow-020
+      - cosplay/russell-glow/russell-glow-021
+      - cosplay/russell-glow/russell-glow-022
+      - cosplay/russell-glow/russell-glow-023
+      - cosplay/russell-glow/russell-glow-024
+      - cosplay/russell-glow/russell-glow-025
+      - cosplay/russell-glow/russell-glow-026
       - cosplay/russell-glow/russell-glow-001
       - cosplay/russell-glow/russell-glow-002
       - cosplay/russell-glow/russell-glow-003
@@ -234,6 +264,23 @@ galleries:
       - cosplay/russell-glow/russell-glow-011
       - cosplay/russell-glow/russell-glow-012
       - cosplay/russell-glow/russell-glow-013
+    credits:
+      - name: Girl with the Blue Hair Photography
+        url: https://linktr.ee/girl_with_the_blue_hair
+        media_ids:
+          - cosplay/russell-glow/russell-glow-014
+          - cosplay/russell-glow/russell-glow-015
+          - cosplay/russell-glow/russell-glow-016
+          - cosplay/russell-glow/russell-glow-017
+          - cosplay/russell-glow/russell-glow-018
+          - cosplay/russell-glow/russell-glow-019
+          - cosplay/russell-glow/russell-glow-020
+          - cosplay/russell-glow/russell-glow-021
+          - cosplay/russell-glow/russell-glow-022
+          - cosplay/russell-glow/russell-glow-023
+          - cosplay/russell-glow/russell-glow-024
+          - cosplay/russell-glow/russell-glow-025
+          - cosplay/russell-glow/russell-glow-026
   - id: darth-daddy
     section_id: cosplay
     title: Darth Daddy
@@ -249,6 +296,7 @@ galleries:
       - cosplay/darth-daddy/darth-daddy-005
       - cosplay/darth-daddy/darth-daddy-007
       - cosplay/darth-daddy/darth-daddy-008
+    credits: []
   - id: cosplay
     section_id: cosplay
     title: Other Cosplay & Costume Art
@@ -262,6 +310,7 @@ galleries:
       - cosplay/cosplay-gallery/cosplay-gallery-003
       - cosplay/cosplay-gallery/cosplay-gallery-004
       - cosplay/cosplay-gallery/cosplay-gallery-005
+    credits: []
   - id: damascus-rings
     section_id: forge
     title: Damascus Rings
@@ -281,6 +330,7 @@ galleries:
       - metal/damascus/damascus-009
       - metal/damascus/damascus-011
       - metal/damascus/damascus-013
+    credits: []
   - id: chainmaille
     section_id: forge
     title: Chainmaille
@@ -299,11 +349,12 @@ galleries:
       - metal/chainmaille/chainmaille-009
       - metal/chainmaille/chainmaille-010
       - metal/chainmaille/chainmaille-011
-  - id: damascus-press-on-nails
+    credits: []
+  - id: metal-press-on-nails
     section_id: forge
-    title: Damascus Press-on Nails
-    summary: Pattern-welded steel refined into a dramatic, improbable wearable surface.
-    path: /galleries/damascus-press-on-nails
+    title: Metal Press-on Nails
+    summary: Damascus, copper, and mirror-polished steel refined into a dramatic, improbable wearable surface.
+    path: /galleries/metal-press-on-nails
     status: Selected work
     cover_media_id: metal/nails/nails-001
     media_ids:
@@ -317,6 +368,7 @@ galleries:
       - metal/nails/nails-008
       - metal/nails/nails-009
       - metal/nails/nails-010
+    credits: []
   - id: misc-art
     section_id:
     title: Miscellaneous Art
@@ -341,3 +393,4 @@ galleries:
       - msc-art/msc-art-014
       - msc-art/msc-art-015
       - msc-art/msc-art-016
+    credits: []
