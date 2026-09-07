@@ -5,7 +5,7 @@
   --muted: #aaa8a3;
   --paper: #0c0c0e;
   --panel: #151518;
-  --panel-light: #efede6;
+  --panel-light: #e0f5f1;  /* 14% --electric on warm paper; every --*-ink still clears 4.5:1 */
   --line: rgb(245 243 238 / 18%);
 
   /* Chaos Factory spectrum. Every hue is paired: the bare token is for the dark
@@ -236,8 +236,28 @@ h3 {
 .site-footer::before {
   display: block;
   height: 3px;
-  background: var(--spectrum);
+  background: linear-gradient(
+    90deg,
+    var(--ember), var(--solar), var(--verdant), var(--electric),
+    var(--azure), var(--violet), var(--spectacle),
+    var(--ember), var(--solar), var(--verdant), var(--electric),
+    var(--azure), var(--violet), var(--spectacle), var(--ember)
+  );
+  background-size: 200% 100%;
+  animation: spectrum-flow 16s linear infinite;
   content: "";
+}
+
+@keyframes spectrum-flow {
+  from { background-position: 0 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header::before,
+  .site-footer::before {
+    animation: none;
+  }
 }
 
 .site-header__inner,
@@ -394,55 +414,54 @@ main > * {
   font-weight: 800;
 }
 
-.home-hero__signal {
+/* Fixed pseudo-element rather than background-attachment: fixed, which iOS
+   Safari does not honour. A negative z-index would fall behind body's opaque
+   background, so the backdrop sits at 0 and the sections are lifted above it. */
+.home-backdrop {
   position: relative;
-  min-height: 24rem;
+}
+
+.home-backdrop::before,
+.home-backdrop::after {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  content: "";
+}
+
+.home-backdrop::before {
+  background-image: var(--page-backdrop);
+  background-position: center;
+  background-size: cover;
+}
+
+.home-backdrop::after {
+  background: linear-gradient(rgb(12 12 14 / 74%), rgb(12 12 14 / 90%));
+}
+
+.home-backdrop > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-hero__feature {
+  margin: 0;
+  min-width: 0;
+}
+
+.home-hero__feature picture img {
+  width: 100%;
   border: 1px solid var(--line);
-  background:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 3rem 3rem;
-  overflow: hidden;
 }
 
-.signal-orbit,
-.signal-core {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.signal-orbit {
-  border: 1px solid var(--electric);
-}
-
-.signal-orbit--one {
-  width: 18rem;
-  height: 18rem;
-  box-shadow: 0 0 2rem rgb(80 242 255 / 18%) inset;
-}
-
-.signal-orbit--two {
-  width: 10rem;
-  height: 10rem;
-  border-style: dashed;
-}
-
-.signal-core {
-  width: 2.5rem;
-  height: 2.5rem;
-  background: var(--electric);
-  box-shadow: 0 0 5rem 2rem rgb(80 242 255 / 40%);
-}
-
-.signal-label {
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  font: 800 clamp(1.5rem, 4vw, 3.8rem) / 0.78 ui-monospace, monospace;
-  text-align: right;
+.home-hero__saying {
+  padding-top: 0.85rem;
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .page-section,
@@ -662,11 +681,18 @@ main > * {
   min-width: 0;
 }
 
-.project-hero__media picture img,
-.project-hero__media video {
+.project-hero__media picture img {
   width: 100%;
   max-height: 42rem;
   object-fit: cover;
+}
+
+.project-hero__media video {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 42rem;
+  margin-inline: auto;
 }
 
 .media-placeholder {
@@ -702,9 +728,11 @@ main > * {
 
 .project-feature picture img,
 .project-feature video {
-  width: 100%;
+  display: block;
+  width: auto;
+  max-width: 100%;
   max-height: 40rem;
-  object-fit: cover;
+  margin-inline: auto;
 }
 
 .project-facts {
@@ -870,26 +898,152 @@ main > * {
 }
 
 .media-gallery {
-  display: grid;
   padding-block: 2rem clamp(5rem, 10vw, 10rem);
-  gap: clamp(3rem, 8vw, 8rem);
+  columns: 16rem 4;
+  column-gap: clamp(0.75rem, 1.5vw, 1.25rem);
 }
 
 .media-gallery__item {
   position: relative;
-  max-width: 64rem;
-  margin-inline: auto;
+  margin-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+  break-inside: avoid;
+}
+
+.media-gallery__trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: inherit;
+  cursor: zoom-in;
+}
+
+.media-gallery__trigger:hover,
+.media-gallery__trigger:focus-visible {
+  border-color: var(--accent);
 }
 
 .media-gallery__number {
+  position: absolute;
+  z-index: 1;
+  top: 0.5rem;
+  left: 0.6rem;
+  color: var(--accent);
+  text-shadow: 0 0 0.4rem var(--paper);
+}
+
+.media-gallery__trigger picture,
+.media-gallery__trigger img {
   display: block;
-  margin-bottom: 0.75rem;
+  width: 100%;
+}
+
+.media-gallery__trigger img {
+  height: auto;
+  background: var(--paper);
+}
+
+.media-tile__play {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--accent);
+  clip-path: polygon(28% 20%, 28% 80%, 82% 50%);
+}
+
+/* Author display beats the UA [hidden] rule, so restate it. */
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  padding: clamp(0.75rem, 3vw, 2.5rem);
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(0.5rem, 2vw, 1.5rem);
+  background: rgb(6 6 8 / 94%);
+}
+
+.has-lightbox {
+  overflow: hidden;
+}
+
+.lightbox__stage {
+  display: flex;
+  min-width: 0;
+  max-height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox__frame {
+  max-height: 100%;
+}
+
+.lightbox__frame picture img,
+.lightbox__frame video {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 82vh;
+  margin-inline: auto;
+  object-fit: contain;
+}
+
+.lightbox__frame figcaption {
+  padding-top: 0.6rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.lightbox__close,
+.lightbox__nav {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgb(21 21 24 / 88%);
+  color: var(--ink);
+  font-size: 1.5rem;
+  line-height: 1;
+  place-items: center;
+  cursor: pointer;
+}
+
+.lightbox__close:hover,
+.lightbox__nav:hover,
+.lightbox__close:focus-visible,
+.lightbox__nav:focus-visible {
+  border-color: var(--accent);
   color: var(--accent);
 }
 
-.media-gallery picture img,
-.media-gallery video {
-  width: 100%;
+.lightbox__close {
+  position: absolute;
+  z-index: 1;
+  top: clamp(0.75rem, 3vw, 2.5rem);
+  right: clamp(0.75rem, 3vw, 2.5rem);
+}
+
+.lightbox__counter {
+  position: absolute;
+  bottom: clamp(0.5rem, 2vw, 1.25rem);
+  left: 50%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  transform: translateX(-50%);
 }
 
 .portfolio-video {
@@ -992,7 +1146,7 @@ main > * {
 .contact-hold {
   padding: 1.2rem;
   border-left: 3px solid var(--spectacle-ink);
-  background: #fff;
+  background: #effaf8;
 }
 
 .site-footer {
@@ -1040,10 +1194,6 @@ main > * {
   .about-grid,
   .contact-details {
     grid-template-columns: 1fr;
-  }
-
-  .home-hero__signal {
-    min-height: 20rem;
   }
 
   .section-heading {
@@ -1139,5 +1289,216 @@ main > * {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* Build books — long-form making-of pages, one anchored section per chapter. */
+
+.build-book-hero {
+  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+}
+
+.build-book-byline {
+  margin-top: 1.5rem;
+  color: var(--muted);
+  font: 700 0.7rem ui-monospace, monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.build-book-contents {
+  position: sticky;
+  z-index: 5;
+  top: 0;
+  padding-block: 0.85rem;
+  border-block: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  background: rgb(12 12 14 / 88%);
+}
+
+.build-book-contents ol {
+  display: flex;
+  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  gap: 0.35rem 1.5rem;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+.build-book-contents a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.build-book-contents a:hover {
+  color: var(--ink);
+}
+
+.build-book-contents__number {
+  font: 700 0.7rem ui-monospace, monospace;
+  letter-spacing: 0.12em;
+}
+
+.build-book-section {
+  padding-block: clamp(3.5rem, 7vw, 6rem);
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 4rem;
+}
+
+.build-book-section__head h2 {
+  max-width: 34rem;
+  margin-block: 0.5rem 0;
+  font-size: clamp(1.9rem, 4.5vw, 3.1rem);
+  line-height: 1.05;
+}
+
+.build-book-section__lede {
+  max-width: 40rem;
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+
+.build-book-facts {
+  margin-top: 2.5rem;
+  border-block: 1px solid var(--line);
+}
+
+.build-book-facts dl {
+  display: grid;
+  margin: 0;
+  gap: 0 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.build-book-facts dl > div {
+  padding-block: 1.5rem;
+}
+
+.build-book-facts dt {
+  margin-bottom: 0.4rem;
+  color: var(--accent);
+  font: 700 0.7rem ui-monospace, monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.build-book-facts dd {
+  margin: 0;
+  font-size: 1.02rem;
+}
+
+.build-book-beat {
+  margin-top: 3rem;
+}
+
+.build-book-beat > p {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.12rem;
+}
+
+.build-book-figures {
+  display: grid;
+  margin-top: 1.75rem;
+  gap: 1.25rem;
+}
+
+.build-book-figures[data-count="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.build-book-figures[data-count="3"] {
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.build-book-figure {
+  margin: 0;
+}
+
+.build-book-figure picture,
+.build-book-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+
+.build-book-figure figcaption {
+  margin-top: 0.75rem;
+  max-width: 34rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* Attribution, wherever it appears. */
+
+.credit {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font: 0.72rem ui-monospace, monospace;
+  letter-spacing: 0.04em;
+}
+
+.credit__label {
+  margin-right: 0.4em;
+  opacity: 0.75;
+  text-transform: uppercase;
+}
+
+.credit__name {
+  color: var(--ink);
+}
+
+a.credit__name:hover {
+  color: var(--accent);
+}
+
+.credit--tile {
+  margin-top: 0.5rem;
+}
+
+.gallery-credits {
+  margin-top: 1.75rem;
+}
+
+.gallery-credits .credit {
+  margin-top: 0.35rem;
+}
+
+.project-build-book {
+  padding-block: clamp(4rem, 8vw, 7rem);
+  border-top: 1px solid var(--line);
+}
+
+.project-build-book h2 {
+  max-width: 58rem;
+}
+
+.project-build-book > p:not(.eyebrow) {
+  max-width: 40rem;
+  color: var(--muted);
+}
+
+@media (max-width: 58rem) {
+  .build-book-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .build-book-figures[data-count="2"],
+  .build-book-figures[data-count="3"] {
+    grid-template-columns: 1fr;
+  }
+
+  .build-book-contents ol {
+    flex-wrap: nowrap;
   }
 }

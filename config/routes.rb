@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   get "led-art/cadenza" => "projects#show", defaults: { id: "cadenza" }, as: :cadenza
   get "cosplay/disco-chief" => "projects#show", defaults: { id: "disco-chief" }, as: :disco_chief
   get "cosplay/russell-glow" => "projects#show", defaults: { id: "russell-glow" }, as: :russell_glow
+  get "cosplay/russell-glow/build-book" => "build_books#show", defaults: { id: "russell-glow" }, as: :russell_glow_build_book
   get "cosplay/darth-daddy" => "projects#show", defaults: { id: "darth-daddy" }, as: :darth_daddy
 
   get "galleries" => "galleries#index", as: :galleries

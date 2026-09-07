@@ -14,10 +14,12 @@ class PortfolioCatalog
   ACCENTS = %w[electric spectacle ember].freeze
   SECTION_KEYS = %w[id title eyebrow summary path accent featured_project_ids].freeze
   PROJECT_KEYS = %w[id section_id title kicker summary path hero_media_id feature_media_id gallery_id facts stories].freeze
-  GALLERY_KEYS = %w[id section_id title summary path status cover_media_id media_ids].freeze
+  GALLERY_KEYS = %w[id section_id title summary path status cover_media_id media_ids credits].freeze
+  CREDIT_KEYS = %w[name url media_ids].freeze
   FACT_KEYS = %w[label value].freeze
   STORY_KEYS = %w[heading body].freeze
   CORE_PATHS = %w[/ /galleries /about /contact].freeze
+  CREDIT_URL_PATTERN = %r{\Ahttps://[a-z0-9.-]+\.[a-z]{2,}(?:/\S*)?\z}i
 
   attr_reader :site, :sections, :projects, :galleries
 
@@ -61,6 +63,13 @@ class PortfolioCatalog
 
   def galleries_for(section_id)
     galleries.select { |entry| entry.fetch("section_id") == section_id }
+  end
+
+  # media_id => credit group, for rendering a per-tile attribution.
+  def gallery_credits_by_media_id(gallery)
+    gallery.fetch("credits").each_with_object({}) do |credit, index|
+      credit.fetch("media_ids").each { |id| index[id] = credit }
+    end
   end
 
   def unsectioned_galleries
@@ -154,8 +163,41 @@ class PortfolioCatalog
     if gallery["cover_media_id"] && !media_ids.include?(gallery["cover_media_id"])
       raise InvalidCatalog, "Gallery #{gallery["id"]} cover must be included in its media"
     end
+    validate_credits!(gallery, media_ids)
   rescue MediaCatalog::Error => error
     raise InvalidCatalog, "Gallery #{gallery["id"]} references invalid media: #{error.message}"
+  end
+
+  # Credit groups let one photographer be named once for a run of tiles. Every
+  # credited id must be in the gallery, and no id may be claimed twice.
+  def validate_credits!(gallery, media_ids)
+    credits = gallery.fetch("credits")
+    label = "gallery #{gallery["id"]} credit"
+    array!(credits, "#{label}s")
+    claimed = Set.new
+    credits.each do |credit|
+      object!(credit, label)
+      exact_keys!(credit, CREDIT_KEYS, label)
+      present_string!(credit["name"], "#{label} name")
+      credit_url!(credit["url"], "#{label} url")
+      credited = string_array!(credit.fetch("media_ids"), "#{label} media")
+      raise InvalidCatalog, "#{label.capitalize} lists no media" if credited.empty?
+
+      credited.each do |id|
+        unless media_ids.include?(id)
+          raise InvalidCatalog, "Gallery #{gallery["id"]} credits media it does not list: #{id}"
+        end
+        raise InvalidCatalog, "Gallery #{gallery["id"]} credits #{id} twice" unless claimed.add?(id)
+      end
+    end
+  end
+
+  def credit_url!(value, label)
+    return if value.nil?
+    unless value.is_a?(String) && CREDIT_URL_PATTERN.match?(value)
+      raise InvalidCatalog, "#{label.capitalize} must be an https URL"
+    end
+    value
   end
 
   def validate_relationships!(catalog)
