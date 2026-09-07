@@ -417,32 +417,55 @@ main > * {
 /* Fixed pseudo-element rather than background-attachment: fixed, which iOS
    Safari does not honour. A negative z-index would fall behind body's opaque
    background, so the backdrop sits at 0 and the sections are lifted above it. */
-.home-backdrop {
+/* Reveal backdrop. Put .backdrop-reveal on a page's <main> and set
+   --page-backdrop inline; direct children become opaque bands over a fixed,
+   unveiled image, and the gaps between them are the window onto it.
+   A child with its own colour sets --band. A child that should float as a
+   card instead of a full-width band takes .backdrop-reveal__float. */
+
+.backdrop-reveal {
   position: relative;
 }
 
-.home-backdrop::before,
-.home-backdrop::after {
+.backdrop-reveal::before {
   position: fixed;
   z-index: 0;
   inset: 0;
-  content: "";
-}
-
-.home-backdrop::before {
   background-image: var(--page-backdrop);
   background-position: center;
   background-size: cover;
+  content: "";
 }
 
-.home-backdrop::after {
-  background: linear-gradient(rgb(12 12 14 / 74%), rgb(12 12 14 / 90%));
-}
-
-.home-backdrop > * {
+.backdrop-reveal > * {
   position: relative;
   z-index: 1;
+  background: var(--band, var(--paper));
 }
+
+/* main > * is width-capped, so the band colour is carried past both edges by a
+   pseudo-element rather than the element box. z-index -1 keeps it inside the
+   band's own stacking context: behind its content, still above the backdrop. */
+.backdrop-reveal > *:not(.backdrop-reveal__float)::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0 -100vw;
+  background: var(--band, var(--paper));
+  content: "";
+}
+
+/* Taller than the viewport, so the image is fully uncovered for a stretch of
+   scroll before the next band arrives. dvh keeps that true on mobile, where
+   vh counts space the toolbar is covering. */
+.backdrop-reveal > * + * {
+  margin-top: 115vh;
+  margin-top: 115dvh;
+}
+
+.backdrop-reveal > .discipline-band {
+  --band: var(--panel-light);
+}
+
 
 .home-hero__feature {
   margin: 0;
