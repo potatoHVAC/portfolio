@@ -172,7 +172,7 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_response :success
     bands = css_select("section.reveal-band")
     assert_equal 1, bands.size, "expected one reveal band on the home page"
-    style = bands.first["style"]
+    style = css_select("section.reveal-band .reveal-band__image").first["style"]
     # A plain url() first so parsers without image-set() still get a photo.
     assert_match %r{\Abackground-image: url\(/media/\S+\.jpg\);}, style
     assert_match %r{image-set\(.*type\('image/avif'\).*type\('image/jpeg'\)\)}, style
