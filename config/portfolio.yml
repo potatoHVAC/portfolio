@@ -220,6 +220,8 @@ galleries:
       - cosplay/disco-chief/disco-chief-007
       - cosplay/disco-chief/disco-chief-008
       - cosplay/disco-chief/disco-chief-009
+      - cosplay/disco-chief/disco-chief-015
+      - cosplay/disco-chief/disco-chief-016
       - led/led-gallery/led-gallery-006
     credits:
       - name: oke.bokeh
@@ -251,6 +253,9 @@ galleries:
       - cosplay/russell-glow/russell-glow-024
       - cosplay/russell-glow/russell-glow-025
       - cosplay/russell-glow/russell-glow-026
+      - cosplay/russell-glow/russell-glow-027
+      - cosplay/russell-glow/russell-glow-028
+      - cosplay/russell-glow/russell-glow-029
       - cosplay/russell-glow/russell-glow-001
       - cosplay/russell-glow/russell-glow-002
       - cosplay/russell-glow/russell-glow-003
@@ -281,6 +286,9 @@ galleries:
           - cosplay/russell-glow/russell-glow-024
           - cosplay/russell-glow/russell-glow-025
           - cosplay/russell-glow/russell-glow-026
+          - cosplay/russell-glow/russell-glow-027
+          - cosplay/russell-glow/russell-glow-028
+          - cosplay/russell-glow/russell-glow-029
   - id: darth-daddy
     section_id: cosplay
     title: Darth Daddy
@@ -310,7 +318,15 @@ galleries:
       - cosplay/cosplay-gallery/cosplay-gallery-003
       - cosplay/cosplay-gallery/cosplay-gallery-004
       - cosplay/cosplay-gallery/cosplay-gallery-005
-    credits: []
+      - cosplay/cosplay-gallery/cosplay-gallery-006
+      - cosplay/cosplay-gallery/cosplay-gallery-007
+      - cosplay/cosplay-gallery/cosplay-gallery-008
+    credits:
+      - name: Triple Click Photo
+        url:
+        media_ids:
+          - cosplay/cosplay-gallery/cosplay-gallery-006
+          - cosplay/cosplay-gallery/cosplay-gallery-007
   - id: damascus-rings
     section_id: forge
     title: Damascus Rings
@@ -393,4 +409,6 @@ galleries:
       - msc-art/msc-art-014
       - msc-art/msc-art-015
       - msc-art/msc-art-016
+      - msc-art/msc-art-017
+      - msc-art/msc-art-018
     credits: []
