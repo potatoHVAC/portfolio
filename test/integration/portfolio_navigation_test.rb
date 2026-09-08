@@ -134,7 +134,9 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_equal 1, banner.size
     assert_equal "Girl with the Blue Hair Photography", banner.first.text
     assert_equal "https://linktr.ee/girl_with_the_blue_hair", banner.first["href"]
-    assert_equal 13, css_select("article.media-gallery__item .credit--tile").size
+    credited = PortfolioCatalog.current.gallery!("russell-glow").fetch("credits")
+      .sum { |credit| credit.fetch("media_ids").size }
+    assert_equal credited, css_select("article.media-gallery__item .credit--tile").size
 
     get gallery_path("disco-chief")
     assert_response :success
@@ -162,5 +164,17 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "/cosplay/russell-glow/build-book"
+  end
+
+  test "a reveal band sits between sections and declares its own image" do
+    get root_path
+
+    assert_response :success
+    bands = css_select("section.reveal-band")
+    assert_equal 1, bands.size, "expected one reveal band on the home page"
+    style = bands.first["style"]
+    # A plain url() first so parsers without image-set() still get a photo.
+    assert_match %r{\Abackground-image: url\(/media/\S+\.jpg\);}, style
+    assert_match %r{image-set\(.*type\('image/avif'\).*type\('image/jpeg'\)\)}, style
   end
 end

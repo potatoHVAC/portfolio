@@ -414,34 +414,18 @@ main > * {
   font-weight: 800;
 }
 
-/* Fixed pseudo-element rather than background-attachment: fixed, which iOS
-   Safari does not honour. A negative z-index would fall behind body's opaque
-   background, so the backdrop sits at 0 and the sections are lifted above it. */
-.home-backdrop {
-  position: relative;
-}
-
-.home-backdrop::before,
-.home-backdrop::after {
-  position: fixed;
-  z-index: 0;
-  inset: 0;
-  content: "";
-}
-
-.home-backdrop::before {
-  background-image: var(--page-backdrop);
+/* One full-bleed band between two sections. The background is fixed, so the
+   band acts as a window the image scrolls past. The photo comes from an inline
+   image-set() so the browser can pick a format. iOS Safari ignores
+   background-attachment: fixed and renders it as a plain cover image. */
+.reveal-band {
+  width: 100%;
+  max-width: none;
+  height: clamp(18rem, 55vh, 34rem);
+  padding-inline: 0;
   background-position: center;
   background-size: cover;
-}
-
-.home-backdrop::after {
-  background: linear-gradient(rgb(12 12 14 / 74%), rgb(12 12 14 / 90%));
-}
-
-.home-backdrop > * {
-  position: relative;
-  z-index: 1;
+  background-attachment: fixed;
 }
 
 .home-hero__feature {
