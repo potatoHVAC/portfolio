@@ -413,6 +413,285 @@
         "width": 608
       }
     },
+    "cosplay/cosplay-gallery/cosplay-gallery-006": {
+      "alt": "Studio portrait of the dichroic-tiled Mandalorian helmet, a fanned rack of glowing light tubes held across the chest.",
+      "height": 1500,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAAwACADASIAAhEBAxEB/8QAGQABAQEAAwAAAAAAAAAAAAAABAUDAAIG/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAIB/9oADAMBAAIQAxAAAAGFrnodz1JgvlFRLO4N4e157aFiadlV/8QAHhAAAgICAwEBAAAAAAAAAAAAAQIAAxESBBAhIhP/2gAIAQEAAQUCiY2sHvSj6/T7bxlpJlde0sYbumy8V9wqjHJGBnEVysq5YaXOHA6EyZSFFf8A/8QAGBEBAQEBAQAAAAAAAAAAAAAAAQARIRD/2gAIAQMBAT8Bjxe8k2A2/8QAGBEAAgMAAAAAAAAAAAAAAAAAAAECECH/2gAIAQIBAT8BpDjlOWH/xAAiEAACAgEEAQUAAAAAAAAAAAAAAQIRMRASIVEiEzJhcYH/2gAIAQEABj8CFuwOUIvZ3WqPKbxhDI85dfRb4j2RfTZ6kWvldFOtyK21R7RNHB5FpP8ACtOziyU5ZR//xAAfEAEBAQACAgIDAAAAAAAAAAABEQAhMUFRYXEQkbH/2gAIAQEAAT8hMuNX4av2KJhwagfOtIYIP4TGA6yJALO+Rnl5Phck6zuE4c9Y/bkbkBad/P3N9tE8V0idmYpwfedHinrBcIh29alD0qhnXybx+JOuHlmSsYxPlCzf/9oADAMBAAIAAwAAABBMZUoFD//EABoRAAICAwAAAAAAAAAAAAAAAAABESExQWH/2gAIAQMBAT8QGex0I4IyBCUUf//EABgRAQEAAwAAAAAAAAAAAAAAAAEAETFB/9oACAECAQE/EJ3IXFsHbB2dIX//xAAgEAEAAwACAQUBAAAAAAAAAAABABEhMUFREGFxgaHB/9oACAEBAAE/EFKxsbFTxkxmarwG69X5iit+ia3CT9lvjRkqjo69oYqg4eIW38Kc6n5I0jU2YU1Cu47VaGkuo78F3Iwfc/ZWtqLRnFvkH6gyb0o8tEP7LSlXzmu+RhUDVL7jjLuVVyqrrUWhGuihK95vHC66crIMQI6DFUPghguJVlhUHqC1FmsKedn/2Q==",
+      "sourceSha256": "294ecd13ba004aa84c67f118003353e455ea600b8b70a900b736f92e250544da",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 23479,
+            "contentType": "image/avif",
+            "height": 720,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/f88f6c5249b17b5b35400c06f2104e7b52f91d9b5abc8dd545ae49817de13337-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 45984,
+            "contentType": "image/avif",
+            "height": 1152,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/6d3234e08dd5468c99d885280865216c934ceb3d879093c4a0743b85f266897f-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 69621,
+            "contentType": "image/avif",
+            "height": 1500,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/09989d22910819ed7dacb5c1debeb119dc582dbbd9aee2aeec4bb33febcc3fca-w1000.avif",
+            "width": 1000
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 59421,
+            "contentType": "image/jpeg",
+            "height": 720,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/2c982153a1469fca93c9db3d78d642eb5e5b7157e761a09915e2f519d948475c-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 128508,
+            "contentType": "image/jpeg",
+            "height": 1152,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/53190950632619dc8f3a1d11340da5a886918618b48259b77bcd855ae545243e-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 210530,
+            "contentType": "image/jpeg",
+            "height": 1500,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/d53fd832f8caeaf83dc1ec7524474b26e527ed69904c7f82a3a273c2d514a1c0-w1000.jpg",
+            "width": 1000
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 43358,
+            "contentType": "image/webp",
+            "height": 720,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/be5fd01ce249eb068398b09e610b32f603d1a00b607922a9fcfe1e6a5f70c5cf-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 84472,
+            "contentType": "image/webp",
+            "height": 1152,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/bfd677fff11fd778fe04550fe39a212f46d010e9a012a0361991307e66dc4069-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 127550,
+            "contentType": "image/webp",
+            "height": 1500,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-006/11eded674e5e4ea0c957b611397938e1ad88b91aa4a625f0f5f33d0423a164e1-w1000.webp",
+            "width": 1000
+          }
+        ]
+      },
+      "width": 1000
+    },
+    "cosplay/cosplay-gallery/cosplay-gallery-007": {
+      "alt": "The dichroic-tiled Mandalorian helmet in profile against purple, the small lamp on its antenna lit blue.",
+      "height": 1500,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAAwACADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAABQMEAgb/xAAXAQADAQAAAAAAAAAAAAAAAAAAAQID/9oADAMBAAIQAxAAAAESvK+rA49EBJfXioJYVaEo5UhShLUVpUf/xAAdEAABBQADAQAAAAAAAAAAAAACAAEDBBEQEiEy/9oACAEBAAEFAsUoAKzmtAJqzCGcQmetuSeGoy6vE0kgWq/UVHXF0OixOxC3rnJ1EbCD5//EABgRAAMBAQAAAAAAAAAAAAAAAAABETEQ/9oACAEDAQE/AXxljg3DNP/EABoRAAIDAQEAAAAAAAAAAAAAAAABAhExIUH/2gAIAQIBAT8BbouyRFemj7h//8QAJBAAAQMDAgcBAAAAAAAAAAAAAQARMQISIRBBEyAiQlFhcaH/2gAIAQEABj8CVNpfGeTqZ0baY31LVW/qyfjo6VZ2T9vtcSh2MjQOowIBUBjLplb5VrysmF//xAAeEAADAAICAwEAAAAAAAAAAAAAAREhMUFREGFx0f/aAAgBAQABPyEKM46DDQyNDRz+EhPHEaKOoVKaspm2934PIscmddeEUxaQwX6PZ/EQFco2vZRpgbXGqNZXGNeyOUCIhg9maZht9F3XQNm+ts//2gAMAwEAAgADAAAAEMvBaj8P/8QAGBEBAQEBAQAAAAAAAAAAAAAAAQARITH/2gAIAQMBAT8QWQ7FTkAE9vdBjfV//8QAGREBAQADAQAAAAAAAAAAAAAAAQARIUEx/9oACAECAQE/EC9QJvhk3xHE1z//xAAiEAEBAAICAgICAwAAAAAAAAABEQAhMUFRYXGxEIGh0fD/2gAIAQEAAT8QR2awAOijYvB61+R4ZrdrastQ8tXeDOuAADSizU1PO8ko44n4MKRqAXWu485HR2oun+XLvrDA7HydZcOCNxZs6vs+s2SQIbD/AFX5wyZ2VX2dx98YYX2NbYXP7yRAibQdx/XnKyLQCnf3hSuQMRHZE4V2YOwPZdE894CcImRYdHef/9k=",
+      "sourceSha256": "8ff56d76da470eff16e9e1fcdd78957430336042d4c0922a7e1e3fad4e36e85e",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 25564,
+            "contentType": "image/avif",
+            "height": 720,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/61034cba950903e910a23fcf9c0dc9b258b72e3caa7b60d291f8eb98ea7badca-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 52660,
+            "contentType": "image/avif",
+            "height": 1152,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/9eb0ab17a85169322a8cef9b224d466234ce3cd3ee9401411d3ec8d3d1cc0b18-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 84375,
+            "contentType": "image/avif",
+            "height": 1500,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/c5ce88caf38bcd39b146e35790b2db630cbdd04525de41cc2c54afe4b4ff33b2-w1000.avif",
+            "width": 1000
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 62340,
+            "contentType": "image/jpeg",
+            "height": 720,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/46f158efb766432f17afc81bc7fc092ad89aac3af50ed7d7a03dbbb99b88c330-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 143625,
+            "contentType": "image/jpeg",
+            "height": 1152,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/ead895acac0ddbf8af884a9197152e2fc8ebb28fd53f731f6f8dd5d18f0133fe-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 250907,
+            "contentType": "image/jpeg",
+            "height": 1500,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/2455adb0913d9dd39c50fd38e7637b92911845243db57a3a6fc238040835aecd-w1000.jpg",
+            "width": 1000
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 48034,
+            "contentType": "image/webp",
+            "height": 720,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/8f0a8110de3fcc2e8663aa59e300f367a22c0c3bc4a4ccb9990024908f8df61f-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 103906,
+            "contentType": "image/webp",
+            "height": 1152,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/dff1f510feb6f49d0402c56d327870fc4a00abfbb2e9ba26d92affa71f8f8b55-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 169172,
+            "contentType": "image/webp",
+            "height": 1500,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-007/b75b152dcf61d53f661677d0c3908c153bfc27c46d9be011053ad086e4ec2c4e-w1000.webp",
+            "width": 1000
+          }
+        ]
+      },
+      "width": 1000
+    },
+    "cosplay/cosplay-gallery/cosplay-gallery-008": {
+      "alt": "Wearing the dichroic helmet on baritone saxophone with the brass band under a red canopy.",
+      "height": 4000,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAAVACADASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAQBAgMF/8QAFwEAAwEAAAAAAAAAAAAAAAAAAAECA//aAAwDAQACEAMQAAAByUSana0tc5tJsDCcgo//xAAbEAACAwEBAQAAAAAAAAAAAAABAgMREhMhMv/aAAgBAQABBQJZm5xXtyQw0zbNqbSI0u3DH6bxY9cXFL//xAAaEQACAgMAAAAAAAAAAAAAAAAAAQIDESFB/9oACAEDAQE/AVa9jvngRw//xAAXEQEBAQEAAAAAAAAAAAAAAAABAAIR/9oACAECAQE/ATJ2MzN//8QAHRAAAgIDAQEBAAAAAAAAAAAAAAECERIhMUEycf/aAAgBAQAGPwKnipc4bul01dPmzFWy6su/0zUbT9JY+jNEmpfLIn//xAAdEAEAAwEAAgMAAAAAAAAAAAABABEhMUFxUWGB/9oACAEBAAE/IbygOun98MevuNThLa0FCINNWzt2fDyOG+tYj1egkyXbIukyH3OfAzQhoHvJfh7P/9oADAMBAAIAAwAAABA6iD//xAAbEQEBAAEFAAAAAAAAAAAAAAABEQAQIYHB8P/aAAgBAwEBPxCEELhoHn3egXZn/8QAGREBAQADAQAAAAAAAAAAAAAAAQARMUFh/9oACAECAQE/EDeLIC9ti4v/xAAeEAEAAgMAAgMAAAAAAAAAAAABESEAMUFRgWGRof/aAAgBAQABPxBJ0QCT+0aOZRzdTqrS8ypq1kqu93kbsyUPXc4urwk/HcJjpLt1Eva7m9zDAbNTreKLSLkbJq6pw9SGfuKEhEMEX5xKA8EkUSfrEax7Kz//2Q==",
+      "sourceSha256": "e2cefc2abf2af0ea9dda522626d4d9285124c7ce7e561343207981c84e728043",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 15804,
+            "contentType": "image/avif",
+            "height": 320,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/c1870ddb887b904c936ec9eedcda9a541b166eb03f3c67f436458cefd1264eae-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 31271,
+            "contentType": "image/avif",
+            "height": 512,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/3a7afda3b1ad3274bbfd268bad6248a888cd0bbedb5d3f227ad8b81b2c71b3d3-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 56080,
+            "contentType": "image/avif",
+            "height": 800,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/0b9a47f53fb6c949566b57453af464a703eb46fa19460aef0958266eeeaf40cd-w1200.avif",
+            "width": 1200
+          },
+          {
+            "bytes": 82670,
+            "contentType": "image/avif",
+            "height": 1067,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/e64dee064bfec5b9801b994f9d992b8669b15173e269ecffb76bf51c40daa9d8-w1600.avif",
+            "width": 1600
+          },
+          {
+            "bytes": 138604,
+            "contentType": "image/avif",
+            "height": 1600,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/fefbe2704c74f97efd274b990c339abe9984f6fc059afdb5cce76d7617997183-w2400.avif",
+            "width": 2400
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 36733,
+            "contentType": "image/jpeg",
+            "height": 320,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/265d411331e72b1897bf534355efcc5cf8c4a5bd2fa0ee118b12211ee501fb82-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 77823,
+            "contentType": "image/jpeg",
+            "height": 512,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/9a6929c812d2fc5513462bcfcb81f944b477a2625708695cbdd702eb7c73d832-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 150809,
+            "contentType": "image/jpeg",
+            "height": 800,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/d05ed6b6d9de52d8a5026e45d2b795a2cfd00f9d7d7dd79e21c15a2f99e2570b-w1200.jpg",
+            "width": 1200
+          },
+          {
+            "bytes": 233934,
+            "contentType": "image/jpeg",
+            "height": 1067,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/f653694e8ea7107cb302e5090b58ac8b1c3b47d08becf5c2e3faccbd0d462f21-w1600.jpg",
+            "width": 1600
+          },
+          {
+            "bytes": 423538,
+            "contentType": "image/jpeg",
+            "height": 1600,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/7f84bce77877fe9d8c3d4f379dc1e6e62b7f3b5a9a7f765e439f450ca5f6d440-w2400.jpg",
+            "width": 2400
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 29058,
+            "contentType": "image/webp",
+            "height": 320,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/a1f408c073d07500466df3b491f6060b1f2b3974b8f65088e7b8b4ef2c7cb3bc-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 57016,
+            "contentType": "image/webp",
+            "height": 512,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/f8cfc53198f2a4ae2e5fac3f69764e9e248782e83904f874c63ad8a26dbf00d9-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 98374,
+            "contentType": "image/webp",
+            "height": 800,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/b1f393d081e1f08db9435a60fac30e1101e9591201cb589a3608fffee0bd440e-w1200.webp",
+            "width": 1200
+          },
+          {
+            "bytes": 141190,
+            "contentType": "image/webp",
+            "height": 1067,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/7685e7a4cb3a9fc91ad9a59d63a14c9c4028ea6f724f15b32b10e699cdc8acaa-w1600.webp",
+            "width": 1600
+          },
+          {
+            "bytes": 235146,
+            "contentType": "image/webp",
+            "height": 1600,
+            "path": "/media/cosplay/cosplay-gallery/cosplay-gallery-008/c7050ce7ce10fc7072e489e060842476feb3b166f66b41dd882a8566e2dcdbc2-w2400.webp",
+            "width": 2400
+          }
+        ]
+      },
+      "width": 6000
+    },
     "cosplay/darth-daddy/darth-daddy-001": {
       "alt": "The Darth Daddy costume on a blue-lit dance floor, its chest and helmet traced in glowing white light.",
       "height": 4096,
@@ -2665,6 +2944,248 @@
         ]
       },
       "width": 3281
+    },
+    "cosplay/disco-chief/disco-chief-015": {
+      "alt": "Disco Chief and the faceted shield among a line of Spartan cosplayers on a rooftop above the city.",
+      "height": 4000,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAArACADASIAAhEBAxEB/8QAGQAAAwADAAAAAAAAAAAAAAAAAgMEAAEF/8QAFgEBAQEAAAAAAAAAAAAAAAAAAQIA/9oADAMBAAIQAxAAAAHpQJJBWxMpTFlaqGlUDadnSK2hj//EAB4QAAIDAQACAwAAAAAAAAAAAAECAxESABMgISMx/9oACAEBAAEFAvImFIxY795iMwtatWvm3iZI4s8zNkMQRIVLp9ccZrByYtFVoUOz6//EABcRAAMBAAAAAAAAAAAAAAAAAAABEEH/2gAIAQMBAT8BmCv/xAAYEQACAwAAAAAAAAAAAAAAAAAAIQECEP/aAAgBAgEBPwElCLb/AP/EACQQAAIBAwMDBQAAAAAAAAAAAAABEQISISJBoQMgMTJRYXGx/9oACAEBAAY/AonNpV9CKccDtXI3Ku9hCWmBr1U8k/O4rnk3j8NXk6jxSp8FalYZSJrBBAo27f/EACIQAAICAQMEAwAAAAAAAAAAAAERACExQVGhEGFxgZGx8P/aAAgBAQABPyGidrv1KATVnAQ14iDN35iBXawTlaiIAmSFy4C1gHohAP6g/VN3QOC4fGXCZ2vxEsuBu4KvBml4h0tK+OIAYF++07kxVwWEhcJqB3lBSjmEQAJDRB0MOJ//2gAMAwEAAgADAAAAECsWOmkf/8QAGREBAAMBAQAAAAAAAAAAAAAAAQARIRBR/9oACAEDAQE/EKrfINk0okxF5//EABcRAQEBAQAAAAAAAAAAAAAAABEAASH/2gAIAQIBAT8QVy0jZXLXYi//xAAjEAEAAgICAQMFAAAAAAAAAAABESEAMUFhcVGB8JGhscHh/9oACAEBAAE/EA3ZbNS0PLhJDIhTDkYq5Tfl6xjhpt6a+dZOghL6wo1EdffGYYBgPcyfUwB4jG4iSZQjS6gxlsEdwSVdgOZxBbYHco6/uUyI7vU4FN/rGw1eSk5fHCkzhMFK0PJ5wikvYYoT+WGhtC+1EHDnD+gIWDRrq8ZGdpa2rfeHQsNtscZc5JPJnzkZorMFJfOcTbDWErDZmmNx/9k=",
+      "sourceSha256": "8c988dd7541cb31cf178f4c7e2a41ee37b94ab1866d0f0a1ea8d0ddceed3db96",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 28501,
+            "contentType": "image/avif",
+            "height": 640,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/d3a338e1ec2f0b00379a47b82454ec74bc63fe295d1657aa2469c78754af95ad-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 60104,
+            "contentType": "image/avif",
+            "height": 1024,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/8fc5f1b8e151b6cf101460aefe89cbcac85b4d422b5f4f9e6c88887b9c903d18-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 123071,
+            "contentType": "image/avif",
+            "height": 1600,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/c015adf3c3eae3b3c276e506ac63e93da081c3341f14a46a69aea42aa2d1f215-w1200.avif",
+            "width": 1200
+          },
+          {
+            "bytes": 190474,
+            "contentType": "image/avif",
+            "height": 2133,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/2bfd207bb631f3dd8617a73f3425d3ac11ae5db528c6a57f0eb75eb14019bd7d-w1600.avif",
+            "width": 1600
+          },
+          {
+            "bytes": 349429,
+            "contentType": "image/avif",
+            "height": 3200,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/74b7aa45372d8aa8c0139a56beb2d44b55beb636396e697c45f5ea805ecd502f-w2400.avif",
+            "width": 2400
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 71188,
+            "contentType": "image/jpeg",
+            "height": 640,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/bbc95800b370a6ef22588fedc65d95d610ce7cdcfe02741cf2c3cd3379b459d6-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 158484,
+            "contentType": "image/jpeg",
+            "height": 1024,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/e0143f3fd8fb5bfcc7699f5bd4d1501ae883ba9a21814e6e4171c58748637fa7-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 340193,
+            "contentType": "image/jpeg",
+            "height": 1600,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/67ddedbafeeb06fb0c4f3e1c793119c7165979d7c4ab6ff813dd5aac0a4705fa-w1200.jpg",
+            "width": 1200
+          },
+          {
+            "bytes": 549081,
+            "contentType": "image/jpeg",
+            "height": 2133,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/5c319a2c574f1ca8f870cfd903ce0138df4ccf59ed1984e2b67f8d6229d54de8-w1600.jpg",
+            "width": 1600
+          },
+          {
+            "bytes": 1052313,
+            "contentType": "image/jpeg",
+            "height": 3200,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/1c13d511461bb81a2acd213e2517500c18ee648c921df3b0e83294c1f2532f00-w2400.jpg",
+            "width": 2400
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 53622,
+            "contentType": "image/webp",
+            "height": 640,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/4fc0c62743830ea545a48195cbb7a06f641bf22d63895a2db7ba7cfc86b71d07-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 114694,
+            "contentType": "image/webp",
+            "height": 1024,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/cea4df07d4c974d78cb14c39d33109d46d23145cbd74a8ea91f5c349f2391e23-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 234990,
+            "contentType": "image/webp",
+            "height": 1600,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/2a08faf95c2a13a6b1d26a76c2bbad9e14103f1a1b986922c1c5c008457ba5b1-w1200.webp",
+            "width": 1200
+          },
+          {
+            "bytes": 355478,
+            "contentType": "image/webp",
+            "height": 2133,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/ea0081a862dfd1efa702a78356012e558036650fc7c59bf10972c632fd74b92e-w1600.webp",
+            "width": 1600
+          },
+          {
+            "bytes": 599492,
+            "contentType": "image/webp",
+            "height": 3200,
+            "path": "/media/cosplay/disco-chief/disco-chief-015/5d5c8fa2a7968081ae330e127923571289e61cbbec48425241f052dcfe781960-w2400.webp",
+            "width": 2400
+          }
+        ]
+      },
+      "width": 3000
+    },
+    "cosplay/disco-chief/disco-chief-016": {
+      "alt": "The armour and shield lit pink and cyan in a convention stairwell, beside another costumed guest.",
+      "height": 4000,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAArACADASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAABAUBAgMG/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAAR9jKFU0MqAAgGlvRSnbJy0xeRixTuJr/8QAHhAAAgICAwEBAAAAAAAAAAAAAQIAAwQhERIiMhD/2gAIAQEAAQUC20FewIK+YqxXQtr8tParGIFnbULMq1WTAX3zsjtOfOL9x4R5xvsz/8QAGBEBAAMBAAAAAAAAAAAAAAAAAQIQICH/2gAIAQMBAT8BoknMf//EABcRAAMBAAAAAAAAAAAAAAAAAAABEAL/2gAIAQIBAT8BiNRs/8QAIBAAAgEDBAMAAAAAAAAAAAAAAAEhAhAREhMiMVFhof/aAAgBAQAGPwI5EIk7MfSLcJ1D1prBTt8lU59Whsr3HmB1Z6v0VJeFbA7/AP/EAB8QAAMBAAICAwEAAAAAAAAAAAABESExQVFhcYGRsf/aAAgBAQABPyHfN/hgvfHBhMxnq8C3ML4N7vh+x44fQmQeThP0ZsttwSuJbRJYh2LKQVq6K7Lvd1FK0SQaNoRVWLW2NufTGMuMXEOjO6wUnpbiO/2jgf/aAAwDAQACAAMAAAAQE9oBuE//xAAaEQADAAMBAAAAAAAAAAAAAAAAAREhMVFh/9oACAEDAQE/EMsUejwDHbWK1i4f/8QAFxEBAQEBAAAAAAAAAAAAAAAAAQARMf/aAAgBAgEBPxAJ2wdiYJaYTdv/xAAgEAEAAgICAwEBAQAAAAAAAAABABEhMUFRYYGRobHR/9oACAEBAAE/EMRFNBow0AeGg9RyqPIo+H+zZV7MB6IqkBkpuLLGYDQD9er8StZQxFcoZXgN0MvwjFTBFvCXplwgAlmPHJglgh2TMC0Fo05I1lilzLFfyAJkjTLz8ImtM+4GIrZWsqarsGZS8q89RqbzbF0XCN77GGpRW6JXQDZ46mT5U39mx8T/2Q==",
+      "sourceSha256": "afabf26215b568ca90816a8713bfd1948feb5c4d0a6180ae9155a41c7bfb5b0e",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 26818,
+            "contentType": "image/avif",
+            "height": 640,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/030dd8acddc85c1d254ef80203a629b2936f2b45f961fbaa926b8a62a0d3dbeb-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 61147,
+            "contentType": "image/avif",
+            "height": 1024,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/1a89dfa736c417b1c5154f8365bb98de9b5f7e4916292d0e58af5effe25f4e4e-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 128734,
+            "contentType": "image/avif",
+            "height": 1600,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/342ac5a494edec41a89377cedef20e0d554d26718f35c5ffdd38eb8959488164-w1200.avif",
+            "width": 1200
+          },
+          {
+            "bytes": 197176,
+            "contentType": "image/avif",
+            "height": 2133,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/2378531003a93e021c8d6229bff4438cc56d9098f06d2adc246801f7b8e32bc0-w1600.avif",
+            "width": 1600
+          },
+          {
+            "bytes": 343802,
+            "contentType": "image/avif",
+            "height": 3200,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/7b516c79f8dc3a676f659dbf5d39c323f368a64d95c893884684aaf8d2a950c8-w2400.avif",
+            "width": 2400
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 67238,
+            "contentType": "image/jpeg",
+            "height": 640,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/782d1c907e033a36fef08a189b2af9574b709f8a813cf95494725365cb32cde6-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 156677,
+            "contentType": "image/jpeg",
+            "height": 1024,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/75915a11a3530cc06e5d454aaba7711442c1094446b65bab4afe88975987c247-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 338662,
+            "contentType": "image/jpeg",
+            "height": 1600,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/9b355d87f10876608e85a067160770292b9c9f59c599443b5e7684ddf2d29144-w1200.jpg",
+            "width": 1200
+          },
+          {
+            "bytes": 543095,
+            "contentType": "image/jpeg",
+            "height": 2133,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/f76d60629bd5d157beb082a76d0b085716f2b439df3ddd53b42dca2f0e8e350e-w1600.jpg",
+            "width": 1600
+          },
+          {
+            "bytes": 1022885,
+            "contentType": "image/jpeg",
+            "height": 3200,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/45afb84fc03f103551d716057bd9ddcecd85e0f56b460fd768cb5e556ca5dc85-w2400.jpg",
+            "width": 2400
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 53636,
+            "contentType": "image/webp",
+            "height": 640,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/c0c4b47f0292d993e0e4b3c6f2f80972ae05b440a0358c879e0d8ea3b6d2fcf6-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 120234,
+            "contentType": "image/webp",
+            "height": 1024,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/848120ea6b69496b57b61f2033e6df190bd8077a0d82fdf41f0d34474a857fc5-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 242612,
+            "contentType": "image/webp",
+            "height": 1600,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/49e1ee10012277938facaeccd56706e82f89e9bce0779fd720cab4ace8f073ae-w1200.webp",
+            "width": 1200
+          },
+          {
+            "bytes": 367328,
+            "contentType": "image/webp",
+            "height": 2133,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/669c47f8b322ba2b42af65f9e6d9c41702883121c1882106fe717aae10da0f2c-w1600.webp",
+            "width": 1600
+          },
+          {
+            "bytes": 613634,
+            "contentType": "image/webp",
+            "height": 3200,
+            "path": "/media/cosplay/disco-chief/disco-chief-016/ed6894548b6a144a142e34a238ba6ee656a7c711a638f1451899b234fd9f1c1f-w2400.webp",
+            "width": 2400
+          }
+        ]
+      },
+      "width": 3000
     },
     "cosplay/russell-glow-build/armour-001": {
       "alt": "Two greaves and two bracers laid on dark cloth, the greaves in rhinestone filigree and the bracers each carrying a white rearing horse.",
@@ -8361,6 +8882,243 @@
             "contentType": "image/webp",
             "height": 1618,
             "path": "/media/cosplay/russell-glow/russell-glow-026/e527b725df2c7ef7e50533b0ea7877b17fbf8f1c350744aa3d679844db1d4918-w1080.webp",
+            "width": 1080
+          }
+        ]
+      },
+      "width": 1080
+    },
+    "cosplay/russell-glow/russell-glow-027": {
+      "alt": "Blade raised beside the rainbow-lit shield, scale maille and glowing visor bright against a bare brick room.",
+      "height": 1080,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAAgACADASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAABAUCA//EABUBAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIQAxAAAAGQszFLxocAFiDaQ28is//EABwQAAIBBQEAAAAAAAAAAAAAAAECAAMREhMxIv/aAAgBAQABBQIIZSUFaijMc2mcOwRxLx7kmmwL+UgvjsbFiTP/xAAWEQADAAAAAAAAAAAAAAAAAAAAEBH/2gAIAQMBAT8BK//EABcRAAMBAAAAAAAAAAAAAAAAAAAQEUH/2gAIAQIBAT8BhFh//8QAHRAAAgIBBQAAAAAAAAAAAAAAAAERMRASISJhcf/aAAgBAQAGPwId6hwIs7Iz6ihThOXx2Lx//8QAHRABAAMAAgMBAAAAAAAAAAAAAQARITFRQWFxgf/aAAgBAQABPyHSpX2CagPjqE8O4IFdNq4uW29NY7DT1BGzh0lZSgYIfJRLfkGl3c5jb8GDqKNsH2Ka51c//9oADAMBAAIAAwAAABBHY8v/xAAXEQADAQAAAAAAAAAAAAAAAAAAAREh/9oACAEDAQE/EKh6LsFaz//EABgRAAMBAQAAAAAAAAAAAAAAAAARIQFB/9oACAECAQE/EMogqY0nT//EACEQAQACAwABBAMAAAAAAAAAAAEAESExUWFBcYGRofDx/9oACAEBAAE/ENIm7VQUiCumNfj5gAFKDv7cthUDF8V/2FNywjixp9wGvqXEK4UB9EBNYW9OPmAeqF7qWs2BqxizvZkcTTkMz8wILrkBQNswv0MF6BGeAljtfnniGgC1mQJ//9k=",
+      "sourceSha256": "65928d5b7c105d56a69513e22b25e89b6553689b7eaf606e14c626a83777edcc",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 22115,
+            "contentType": "image/avif",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/a10d28df57b26f755c17b8904afe2ffd5700f9929f42be81d9b8d0d1dd367c0d-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 46968,
+            "contentType": "image/avif",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/8a15a7413ba262a6edcdbf3187f01f354b7438804c5cdf074358ec78bea61244-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 80810,
+            "contentType": "image/avif",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/231802f94945559e907fc61a63e389975bd7d8e011eba33e15bd7ba2c95f90cd-w1080.avif",
+            "width": 1080
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 51577,
+            "contentType": "image/jpeg",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/4866c0c6859ee72c1be4f8ab803776c692a1d681f233aebe3b3ef925c954569b-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 116950,
+            "contentType": "image/jpeg",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/9bea224e494346795521f57645d91e37745a851979076aaf41c6d0a206137a06-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 204002,
+            "contentType": "image/jpeg",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/278c1283433863a16af1fb8e1c8a0c2a0d986eed9e60a5fe127eebfa9eea662c-w1080.jpg",
+            "width": 1080
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 42154,
+            "contentType": "image/webp",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/9464579b375a0cc5a9c2d414e80e3959f78fff2847775aefac4197b0f85cf963-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 94264,
+            "contentType": "image/webp",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/9dc825d7504640a0de3c17495ef4f2aa8b3d0f390c56b50c2457999e3d78b4ce-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 163288,
+            "contentType": "image/webp",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-027/0e1773a65eddb5e13b4eada66c098f14068700f874a21dc628f96b2325360884-w1080.webp",
+            "width": 1080
+          }
+        ]
+      },
+      "width": 1080
+    },
+    "cosplay/russell-glow/russell-glow-028": {
+      "alt": "Profile portrait of the helmet, its fibre-optic crest and rainbow visor lit, the shield glowing behind like a halo.",
+      "height": 1080,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAAgACADASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAQMFBAL/xAAWAQEBAQAAAAAAAAAAAAAAAAACAAH/2gAMAwEAAhADEAAAAZG9DJGbTzRW7LzipzgdH//EABwQAAIDAAMBAAAAAAAAAAAAAAECAAMhERMiMf/aAAgBAQABBQJREC1y09kYRcClHf49o9IcXVR+a2OmBykGkz//xAAZEQEBAQADAAAAAAAAAAAAAAABABECMUH/2gAIAQMBAT8By08hjiHV/8QAGBEAAwEBAAAAAAAAAAAAAAAAAAERAiH/2gAIAQIBAT8BSHmIh0//xAAfEAABAwMFAAAAAAAAAAAAAAAAARExAhASISIyQWH/2gAIAQEABj8CN3JRqEtSp6Qwtsm7MpXW7JAtRJ//xAAdEAADAQACAwEAAAAAAAAAAAAAAREhMUFRYXHB/9oACAEBAAE/IZ7CFt9FIpl87Nd5JS7G20MVu3KdPFgtOQ1Mm4v0iKpw9CWthhMY23srPBa5HQ7YfD3SU//aAAwDAQACAAMAAAAQKvU1/8QAGBEBAQEBAQAAAAAAAAAAAAAAAQARITH/2gAIAQMBAT8QwnXlohMfZFn/xAAZEQEAAwEBAAAAAAAAAAAAAAABABEhMVH/2gAIAQIBAT8QNK9yDlFuSl1n/8QAHxABAAICAgMBAQAAAAAAAAAAAQARITFBUWGBoXGx/9oACAEBAAE/EDuc+GW4UqOgePLDpLyUfVmdWi1KjA7mrR8hWUE03ekf3+xELaUOreyZfqc9QRIFlwNmHDOHH2Lz5aYpH1cSVIsF3ncGAciy4iIRtTp7IdBkwrRAjaKM3tn/2Q==",
+      "sourceSha256": "9d21ff8c3a982b665a41a9665e28ac86304c63ccd6b811d2e5ac6f7e0037f0e1",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 26743,
+            "contentType": "image/avif",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/818e4a408abf84bd525e42de33164216087f35d51e643b2532256d982944fddf-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 55659,
+            "contentType": "image/avif",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/d33ad3355e44ba2638471336f1b73c7a0ddd693c52184e40c8f4eee281d5676e-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 93024,
+            "contentType": "image/avif",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/01e1e346e18a88f1cea3d8dd3884e40f4a7524d2a26f8b1c88a2f9661c073ca5-w1080.avif",
+            "width": 1080
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 59124,
+            "contentType": "image/jpeg",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/af4cce41d6e81484fab2620b43623a7669c3f333ead4888bd89903d5fc3de080-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 131307,
+            "contentType": "image/jpeg",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/c059de1f2f1410517c36325e56eb2f1019ce3f7d3ef1783f52bee07805c8b627-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 224636,
+            "contentType": "image/jpeg",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/6185478be84cbd922c14b9a487a0ea78934b6b9948c12a13b802baf2517e2693-w1080.jpg",
+            "width": 1080
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 51968,
+            "contentType": "image/webp",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/37168c9eaf06cbcb3196dcccdd1d160dc83adb3cf3a8d9107c4a69ddcf65fa0d-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 110586,
+            "contentType": "image/webp",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/30b29f611542cc626a754662aa253af3e9387d8bdef39f20e68077a9798020ed-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 186600,
+            "contentType": "image/webp",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-028/fb6fd67d0eedfbf0dd819311acc50e08057ba4d82f24217b605d6f43f62f45e2-w1080.webp",
+            "width": 1080
+          }
+        ]
+      },
+      "width": 1080
+    },
+    "cosplay/russell-glow/russell-glow-029": {
+      "alt": "Head-on portrait of the rhinestoned helmet glowing green and pink, the rainbow shield haloed behind.",
+      "height": 1080,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAAgACADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAwQBAgX/xAAWAQEBAQAAAAAAAAAAAAAAAAABAAL/2gAMAwEAAhADEAAAAfFfXKILyRNl4dVkPU//xAAcEAACAgMBAQAAAAAAAAAAAAABAgAREiEiEDH/2gAIAQEAAQUCxiUIRCIFsnHHQRx0GFBuDuM3l1Ppn//EABYRAQEBAAAAAAAAAAAAAAAAAAEAEf/aAAgBAwEBPwGIcl2//8QAFhEAAwAAAAAAAAAAAAAAAAAAAAEQ/9oACAECAQE/Aaz/xAAdEAACAgEFAAAAAAAAAAAAAAABEQAQQQISIDFh/9oACAEBAAY/Apuj7dCD2EjFoFqDQ1ng6//EABwQAQADAQEAAwAAAAAAAAAAAAEAESFBMVFxgf/aAAgBAQABPyGkIjK2iOl6HU+CVB7L6QECSzgVFytJ47KnlQrkGxmVTH6Yl/REwZZtd9ILY5Hu5P/aAAwDAQACAAMAAAAQmZx4/8QAGREAAwEBAQAAAAAAAAAAAAAAAAERQSEx/9oACAEDAQE/EG3gz0u74WU//8QAFxEBAQEBAAAAAAAAAAAAAAAAAQARIf/aAAgBAgEBPxAcZRgN6QN4X//EAB0QAQACAwADAQAAAAAAAAAAAAERIQAxUUFhcbH/2gAIAQEAAT8QB2GCwZMG2vPPuXApQEeby8dOZLaBQvrbjJpqtlke0vEwqFHXXMNhohycM1KSL7CfxyHw5hqWzGOARTyftY5yVR8iMkBQ3E5z0x4HDukwHDIxC7poz//Z",
+      "sourceSha256": "76a06cb6b63fa8c5cf889f49cd9f606129bc47ae041480f33db93de6ba976c4a",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 25190,
+            "contentType": "image/avif",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/766f71b2fa1d197bb6467be91ef5f0cb87b6ba7700c161bd72a43bfa3b8211a0-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 53182,
+            "contentType": "image/avif",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/366f4daabae6606f5643f664b2ff0e6eb20036ccb09d686a10488a19b0b6df8d-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 89012,
+            "contentType": "image/avif",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/6fbe192a7c519f22fe08af244e31184e0f5711df01a9047cc4fe7b74281a4130-w1080.avif",
+            "width": 1080
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 55125,
+            "contentType": "image/jpeg",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/a65bdb5f10a1a20c4a34ddf323651c7f677fe8799096e470ec8b4d74cef0a87e-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 124975,
+            "contentType": "image/jpeg",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/025851984b0afce319f5017cf42cb4376c2c32dae803e652989daa353c43406a-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 219054,
+            "contentType": "image/jpeg",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/1ff93be8f763f01e989ff31cf70a00e3091c3c2b0cd0537d01573c7c528348cd-w1080.jpg",
+            "width": 1080
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 48032,
+            "contentType": "image/webp",
+            "height": 480,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/7e7b63f1e7dad839dc55137c8a9739d877512f29ff577f8872a219b3abcf32c1-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 102298,
+            "contentType": "image/webp",
+            "height": 768,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/8fb356cda43bd5777a0cd14bd4c77beae4cf9704ccbbeda8befb5b95ff9cda69-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 172112,
+            "contentType": "image/webp",
+            "height": 1080,
+            "path": "/media/cosplay/russell-glow/russell-glow-029/87e238f356768293bf9f4d111dc754b585887b41f871cf4d71a3bb18c4b5e515-w1080.webp",
             "width": 1080
           }
         ]
@@ -15600,6 +16358,248 @@
         ]
       },
       "width": 2304
+    },
+    "msc-art/msc-art-017": {
+      "alt": "Trying on the hand-made black and red leather boots in the workshop.",
+      "height": 4096,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAArACADASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAgUBAwQABv/EABcBAAMBAAAAAAAAAAAAAAAAAAABAgP/2gAMAwEAAhADEAAAAa6ZWh6M0zGlK1lZldGPUdLSFvSYmQGz/8QAHBAAAgIDAQEAAAAAAAAAAAAAAQIAAxESEyEg/9oACAEBAAEFAlpak9dZW4cWoHXDz3LPpOq6WKGXlynNMWeAQr4lx3FBmMRywFFbCz4E/8QAGREAAgMBAAAAAAAAAAAAAAAAAQIAECER/9oACAEDAQE/AWFGIu7RPZ//xAAYEQADAQEAAAAAAAAAAAAAAAABAhAhAP/aAAgBAgEBPwFTBztmX//EACIQAAICAQQBBQAAAAAAAAAAAAABAhEhAyJRYRIgMUFCgf/aAAgBAQAGPwK5xtdMqGKLfuUx22zoTT/OBSm6L+wnl8jwR041jk6MHg1uPhmEbVY9Sfq//8QAHBAAAgIDAQEAAAAAAAAAAAAAAAERITFBUWGR/9oACAEBAAE/IVzSAloLCE5JlyzFrj4JP2fSzNMTErmHHwKuyYwRpSKiFBL5wTusyECSTYSXTkRPky4Kdx1FnZkSVi6IV958EwqXjpEucPw0aNGh/9oADAMBAAIAAwAAABCOSxNd3//EABkRAQADAQEAAAAAAAAAAAAAAAEAESEQcf/aAAgBAwEBPxBKnkN5Ay6OJpn/xAAaEQEAAQUAAAAAAAAAAAAAAAABABAhMUFx/9oACAECAQE/EC3OxoETFev/xAAfEAEAAgICAwEBAAAAAAAAAAABABEhMUFRYXGBkaH/2gAIAQEAAT8QpQOVWRbzzsJuV5GBb/IIEu6hOnkzdeYiyNjtQDNFGzZ0F3zNidlsv1XcBv8AGNChnmBZuQ5ZfBBiYROSzhNfeI1dLdw/xx5gm3i0pfXqZEFJKNe8VEvvOd/nctAKOWUlc7QHb8IZdqkVUDmqGXRLZQYjUqKdXT1ZcDuBBeC+DWJRDaGVVcdow4FTPLqf/9k=",
+      "sourceSha256": "a02749b544a46079afa1264eecbbbf844409f23dafd77db42a2c9fc6ac5312a9",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 22496,
+            "contentType": "image/avif",
+            "height": 640,
+            "path": "/media/msc-art/msc-art-017/f7f83bcdd08e1e3b710c017028348e1ad5b215a4f647e7d7ef700ad52afc2f1e-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 45233,
+            "contentType": "image/avif",
+            "height": 1024,
+            "path": "/media/msc-art/msc-art-017/541dfb2605fb7cbc2010f18819d36ae7f8cb0f15905adff74e2ae73d6dd3a588-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 85462,
+            "contentType": "image/avif",
+            "height": 1600,
+            "path": "/media/msc-art/msc-art-017/a6f8c223915fcd97bebccecb010e2e9e20043e9b34e1f3a7e4de6f96690d9e05-w1200.avif",
+            "width": 1200
+          },
+          {
+            "bytes": 128207,
+            "contentType": "image/avif",
+            "height": 2133,
+            "path": "/media/msc-art/msc-art-017/6550778e5ba6e9a50da50ae52bea382a8eac44c63887e1e2e015a1a0ded558c8-w1600.avif",
+            "width": 1600
+          },
+          {
+            "bytes": 219818,
+            "contentType": "image/avif",
+            "height": 3200,
+            "path": "/media/msc-art/msc-art-017/fea3a89cf2d8a6cb847ab05df22f39d89134e2a16585a67c94877560c811f8c8-w2400.avif",
+            "width": 2400
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 58315,
+            "contentType": "image/jpeg",
+            "height": 640,
+            "path": "/media/msc-art/msc-art-017/6ca38787dfe5db1cc20fe8f17663c94a72b65ad135a168a640c14ce9f7ecef12-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 124684,
+            "contentType": "image/jpeg",
+            "height": 1024,
+            "path": "/media/msc-art/msc-art-017/fdb270a005200e68470f4670d148d7fb0577d59d419465906ae4baaf3f368a65-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 256627,
+            "contentType": "image/jpeg",
+            "height": 1600,
+            "path": "/media/msc-art/msc-art-017/023f5c1a5fc0840f1960dd12ab2203ad9b34f5ff9e6874839a0ae8b536a03c29-w1200.jpg",
+            "width": 1200
+          },
+          {
+            "bytes": 409231,
+            "contentType": "image/jpeg",
+            "height": 2133,
+            "path": "/media/msc-art/msc-art-017/5b20b655450e2d05a3eb0035a4c12e1773882e9d2d9ba4d182f57f8af832b1e9-w1600.jpg",
+            "width": 1600
+          },
+          {
+            "bytes": 786901,
+            "contentType": "image/jpeg",
+            "height": 3200,
+            "path": "/media/msc-art/msc-art-017/a2397ac5e3511032ac064edc685bab2515c50c9338389f4fcfae94124eb199c4-w2400.jpg",
+            "width": 2400
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 42176,
+            "contentType": "image/webp",
+            "height": 640,
+            "path": "/media/msc-art/msc-art-017/846d260878345ad2eb2bf407fdd8798e72e9862b1732df075129185c3fddc673-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 82924,
+            "contentType": "image/webp",
+            "height": 1024,
+            "path": "/media/msc-art/msc-art-017/457129e44e82879214f40b328facc876df8c78aed57e1dbff2a840ffdb58bdfc-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 155424,
+            "contentType": "image/webp",
+            "height": 1600,
+            "path": "/media/msc-art/msc-art-017/91dfeb2ce139a9e3d61ad37592aac5df8e8353b94b1caedcd3f2611ece31641a-w1200.webp",
+            "width": 1200
+          },
+          {
+            "bytes": 233816,
+            "contentType": "image/webp",
+            "height": 2133,
+            "path": "/media/msc-art/msc-art-017/b0461f6dbe437711239ea99f7a271ec0f822cd7da06bbce29a3fdce5db96f417-w1600.webp",
+            "width": 1600
+          },
+          {
+            "bytes": 395338,
+            "contentType": "image/webp",
+            "height": 3200,
+            "path": "/media/msc-art/msc-art-017/21cecb5d6c7d27c4a407d8e2715d4ce35963aca1da20983898a9276adf1d6a62-w2400.webp",
+            "width": 2400
+          }
+        ]
+      },
+      "width": 3072
+    },
+    "msc-art/msc-art-018": {
+      "alt": "The hand-made black and red leather boots worn in the workshop, seen from the side.",
+      "height": 4096,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAArACADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAABAMFAgb/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAARU7FXps0OjGQ1horPuc1pFVjjmwan//xAAcEAADAAIDAQAAAAAAAAAAAAABAgMABBESIRP/2gAIAQEAAQUCuxGa7nFYOKuQTxWjeNG/VrqKGlOlJobIdeYSbdqfMFlkZ03OQYghxmyo+eopafRcGV9XW8jn/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEBEhMf/aAAgBAwEBPwFrdMjDojJ//8QAGREAAwADAAAAAAAAAAAAAAAAAAECEBEh/9oACAECAQE/Ad8GIq8//8QAHxAAAgICAgMBAAAAAAAAAAAAAAECESExEiIDEEGx/9oACAEBAAY/AlY5fNFolCebI+OVtfgo8uhRDGxNZx9JRlWNMWNDfLrDSOVCp4IxvrsinlSMljlN27xYutept750R9f/xAAdEAEAAgMBAQEBAAAAAAAAAAABABEhMUFRcWGh/9oACAEBAAE/IVLN9hLvK+s1kuHxgwm6lv06LqDiAnCOIlRsfZZwXAudCFjiamq+kbH2v2duCjrB/bl7WLEoW/YQidB+yhJFrUwIumpWsy7xeiqnyDczczqQo+Q4Hczk/9oADAMBAAIAAwAAABDQqW7xX//EABkRAQADAQEAAAAAAAAAAAAAAAEAESFB8P/aAAgBAwEBPxCmzAB2XXIyLh7JS9irUn//xAAZEQEBAAMBAAAAAAAAAAAAAAABABEhMVH/2gAIAQIBAT8QORbEw7FkPYMyX//EACAQAQACAgMAAwEBAAAAAAAAAAERIQAxQVFhcZHwodH/2gAIAQEAAT8QF0iwCB1/uOtCU4UkrXw55VGG6reIvEEeXBs/OEaCx290xreCaw6Gk7jmv7hNu1CLwACrSNtwnWLN4SmZV+m8dpQIso6XnzBBRd5bwT50xCiX0j6xThd0M+nT7kW9ZBCX9OQlQ66aRPOOpOVeib81k65WoxSDsiN9YgCzcQFTq5yWF6KPjvnN6yLvGqVhF1JIOtYY5hJXzObC5//Z",
+      "sourceSha256": "5a920d15b5ee903d50983421a1b75105f479bf08bd55370ed5b80e400e62043a",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 18368,
+            "contentType": "image/avif",
+            "height": 640,
+            "path": "/media/msc-art/msc-art-018/e939e93ad3975a5523c306b5517dfda7ea907d9a47925268410dd9ddc8dd12a0-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 31822,
+            "contentType": "image/avif",
+            "height": 1024,
+            "path": "/media/msc-art/msc-art-018/1b89eb07a0c7f6b84576faa8c7d2405dbd8d96b2fdc3bd69e0f52cc11e1dd300-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 54895,
+            "contentType": "image/avif",
+            "height": 1600,
+            "path": "/media/msc-art/msc-art-018/e590c7ae756b84a63230961713837f24c1aad1ce380e5a4d0b7b51a277c20f5b-w1200.avif",
+            "width": 1200
+          },
+          {
+            "bytes": 81882,
+            "contentType": "image/avif",
+            "height": 2133,
+            "path": "/media/msc-art/msc-art-018/b2d3ccf2a2384380b7dec728641408114d119a1735eb67721ca18ede85001cf4-w1600.avif",
+            "width": 1600
+          },
+          {
+            "bytes": 151203,
+            "contentType": "image/avif",
+            "height": 3200,
+            "path": "/media/msc-art/msc-art-018/d249c6b3457120bdb924182fd7a32953bcd5641cdb13e4066182122672746559-w2400.avif",
+            "width": 2400
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 52363,
+            "contentType": "image/jpeg",
+            "height": 640,
+            "path": "/media/msc-art/msc-art-018/d54b667147bfd1dcd58cb01ab48d140790af45c8fe080b719202cb3e7fa35278-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 102457,
+            "contentType": "image/jpeg",
+            "height": 1024,
+            "path": "/media/msc-art/msc-art-018/49a93b429e2ee641f4ea9c97eed9261401e7918ac86022d45e203f1465bfa343-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 204791,
+            "contentType": "image/jpeg",
+            "height": 1600,
+            "path": "/media/msc-art/msc-art-018/e93ceb2819ca52ceab042c6c9add9ffacad283891c3d8c290293796d1f9b92f1-w1200.jpg",
+            "width": 1200
+          },
+          {
+            "bytes": 333756,
+            "contentType": "image/jpeg",
+            "height": 2133,
+            "path": "/media/msc-art/msc-art-018/6c86f5f29ef905347e291b4d244929d7c826e410720a2dc62e3106f195564a88-w1600.jpg",
+            "width": 1600
+          },
+          {
+            "bytes": 675781,
+            "contentType": "image/jpeg",
+            "height": 3200,
+            "path": "/media/msc-art/msc-art-018/472f345725d43770fbff98f772709070984d7d7f4d81fc622f25e180d97c0206-w2400.jpg",
+            "width": 2400
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 32974,
+            "contentType": "image/webp",
+            "height": 640,
+            "path": "/media/msc-art/msc-art-018/f35512a4ea05dbd4ddd69c0d0065b8bf2b14a7b3495299d59fb82799fa1f432f-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 56940,
+            "contentType": "image/webp",
+            "height": 1024,
+            "path": "/media/msc-art/msc-art-018/312e7f995d739aa4a3bbffc99cae12b5a65cfa243cbe3a2fc66de8d885175b18-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 104384,
+            "contentType": "image/webp",
+            "height": 1600,
+            "path": "/media/msc-art/msc-art-018/2ea4ad1267562b57edf9592f0a0afa0991bf192ed6614054dff4f8c76a0a97a4-w1200.webp",
+            "width": 1200
+          },
+          {
+            "bytes": 156392,
+            "contentType": "image/webp",
+            "height": 2133,
+            "path": "/media/msc-art/msc-art-018/550e303f82abfdd49dd051215e61c1e4122ccff07f4ab2e4934f7ac2453223bd-w1600.webp",
+            "width": 1600
+          },
+          {
+            "bytes": 280636,
+            "contentType": "image/webp",
+            "height": 3200,
+            "path": "/media/msc-art/msc-art-018/a66aa1eb0481264d33bca00ecdf1ee195adc5b7a9dbad391ffc245badb781616-w2400.webp",
+            "width": 2400
+          }
+        ]
+      },
+      "width": 3072
     },
     "validation/p-20231021-194531": {
       "alt": "",

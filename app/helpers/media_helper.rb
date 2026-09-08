@@ -32,6 +32,23 @@ module MediaHelper
     (descriptors.find { |descriptor| descriptor.fetch("width") >= width } || descriptors.last).fetch("path")
   end
 
+  # A CSS background cannot negotiate format the way <picture> does, so offer
+  # every encoding through image-set() and leave a plain url() behind for
+  # parsers without it. Width is not negotiated: a full-bleed background is
+  # sized by the viewport, which no resolution hint describes.
+  def portfolio_media_band_style(id, width: 2400)
+    sources = media_catalog.fetch!(id, kind: :image).fetch("sources")
+    candidates = IMAGE_FORMATS.to_h do |format|
+      descriptors = sources.fetch(format)
+      [ format, descriptors.find { |d| d.fetch("width") >= width } || descriptors.last ]
+    end
+    set = candidates.map do |_format, descriptor|
+      "url(#{descriptor.fetch("path")}) type('#{descriptor.fetch("contentType")}')"
+    end
+    "background-image: url(#{candidates.fetch("jpeg").fetch("path")});" \
+      " background-image: image-set(#{set.join(", ")})"
+  end
+
   private
 
   def render_portfolio_poster(asset, html_options)

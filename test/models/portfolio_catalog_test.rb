@@ -125,7 +125,7 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
     gallery = catalog.gallery!("russell-glow")
     index = catalog.gallery_credits_by_media_id(gallery)
 
-    assert_equal 13, index.size
+    assert_equal gallery.fetch("credits").sum { |credit| credit.fetch("media_ids").size }, index.size
     assert_equal "Girl with the Blue Hair Photography",
                  index.fetch("cosplay/russell-glow/russell-glow-014").fetch("name")
     assert_nil index["cosplay/russell-glow/russell-glow-001"]
