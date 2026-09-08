@@ -448,10 +448,21 @@ main > * {
   position: absolute;
   top: calc(50% - 50vh);
   height: 100vh;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
   inset-inline: 0;
+}
+
+/* An img, not a background: the edge CSP sets style-src 'self', which drops
+   inline style attributes, and a per-band photo cannot come from the
+   stylesheet. img-src 'self' allows this, and srcset picks a real width. */
+.reveal-band__image picture,
+.reveal-band__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.reveal-band__image img {
+  object-fit: contain;
 }
 
 @media (prefers-reduced-motion: no-preference) {

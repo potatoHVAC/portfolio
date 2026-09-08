@@ -166,15 +166,24 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "/cosplay/russell-glow/build-book"
   end
 
-  test "a reveal band sits between sections and declares its own image" do
+  test "a reveal band sits between sections and renders its photo as an image" do
     get root_path
 
     assert_response :success
-    bands = css_select("section.reveal-band")
-    assert_equal 1, bands.size, "expected one reveal band on the home page"
-    style = css_select("section.reveal-band .reveal-band__image").first["style"]
-    # A plain url() first so parsers without image-set() still get a photo.
-    assert_match %r{\Abackground-image: url\(/media/\S+\.jpg\);}, style
-    assert_match %r{image-set\(.*type\('image/avif'\).*type\('image/jpeg'\)\)}, style
+    assert_equal 1, css_select("section.reveal-band").size
+    assert_equal 1, css_select("section.reveal-band .reveal-band__image picture img").size
+    assert_predicate css_select("section.reveal-band picture source[type='image/avif']"), :any?
+  end
+
+  # The edge CSP sets style-src 'self', so a browser drops inline style
+  # attributes and whatever they carried never renders.
+  test "no public page carries an inline style attribute" do
+    paths = PortfolioCatalog.current.public_paths + BuildBookCatalog.current.public_paths
+    offenders = paths.select do |path|
+      get path
+      response.body.include?(" style=")
+    end
+
+    assert_empty offenders, "inline styles are dropped by the edge CSP"
   end
 end
