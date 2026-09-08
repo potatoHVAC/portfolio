@@ -266,8 +266,11 @@ jobs:
             echo "previous=$previous"
           } >> "$GITHUB_OUTPUT"
 
+      # Disabled: verifies all 1,272 manifest objects serially on every push to
+      # main whether or not media changed, adding ~6 minutes. Re-enable with the
+      # media system revamp; `bin/media verify-manifest --remote` still runs by hand.
       - name: Verify public media delivery
-        if: steps.publish.outputs.enabled == 'true'
+        if: ${{ false }}
         run: bin/media verify-manifest --remote https://speerd.com
 
       - name: Write job summary
