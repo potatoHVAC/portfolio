@@ -426,7 +426,11 @@ main > * {
 
    Travel is half the distance the band covers (its own height plus a
    viewport), because the photo starts centred in the band.
-   Without scroll timeline support the photo sits centred and still. */
+
+   No fill mode on purpose. A browser that parses animation-timeline but does
+   not resolve the named timeline leaves the animation inactive, and a fill
+   would then park the photo at its start offset, outside the clip, showing a
+   solid black band. Without fill it falls back to the centred still photo. */
 .reveal-band {
   --reveal-band-height: 140vh;
   --reveal-band-drift: 4vh;
@@ -453,7 +457,7 @@ main > * {
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .reveal-band__image {
-      animation: reveal-band-travel linear both;
+      animation: reveal-band-travel linear;
       animation-timeline: --reveal-band;
       animation-range: cover 0% cover 100%;
     }
