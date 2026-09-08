@@ -414,18 +414,51 @@ main > * {
   font-weight: 800;
 }
 
-/* One full-bleed band between two sections. The background is fixed, so the
-   band acts as a window the image scrolls past. The photo comes from an inline
-   image-set() so the browser can pick a format. iOS Safari ignores
-   background-attachment: fixed and renders it as a plain cover image. */
+/* One full-bleed band between two sections, placed per page. The band is
+   taller than its sticky image, so the image holds still for a stretch of
+   scroll with the whole photo visible, then releases. Sticky rather than
+   background-attachment: fixed, which iOS Safari ignores. clip rather than
+   hidden: hidden would make the band a scroll container and kill the sticky. */
 .reveal-band {
   width: 100%;
   max-width: none;
-  height: clamp(18rem, 55vh, 34rem);
+  height: 132vh;
+  height: 132dvh;
   padding-inline: 0;
+  overflow: clip;
+  view-timeline-name: --reveal-band;
+}
+
+.reveal-band__image {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
   background-position: center;
-  background-size: cover;
-  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+/* Drifts with scroll direction rather than sitting dead still. Falls back to
+   a static image where scroll timelines are unsupported. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal-band__image {
+      animation: reveal-band-drift linear both;
+      animation-timeline: --reveal-band;
+      animation-range: entry 100% exit 0%;
+    }
+  }
+}
+
+@keyframes reveal-band-drift {
+  from {
+    transform: translateY(-4%);
+  }
+
+  to {
+    transform: translateY(4%);
+  }
 }
 
 .home-hero__feature {
