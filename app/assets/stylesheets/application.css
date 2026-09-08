@@ -414,50 +414,42 @@ main > * {
   font-weight: 800;
 }
 
-/* One full-bleed band between two sections, placed per page. The band is
-   taller than its sticky image, so the image holds still for a stretch of
-   scroll with the whole photo visible, then releases. Sticky rather than
-   background-attachment: fixed, which iOS Safari ignores. clip rather than
-   hidden: hidden would make the band a scroll container and kill the sticky. */
+/* One full-bleed band between two sections, placed per page. The background is
+   fixed, so the band is a window the page opens over a stationary photo — no
+   pinning, so nothing catches as it passes. Taller than the viewport, so the
+   whole photo is visible for a stretch of scroll. iOS Safari ignores
+   background-attachment: fixed and renders it as a plain scrolling image. */
 .reveal-band {
   width: 100%;
   max-width: none;
-  height: 132vh;
-  height: 132dvh;
+  height: 140vh;
+  height: 140dvh;
   padding-inline: 0;
-  overflow: clip;
-  view-timeline-name: --reveal-band;
-}
-
-.reveal-band__image {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100dvh;
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
+  background-attachment: fixed;
 }
 
-/* Drifts with scroll direction rather than sitting dead still. Falls back to
-   a static image where scroll timelines are unsupported. */
+/* Drifts the photo a little against the scroll instead of sitting dead still.
+   Continuous, so there is no start or stop to catch on. */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    .reveal-band__image {
+    .reveal-band {
       animation: reveal-band-drift linear both;
-      animation-timeline: --reveal-band;
-      animation-range: entry 100% exit 0%;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
     }
   }
 }
 
 @keyframes reveal-band-drift {
   from {
-    transform: translateY(-4%);
+    background-position: center calc(50% - 3.5vh);
   }
 
   to {
-    transform: translateY(4%);
+    background-position: center calc(50% + 3.5vh);
   }
 }
 
