@@ -175,6 +175,17 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_predicate css_select("section.reveal-band picture source[type='image/avif']"), :any?
   end
 
+  # The edge CSP sets style-src 'self', so the band's height cannot ride in on
+  # an inline aspect-ratio; the spacer's viewBox carries the photo's ratio.
+  test "a reveal band carries a spacer holding its photo's ratio" do
+    get root_path
+
+    spacer = css_select("section.reveal-band svg.reveal-band__sizer")
+    assert_equal 1, spacer.size
+    # Nokogiri parses as HTML, which lowercases the attribute name.
+    assert_equal "0 0 4096 3072", spacer.first["viewbox"]
+  end
+
   # The edge CSP sets style-src 'self', so a browser drops inline style
   # attributes and whatever they carried never renders.
   test "no public page carries an inline style attribute" do
