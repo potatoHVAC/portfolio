@@ -416,44 +416,40 @@ main > * {
 
 /* One full-bleed band between two sections, placed per page.
 
-   The photo counter-scrolls: over the band's pass through the viewport it
-   travels almost exactly as far as the page scrolls, in the opposite
-   direction, so it reads as a stationary image the band is a window onto.
-   Travelling slightly less than that leaves the drift. Nothing pins, so
-   nothing catches. Driven by transform on a scroll timeline, which stays on
-   the compositor; background-attachment: fixed would repaint every frame and
-   is ignored outright by iOS Safari.
+   Its height comes from an empty SVG spacer whose viewBox carries the photo's
+   ratio, capped at a viewport: the edge CSP sets style-src 'self', so a
+   per-photo aspect-ratio cannot be handed to CSS inline.
 
-   Travel is half the distance the band covers (its own height plus a
-   viewport), because the photo starts centred in the band.
-
-   No fill mode on purpose. A browser that parses animation-timeline but does
-   not resolve the named timeline leaves the animation inactive, and a fill
-   would then park the photo at its start offset, outside the clip, showing a
-   solid black band. Without fill it falls back to the centred still photo. */
+   The photo is fixed, so the band is a window that travels over a stationary
+   image. overflow does not clip a fixed child, so clip-path does the clipping
+   and overflow stays for the spacer's own width. */
 .reveal-band {
-  --reveal-band-height: 140vh;
-  --reveal-band-drift: 4vh;
-
   position: relative;
   width: 100%;
   max-width: none;
-  height: var(--reveal-band-height);
   padding-inline: 0;
   overflow: clip;
-  view-timeline-name: --reveal-band;
+  clip-path: inset(0);
+}
+
+.reveal-band__sizer {
+  display: block;
+  width: 150%;
+  height: auto;
+  max-height: 100vh;
 }
 
 .reveal-band__image {
   position: absolute;
-  top: calc(50% - 50vh);
-  height: 100vh;
-  inset-inline: 0;
+  inset: 0;
 }
 
-/* An img, not a background: the edge CSP sets style-src 'self', which drops
-   inline style attributes, and a per-band photo cannot come from the
-   stylesheet. img-src 'self' allows this, and srcset picks a real width. */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-band__image {
+    position: fixed;
+  }
+}
+
 .reveal-band__image picture,
 .reveal-band__image img {
   display: block;
@@ -463,30 +459,6 @@ main > * {
 
 .reveal-band__image img {
   object-fit: contain;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .reveal-band__image {
-      animation: reveal-band-travel linear;
-      animation-timeline: --reveal-band;
-      animation-range: cover 0% cover 100%;
-    }
-  }
-}
-
-@keyframes reveal-band-travel {
-  from {
-    transform: translateY(
-      calc((var(--reveal-band-height) + 100vh) / -2 + var(--reveal-band-drift))
-    );
-  }
-
-  to {
-    transform: translateY(
-      calc((var(--reveal-band-height) + 100vh) / 2 - var(--reveal-band-drift))
-    );
-  }
 }
 
 .home-hero__feature {

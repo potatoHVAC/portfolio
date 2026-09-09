@@ -17,6 +17,18 @@ module MediaHelper
     render_portfolio_video(id, media_catalog.fetch!(id, kind: :video), html_options)
   end
 
+  # Ratio spacer for CSS that cannot receive an inline aspect-ratio.
+  def portfolio_media_sizer(id, **html_options)
+    asset = media_catalog.fetch!(id, kind: :image)
+    tag.svg(
+      **html_options.symbolize_keys.merge(
+        viewBox: "0 0 #{asset.fetch("width")} #{asset.fetch("height")}",
+        "aria-hidden": "true",
+        focusable: "false"
+      )
+    )
+  end
+
   # Grid tile: a still for both kinds, so a tile never nests video controls.
   def portfolio_media_thumbnail(id, **html_options)
     asset = media_catalog.fetch!(id)
