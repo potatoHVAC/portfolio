@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 import sharp from "sharp";
 import { checkMediaMetadata } from "../src/metadata.js";
 import { inspectVideo, probeMedia } from "../src/video/probe.js";
-import { transformVideo } from "../src/video/transform.js";
+import { resolveRotation, transformVideo } from "../src/video/transform.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -159,4 +159,48 @@ test("10-bit and HDR inputs fail before transformation", async () => {
     })),
     /does not match/,
   );
+});
+
+test("clockwise rotation turns the frame before the delivery cap applies", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "media-video-"));
+  const sourcePath = path.join(root, "portrait.mp4");
+  try {
+    await makeSource(sourcePath, { audio: false, duration: 1, size: "64x36" });
+    const input = source(sourcePath, "rings/rotated");
+    const inspection = await inspectVideo(input);
+    const transformed = await transformVideo({
+      source: input,
+      inspection,
+      bounds: {
+        clipStartMs: 0,
+        clipEndMs: inspection.sourceDurationMs,
+        expectedDurationMs: inspection.sourceDurationMs,
+      },
+      posterAtMs: 500,
+      rotation: 90,
+      temporaryRoot: root,
+    });
+    try {
+      const outputProbe = await probeMedia(transformed.video.localPath);
+      assert.equal(outputProbe.streams[0].width, 36);
+      assert.equal(outputProbe.streams[0].height, 64);
+      assert.match(transformed.video.path, /-36x64\.mp4$/);
+      const poster = await sharp(transformed.poster.data).metadata();
+      assert.equal(poster.width, 36);
+      assert.equal(poster.height, 64);
+    } finally {
+      await transformed.cleanup();
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("rotation accepts only quarter turns", () => {
+  assert.equal(resolveRotation(undefined), 0);
+  assert.equal(resolveRotation(""), 0);
+  assert.equal(resolveRotation("90"), 90);
+  assert.equal(resolveRotation("270"), 270);
+  assert.throws(() => resolveRotation("45"), /--rotate must be/);
+  assert.throws(() => resolveRotation("clockwise"), /--rotate must be/);
 });

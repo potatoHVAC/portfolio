@@ -110,6 +110,8 @@ bin/media publish video media-source/rings/home/demo.mp4 \
   --title "Ring controls" --description "A selected demonstration" \
   --start 00:00:03.500 --end 00:00:08.000 \
   --captions en-US:media-source/rings/home/demo.en-us.vtt
+bin/media publish video media-source/rings/home/demo.mp4 \
+  --title "Ring controls" --description "A demonstration shot sideways" --rotate 90
 bin/media verify-manifest
 bin/media verify-manifest --remote https://speerd.com
 bin/media hydrate
@@ -131,7 +133,9 @@ objects when a local file disappears. Source files and hydrated files under
 
 Video publication re-encodes H.264/AAC MP4 derivatives and a JPEG poster. Supply
 both `--start` and `--end` to publish a clip, or neither to publish the full
-video. Caption files use WebVTT and the primary stem plus a lowercase BCP 47
+video. Use `--rotate` with `90`, `180`, or `270` clockwise degrees to turn a
+frame before the delivery cap applies; the poster follows the rotation, and
+changing it on a published asset requires `--replace`. Caption files use WebVTT and the primary stem plus a lowercase BCP 47
 language suffix, such as `demo.en-us.vtt`; repeat `--captions language:path` for
 additional tracks. Use `--caption-label language:label` to override the visible
 label. The complete original video and caption bytes are archived.

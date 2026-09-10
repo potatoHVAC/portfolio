@@ -10,6 +10,21 @@ import { ffmpegSeconds } from "./time.js";
 
 const execFileAsync = promisify(execFile);
 
+// Clockwise degrees. Sources carry no rotation metadata to honour, so the
+// filter is the only thing that turns a frame.
+const ROTATION_FILTERS = new Map([
+  [90, "transpose=1"],
+  [180, "transpose=1,transpose=1"],
+  [270, "transpose=2"],
+]);
+
+export function resolveRotation(rotate) {
+  if (rotate === undefined || rotate === null || rotate === "") return 0;
+  const degrees = Number(rotate);
+  if (!ROTATION_FILTERS.has(degrees)) throw new Error("--rotate must be 90, 180, or 270");
+  return degrees;
+}
+
 async function runFfmpeg(arguments_, runner) {
   try {
     await runner("ffmpeg", ["-hide_banner", "-loglevel", "error", ...arguments_], {
@@ -21,7 +36,7 @@ async function runFfmpeg(arguments_, runner) {
   }
 }
 
-function videoArguments(source, inspection, bounds, outputPath) {
+function videoArguments(source, inspection, bounds, rotation, outputPath) {
   const arguments_ = [];
   if (bounds.clipStartMs > 0) arguments_.push("-ss", ffmpegSeconds(bounds.clipStartMs));
   arguments_.push("-i", source.absolutePath);
@@ -41,7 +56,14 @@ function videoArguments(source, inspection, bounds, outputPath) {
     "-map_chapters",
     "-1",
     "-vf",
-    "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1,setpts=PTS-STARTPTS",
+    [
+      ROTATION_FILTERS.get(rotation),
+      "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2",
+      "setsar=1",
+      "setpts=PTS-STARTPTS",
+    ]
+      .filter(Boolean)
+      .join(","),
     "-c:v",
     "libx264",
     "-preset",
@@ -88,6 +110,7 @@ export async function transformVideo({
   inspection,
   bounds,
   posterAtMs,
+  rotation = 0,
   temporaryRoot,
   runner = execFileAsync,
   prober = probeMedia,
@@ -98,7 +121,7 @@ export async function transformVideo({
   const framePath = path.join(workDirectory, "poster-frame.png");
   const posterPath = path.join(workDirectory, "poster.jpg");
   try {
-    await runFfmpeg(videoArguments(source, inspection, bounds, outputPath), runner);
+    await runFfmpeg(videoArguments(source, inspection, bounds, rotation, outputPath), runner);
     const validated = await validateVideoDerivative(outputPath, {
       expectedDurationMs: bounds.expectedDurationMs,
       prober,
