@@ -739,6 +739,18 @@ main > * {
   letter-spacing: -0.12em;
 }
 
+/* The story-slot variant: a ratio box beside the copy rather than a hero pane. */
+.media-placeholder--inline {
+  min-height: 0;
+  padding: 1.25rem;
+  aspect-ratio: 4 / 3;
+  font-size: 0.66rem;
+}
+
+.media-placeholder--inline .media-placeholder__index {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+}
+
 .project-feature {
   padding-block: clamp(2rem, 5vw, 4rem);
 }
@@ -812,6 +824,86 @@ main > * {
   max-width: 44rem;
   color: var(--muted);
   font-size: 1.08rem;
+}
+
+.story-step__copy {
+  min-width: 0;
+}
+
+.story-step__copy p + p {
+  margin-top: 1rem;
+}
+
+.story-points {
+  display: grid;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.story-points li {
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.story-points strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--ink);
+}
+
+/* Illustrated stories run full width so the media has somewhere to sit; each
+   step swaps the side it lands on, and text-only steps take the whole span. */
+.project-story--illustrated {
+  display: block;
+}
+
+.project-story--illustrated .project-story__intro {
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.project-story--illustrated .story-step {
+  padding-block: clamp(2.5rem, 5vw, 4.5rem);
+  grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 0.95fr);
+  align-items: start;
+  column-gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.project-story--illustrated .story-step:nth-of-type(even):not(.story-step--text) .story-step__copy {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.project-story--illustrated .story-step:nth-of-type(even):not(.story-step--text) .story-step__media {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.project-story--illustrated .story-step--text .story-step__copy {
+  grid-column: 2 / -1;
+}
+
+/* Centred, so copy longer than its media splits the slack instead of pooling
+   it all under the frame. */
+.story-step__media {
+  min-width: 0;
+  align-self: center;
+}
+
+.story-step__media picture img,
+.story-step__media video {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 38rem;
+  margin-inline: auto;
+}
+
+.story-step__media .portfolio-video {
+  margin: 0;
 }
 
 .project-gallery-link {
@@ -1233,6 +1325,19 @@ main > * {
   .about-grid,
   .contact-details {
     gap: 2rem;
+  }
+
+  .project-story--illustrated .story-step {
+    grid-template-columns: 3rem minmax(0, 1fr);
+    row-gap: 2rem;
+  }
+
+  .project-story--illustrated .story-step:nth-of-type(even):not(.story-step--text) .story-step__copy,
+  .project-story--illustrated .story-step:nth-of-type(even):not(.story-step--text) .story-step__media,
+  .project-story--illustrated .story-step__media,
+  .project-story--illustrated .story-step--text .story-step__copy {
+    grid-column: 2;
+    grid-row: auto;
   }
 
   .gallery-card__link {

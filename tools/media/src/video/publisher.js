@@ -7,7 +7,7 @@ import { assertSourceUntracked } from "../tracked.js";
 import { prepareCaptions } from "./captions.js";
 import { inspectVideo } from "./probe.js";
 import { resolveClipBounds, resolvePosterTime } from "./time.js";
-import { transformVideo } from "./transform.js";
+import { resolveRotation, transformVideo } from "./transform.js";
 
 const SOURCE_CONTENT_TYPES = {
   ".m4v": "video/mp4",
@@ -88,6 +88,7 @@ export async function publishVideo({
   start,
   end,
   posterAt,
+  rotate,
   captionSpecifications = [],
   captionLabelSpecifications = [],
   replace = false,
@@ -100,6 +101,7 @@ export async function publishVideo({
 }) {
   title = requiredText(title, "--title");
   description = requiredText(description, "--description");
+  const rotation = resolveRotation(rotate);
   await assertSourceUntracked(process.cwd(), inputPath);
   const source = await resolvePrimarySource({ sourceRoot, inputPath, kind: "video" });
   const inspection = await inspectVideo(source);
@@ -161,6 +163,7 @@ export async function publishVideo({
     inspection,
     bounds,
     posterAtMs,
+    rotation,
     temporaryRoot,
   });
   try {

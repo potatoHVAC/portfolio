@@ -37,19 +37,48 @@
     </dl>
   </section>
 
-  <section class="project-story" aria-labelledby="project-story-title">
+  <% stories = @project.fetch("stories") %>
+  <% illustrated = stories.any? { |story| story["media_id"].present? || story["media_note"].present? } %>
+  <section class="project-story<%= " project-story--illustrated" if illustrated %>" aria-labelledby="project-story-title">
     <div class="project-story__intro">
       <p class="eyebrow">Behind the build</p>
       <h2 id="project-story-title">From premise to presence.</h2>
     </div>
     <div class="story-list">
-      <% @project.fetch("stories").each_with_index do |story, index| %>
-        <article class="story-step">
+      <% stories.each_with_index do |story, index| %>
+        <% media_id = story["media_id"] %>
+        <% media_note = story["media_note"] %>
+        <article class="story-step<%= " story-step--text" if media_id.blank? && media_note.blank? %>">
           <span class="story-step__number"><%= format("%02d", index + 1) %></span>
-          <div>
+          <div class="story-step__copy">
             <h3><%= story.fetch("heading") %></h3>
-            <p><%= story.fetch("body") %></p>
+            <% story.fetch("body").each do |paragraph| %>
+              <p><%= paragraph %></p>
+            <% end %>
+            <% if story.fetch("points").any? %>
+              <ul class="story-points">
+                <% story.fetch("points").each do |point| %>
+                  <li>
+                    <strong><%= point.fetch("lead") %></strong>
+                    <%= point.fetch("text") %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
           </div>
+          <% if media_id.present? %>
+            <div class="story-step__media">
+              <%= portfolio_media media_id, sizes: "(min-width: 58rem) 34rem, 100vw", autoplay: true %>
+            </div>
+          <% elsif media_note.present? %>
+            <div class="story-step__media">
+              <div class="media-placeholder media-placeholder--inline" role="img"
+                   aria-label="Media pending: <%= media_note %>">
+                <span class="media-placeholder__index" aria-hidden="true"><%= format("%02d", index + 1) %></span>
+                <span aria-hidden="true"><%= media_note %></span>
+              </div>
+            </div>
+          <% end %>
         </article>
       <% end %>
     </div>

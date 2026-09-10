@@ -53,32 +53,148 @@ projects:
         value: Playability, serviceability, stage presence
     stories:
       - heading: Built around the musician
-        body: Every installation begins with the performer. The light has to amplify the instrument without getting between the player and the work.
+        body:
+          - Every installation begins with the performer. The light has to amplify the instrument without getting between the player and the work.
+        points: []
+        media_id:
+        media_note:
       - heading: Hardware that belongs there
-        body: Mounts, wiring paths, diffusion, and controls are treated as part of the instrument instead of an accessory taped on at the end.
+        body:
+          - Mounts, wiring paths, diffusion, and controls are treated as part of the instrument instead of an accessory taped on at the end.
+        points: []
+        media_id:
+        media_note:
       - heading: Ready for the stage
-        body: The final test is simple—does it disappear for the performer and become unforgettable for the audience?
+        body:
+          - The final test is simple—does it disappear for the performer and become unforgettable for the audience?
+        points: []
+        media_id:
+        media_note:
   - id: cadenza
     section_id: led-art
     title: Cadenza
-    kicker: A synchronized light show made from independent objects
-    summary: A network of LED controllers that shares time, holds its choreography, and turns distributed hardware into one visual instrument.
+    kicker: A light show made of independent objects
+    summary: >-
+      It started because a marching band cannot run an extension cord. Cadenza puts a small
+      controller on each instrument, prop, and costume — its own power, its own lights, no wires
+      between them — and keeps them in step by radio.
     path: /led-art/cadenza
     hero_media_id:
     feature_media_id:
     gallery_id: cadenza
     facts:
       - label: System
-        value: ESP32 mesh + custom firmware
-      - label: Focus
-        value: Deterministic, time-anchored light
+        value: ESP32 mesh, custom Rust firmware
+      - label: Controllers on one mesh
+        value: "13"
+      - label: Command to light
+        value: Under a tenth of a second
     stories:
-      - heading: One show, many clocks
-        body: Cadenza coordinates independent controllers around a shared sense of time so each object renders the same moment without streaming frames across the room.
-      - heading: Choreography as compact state
-        body: Patterns travel as small parameters and a time anchor. Late arrivals calculate where the show is now and join in phase.
-      - heading: Built from bench to room
-        body: Custom boards, firmware, controls, and fixtures evolve together. The result is less a strip of pixels than a material for shaping space.
+      - heading: Change it from a phone and the room turns over together.
+        body:
+          - >-
+            Every controller carries its own battery and its own lights, so a performer can walk
+            anywhere with one. Nothing runs back to a desk, and nothing plugs into a wall.
+          - >-
+            Change the show from a phone and every one of them turns over together, on the same
+            beat, whether they are on a stage or spread through a moving crowd.
+        points: []
+        media_id:
+        media_note: Wide shot — several lit instruments in one frame, doing the same thing at the same time
+      - heading: A small computer on every instrument.
+        body:
+          - >-
+            Each controller is an ESP32 — a board smaller than a credit card with a radio built in —
+            wired to addressable LED strip, a couple of buttons, and its own battery. That is the
+            whole unit. There is no hub, no controller box at front of house, and nothing plugged
+            into the wall.
+          - >-
+            The board runs firmware I wrote in Rust, and it does the boring jobs well: paint the
+            strip thirty times a second, watch the buttons, listen for whatever the show is doing
+            now, and never drop a frame while doing all three. If one ever locks up, it restarts
+            itself and rejoins the show in progress.
+        points: []
+        media_id:
+        media_note: Bare ESP32 on the bench, wires attached, and the same board installed in an instrument
+      - heading: Nobody is in charge.
+        body:
+          - >-
+            The obvious way to build this is to stream the picture: one machine decides every pixel
+            and pushes it out. That does not survive a real room. Radio drops frames, people walk
+            between antennas, and the whole show is one dead link away from stopping.
+          - >-
+            So Cadenza sends instructions instead of pictures. A board is told which pattern to run
+            and the exact moment it starts, and from there it works out its own pixels, thirty times
+            a second. Every board does the same arithmetic and reaches the same answer, so they stay
+            together without another word passing between them.
+          - >-
+            That is not a show loaded once and left alone. Change anything — the pattern, the color,
+            the speed, the brightness — and the new instruction reaches every controller in well
+            under a tenth of a second. Because it arrives with a timestamp a few milliseconds in the
+            future, they do not change one after another in a ripple; they all change on the same
+            instant. New looks get built live, too: up to four layers stacked on top of each other,
+            each a shape, a rhythm, and a way of mixing, sent as a handful of numbers. Nothing is
+            reflashed. Nothing is rehearsed.
+          - >-
+            They share a clock accurate to a few milliseconds and they relay for each other, so
+            telling one board tells all of them. Switch a board off, walk it across the building,
+            switch it back on, and it works out where the show has got to and joins mid-stride,
+            already in phase.
+          - >-
+            They can also be told to come apart on purpose: the same command with one number changed
+            scatters the boards out of phase, so a tight formation dissolves into a crowd of
+            separate objects and pulls back together on cue.
+        points: []
+        media_id: led/cadenza/cadenza-demo
+        media_note:
+      - heading: The whole room can get out of the way.
+        body:
+          - >-
+            A cadenza is the moment the band drops out and one player goes. The system does exactly
+            that. Name a soloist and their lights flare while everything else in the room falls
+            back, so the eye goes where the sound is. Name a section instead — the trumpets, the
+            drums — and they lift together. Anyone can hand it back.
+          - >-
+            It is the one feature that came from playing music rather than from engineering, and it
+            is the reason the project has this name.
+        points: []
+        media_id:
+        media_note: Solo handoff — one player lifting out of a lit group, the room dimming, then handing back
+      - heading: A phone runs it.
+        body:
+          - >-
+            Anyone on the local network opens a page and has the show: patterns, colors, brightness,
+            who is soloing, which instruments are grouped together. Tap it and it is out on the
+            radio before you have put your hand down.
+          - >-
+            Most nights there is no operator at all, so the buttons on each board do the same job —
+            start something, change it, hand a solo around — with no phone, no laptop, and nothing
+            to set up. The show is never waiting on a computer to be present.
+        points: []
+        media_id: led/cadenza/control-panel
+        media_note:
+      - heading: What it does next.
+        body:
+          - >-
+            Three things are being built now. Each one takes the same fleet somewhere it cannot
+            currently go.
+        points:
+          - lead: Take orders from a lighting desk.
+            text: >-
+              Art-Net is the language stage lighting already speaks. Teaching Cadenza to answer it
+              turns a pile of instruments into one more fixture on a designer's console — no new
+              software to learn, no parallel system to run.
+          - lead: See the show before building it.
+            text: >-
+              A simulator that holds a map of where every strip physically sits, running the same
+              code the boards run, so a show can be designed and watched on a laptop and then
+              trusted on stage.
+          - lead: More kinds of fixture.
+            text: >-
+              Matrix panels for text and imagery, a button box for hands-on control, and strips that
+              listen to the player — brightness that tracks how hard someone is actually blowing.
+        media_id:
+        media_note:
   - id: disco-chief
     section_id: cosplay
     title: Disco Chief
@@ -95,11 +211,23 @@ projects:
         value: Legendary difficulty, party mode
     stories:
       - heading: Start with the silhouette
-        body: The familiar armored profile makes the joke land from across a room. Light and finish push it somewhere entirely new up close.
+        body:
+          - The familiar armored profile makes the joke land from across a room. Light and finish push it somewhere entirely new up close.
+        points: []
+        media_id:
+        media_note:
       - heading: Hide the engineering
-        body: Power, controls, cable routes, and wearable structure are distributed through the suit so the performance stays bigger than the hardware.
+        body:
+          - Power, controls, cable routes, and wearable structure are distributed through the suit so the performance stays bigger than the hardware.
+        points: []
+        media_id:
+        media_note:
       - heading: Make it survive the party
-        body: A costume this visible has to move, travel, and recover from enthusiastic use. Service access is part of the design.
+        body:
+          - A costume this visible has to move, travel, and recover from enthusiastic use. Service access is part of the design.
+        points: []
+        media_id:
+        media_note:
   - id: russell-glow
     section_id: cosplay
     title: Russell Glow
@@ -116,11 +244,23 @@ projects:
         value: Character first, electronics second
     stories:
       - heading: Keep the character readable
-        body: Added technology only works when the original personality still arrives first. Shape, color, and posture establish the story before anything lights up.
+        body:
+          - Added technology only works when the original personality still arrives first. Shape, color, and posture establish the story before anything lights up.
+        points: []
+        media_id:
+        media_note:
       - heading: Details for the second look
-        body: Small fabricated elements and controlled points of light turn a recognizable costume into a personal interpretation.
+        body:
+          - Small fabricated elements and controlled points of light turn a recognizable costume into a personal interpretation.
+        points: []
+        media_id:
+        media_note:
       - heading: Comfortable enough to inhabit
-        body: Wearability, weight, and access matter because the best costume is the one that can stay in character all day.
+        body:
+          - Wearability, weight, and access matter because the best costume is the one that can stay in character all day.
+        points: []
+        media_id:
+        media_note:
   - id: darth-daddy
     section_id: cosplay
     title: Darth Daddy
@@ -137,11 +277,23 @@ projects:
         value: Dramatic with a deliberate wink
     stories:
       - heading: Readable from the doorway
-        body: Strong proportion and a controlled palette establish the character immediately, leaving room for the details to carry the joke.
+        body:
+          - Strong proportion and a controlled palette establish the character immediately, leaving room for the details to carry the joke.
+        points: []
+        media_id:
+        media_note:
       - heading: Wearable structure
-        body: The hidden work is balance—rigid enough to hold the silhouette, flexible enough to move through a crowded room.
+        body:
+          - The hidden work is balance—rigid enough to hold the silhouette, flexible enough to move through a crowded room.
+        points: []
+        media_id:
+        media_note:
       - heading: Performance completes the build
-        body: The costume is designed as a stage for posture, timing, and interaction rather than a static object.
+        body:
+          - The costume is designed as a stage for posture, timing, and interaction rather than a static object.
+        points: []
+        media_id:
+        media_note:
 
 galleries:
   - id: instrument-art
@@ -171,12 +323,23 @@ galleries:
   - id: cadenza
     section_id: led-art
     title: Cadenza
-    summary: Hardware, synchronized patterns, control surfaces, and installations in motion.
+    summary: The objects the system drives — helmets, armour, panels, and wearables, each with a controller of its own.
     path: /galleries/cadenza
-    status: Media needed
-    cover_media_id:
-    media_ids: []
-    credits: []
+    status: Selected work
+    cover_media_id: cosplay/russell-glow/russell-glow-028
+    media_ids:
+      - led/cadenza/glass-and-led-wall-art
+      - cosplay/russell-glow/russell-glow-006
+      - cosplay/russell-glow/russell-glow-028
+      - cosplay/disco-chief/armor-main-page
+      - led/led-gallery/led-gallery-011
+      - led/led-gallery/led-gallery-013
+      - msc-art/msc-art-009
+    credits:
+      - name: Girl with the Blue Hair Photography
+        url: https://linktr.ee/girl_with_the_blue_hair
+        media_ids:
+          - cosplay/russell-glow/russell-glow-028
   - id: led-experiments
     section_id: led-art
     title: LED Experiments
