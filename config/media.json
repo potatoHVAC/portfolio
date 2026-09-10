@@ -9125,6 +9125,114 @@
       },
       "width": 1080
     },
+    "led/cadenza/cadenza-demo": {
+      "captions": [],
+      "clipEndMs": 47033,
+      "clipStartMs": 0,
+      "description": "Pattern changes fired live at a bench of lit objects — helmet, shield, vest, and saxophone all turning over on the same beat.",
+      "durationMs": 47040,
+      "kind": "video",
+      "poster": {
+        "bytes": 112520,
+        "contentType": "image/jpeg",
+        "height": 1080,
+        "path": "/media/led/cadenza/cadenza-demo/841aa450d7fda8411833ce1e814dd3349e7a1c1256348d1b5b7401f5ce4a7d8f-poster.jpg",
+        "width": 608
+      },
+      "sourceDurationMs": 47033,
+      "sourceSha256": "630729fcfecb95c200dd6f4e89928c0d2d171601f025eaa239454ca31ae5d07f",
+      "title": "Everything, at once.",
+      "video": {
+        "bytes": 15760867,
+        "contentType": "video/mp4",
+        "height": 1080,
+        "path": "/media/led/cadenza/cadenza-demo/b35d0db3d053933e20b8e1d6b4d4dfc334f00a419b6d6b6996df192162aa9ba0-608x1080.mp4",
+        "width": 608
+      }
+    },
+    "led/cadenza/control-panel": {
+      "alt": "The Cadenza control panel on a phone: a master brightness slider, a grid of named patterns, and a composite editor for stacking layers.",
+      "height": 960,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAAzACADASIAAhEBAxEB/8QAGQAAAwEBAQAAAAAAAAAAAAAAAAIDAQUE/8QAFgEBAQEAAAAAAAAAAAAAAAAAAQAC/9oADAMBAAIQAxAAAAHhy3dSpTA9D+dtpOs8ANsotpw3RCTmBX//xAAgEAACAQMEAwAAAAAAAAAAAAAAAQIDERIQIjEyEyFB/9oACAEBAAEFAso4bTbp8sWGQpycfHUReZK4hiJC4toxPb7LD60+cUYofX//xAAUEQEAAAAAAAAAAAAAAAAAAAAw/9oACAEDAQE/AQ//xAAXEQADAQAAAAAAAAAAAAAAAAABEBEg/9oACAECAQE/AVRr/8QAIhAAAgIBAQkAAAAAAAAAAAAAAAFBkREhEBIgIjAxMoGh/9oACAEBAAY/AkubMkk8WUzO8rPL6a9HB3VmrV7ETZNns//EACAQAQABBAIDAQEAAAAAAAAAAAEAESExUUFhEHGRgfD/2gAIAQEAAT8htj9FphiqcrdPACMSjZKNkFCBxg9xK4GoE5xyKsxJlP5aYQDc0gNyhuECzWFzV92gMkFyT1jwrau4BN3O77zs+/gf/9oADAMBAAIAAwAAABABkCsZv6D/xAAUEQEAAAAAAAAAAAAAAAAAAAAw/9oACAEDAQE/EA//xAAZEQADAAMAAAAAAAAAAAAAAAABEBExkeH/2gAIAQIBAT8QJqE5DviiOF//xAAjEAEAAgIBAwQDAAAAAAAAAAABABEhMVFhcaEQkbHwQYHB/9oACAEBAAE/EETK8YLdvEvqDkqLSlnJPPpqIwZqnq+gHaI9pq0QJJUCouGab9tJZa0uVbuXuDxC2E10D4mqU86PzM79eIcyK3mIaanNMzV78zSFe6ZRULbup7JhAmqQRaAgcAREBbK5c1LXKaNKQAoA+v5n2H+zv7fE/9k=",
+      "sourceSha256": "02b1c115dcbce08b688bee99bd92ca2641bf13def8520e1d5f4ac32c375de766",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 10526,
+            "contentType": "image/avif",
+            "height": 771,
+            "path": "/media/led/cadenza/control-panel/0900a7884f7d3a01f78122e7e7b9a57654be3fd568db01a18167bb2e11c1949b-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 14739,
+            "contentType": "image/avif",
+            "height": 960,
+            "path": "/media/led/cadenza/control-panel/5b287cad437bdb64da1f6618c40a3ebd8582885dbaeae560f85f8723ab31a805-w598.avif",
+            "width": 598
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 29102,
+            "contentType": "image/jpeg",
+            "height": 771,
+            "path": "/media/led/cadenza/control-panel/f24221ad73bf09819fad60806e524608f7c931e4d1a1acae0b0cf051b86ef4d2-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 40166,
+            "contentType": "image/jpeg",
+            "height": 960,
+            "path": "/media/led/cadenza/control-panel/f33208efe45ae4d1efdd468bc3f551a812c28f669ace59a97e06b2ae12b90169-w598.jpg",
+            "width": 598
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 12362,
+            "contentType": "image/webp",
+            "height": 771,
+            "path": "/media/led/cadenza/control-panel/28c287c8852942c02b3e474c491443459c5031bde78f83e50afe969c23c304b2-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 16526,
+            "contentType": "image/webp",
+            "height": 960,
+            "path": "/media/led/cadenza/control-panel/bf1d0697b7a2b29ff8e2d9f6bee95178d49b8fc7e9c7ce7b15601f4c80918125-w598.webp",
+            "width": 598
+          }
+        ]
+      },
+      "width": 598
+    },
+    "led/cadenza/glass-and-led-wall-art": {
+      "captions": [],
+      "clipEndMs": 11052,
+      "clipStartMs": 0,
+      "description": "A framed panel of cut dichroic glass, metal, and chain, backlit by colour-shifting LEDs.",
+      "durationMs": 11034,
+      "kind": "video",
+      "poster": {
+        "bytes": 105951,
+        "contentType": "image/jpeg",
+        "height": 1080,
+        "path": "/media/led/cadenza/glass-and-led-wall-art/89576f4d0c8c3c3cffd3b1007105f65d242d19b005abecf3540aa40c45aa05d8-poster.jpg",
+        "width": 608
+      },
+      "sourceDurationMs": 11052,
+      "sourceSha256": "ba92f94f85a3ccbcbdcfb6eb0fb29925f5c61343db8a5ca08d754550bdb1efeb",
+      "title": "Glass and LED wall art",
+      "video": {
+        "bytes": 4063569,
+        "contentType": "video/mp4",
+        "height": 1080,
+        "path": "/media/led/cadenza/glass-and-led-wall-art/5519efb8c42feb1f46c05b7a35744cbfddf4e37d8728b8f40662c761a1910cdb-608x1080.mp4",
+        "width": 608
+      }
+    },
     "led/instrument/instrument-001": {
       "alt": "A saxophone fitted with a glowing blue pentagram ring.",
       "height": 4096,

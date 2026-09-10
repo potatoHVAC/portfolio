@@ -131,7 +131,44 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
     assert_nil index["cosplay/russell-glow/russell-glow-001"]
   end
 
+  test "a story carries paragraphs and at most one kind of illustration" do
+    empty_body = copy_data
+    cadenza_story(empty_body)["body"] = []
+    assert_match "has no body", assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(empty_body) }.message
+
+    both = copy_data
+    cadenza_story(both)["media_note"] = "A stand-in that outlived its media"
+    assert_match "sets both media and a media note",
+                 assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(both) }.message
+
+    stray_point = copy_data
+    cadenza_story(stray_point)["points"] = [ { "lead" => "Only half" } ]
+    assert_match "point fields must be",
+                 assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(stray_point) }.message
+  end
+
+  test "project media must exist in the manifest" do
+    unknown_story_media = copy_data
+    cadenza_story(unknown_story_media)["media_id"] = "led/cadenza/not-published"
+    error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(unknown_story_media) }
+    assert_match "story media is invalid", error.message
+
+    unknown_hero = copy_data
+    cadenza_project(unknown_hero)["hero_media_id"] = "led/cadenza/not-published"
+    error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(unknown_hero) }
+    assert_match "hero media is invalid", error.message
+  end
+
   private
+
+  def cadenza_project(data)
+    data["projects"].find { |entry| entry["id"] == "cadenza" }
+  end
+
+  # The one story on the page that carries published media rather than a note.
+  def cadenza_story(data)
+    cadenza_project(data)["stories"].find { |story| story["media_id"] }
+  end
 
   def copy_data
     Marshal.load(Marshal.dump(@data))

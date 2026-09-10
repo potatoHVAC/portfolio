@@ -46,7 +46,30 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
 
     get gallery_path("cadenza")
     assert_response :success
+    assert_equal 1, css_select("main.accent--electric").size
+    assert_predicate css_select("article.media-gallery__item"), :any?
+  end
+
+  test "a gallery holding no media renders the pending state" do
+    emptied = YAML.safe_load_file(
+      Rails.root.join("config/portfolio.yml"),
+      permitted_classes: [],
+      permitted_symbols: [],
+      aliases: false
+    )
+    gallery = emptied["galleries"].find { |entry| entry["id"] == "cadenza" }
+    gallery["media_ids"] = []
+    gallery["cover_media_id"] = nil
+    gallery["credits"] = []
+
+    PortfolioCatalog.instance_variable_set(:@current, PortfolioCatalog.new(catalog: emptied))
+    get gallery_path("cadenza")
+
+    assert_response :success
     assert_includes response.body, "This gallery is being prepared."
+    assert_empty css_select("section.media-gallery")
+  ensure
+    PortfolioCatalog.reset!
   end
 
   test "gallery tiles open a lightbox and never nest video controls" do

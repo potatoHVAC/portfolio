@@ -17,7 +17,8 @@ class PortfolioCatalog
   GALLERY_KEYS = %w[id section_id title summary path status cover_media_id media_ids credits].freeze
   CREDIT_KEYS = %w[name url media_ids].freeze
   FACT_KEYS = %w[label value].freeze
-  STORY_KEYS = %w[heading body].freeze
+  STORY_KEYS = %w[heading body points media_id media_note].freeze
+  POINT_KEYS = %w[lead text].freeze
   CORE_PATHS = %w[/ /galleries /about /contact].freeze
   CREDIT_URL_PATTERN = %r{\Ahttps://[a-z0-9.-]+\.[a-z]{2,}(?:/\S*)?\z}i
 
@@ -95,7 +96,9 @@ class PortfolioCatalog
 
     validate_site!(catalog.fetch("site"))
     validate_entries!(catalog.fetch("sections"), SECTION_KEYS, "section") { |entry| validate_section!(entry) }
-    validate_entries!(catalog.fetch("projects"), PROJECT_KEYS, "project") { |entry| validate_project!(entry) }
+    validate_entries!(catalog.fetch("projects"), PROJECT_KEYS, "project") do |entry|
+      validate_project!(entry, media_catalog)
+    end
     validate_entries!(catalog.fetch("galleries"), GALLERY_KEYS, "gallery") do |entry|
       validate_gallery!(entry, media_catalog)
     end
@@ -137,15 +140,45 @@ class PortfolioCatalog
     string_array!(section.fetch("featured_project_ids"), "section #{section["id"]} featured projects")
   end
 
-  def validate_project!(project)
+  def validate_project!(project, media_catalog)
     %w[section_id title kicker summary gallery_id].each do |key|
       present_string!(project[key], "project #{project["id"]} #{key}")
     end
     path!(project.fetch("path"), "project #{project["id"]} path")
-    optional_string!(project["hero_media_id"], "project #{project["id"]} hero media")
-    optional_string!(project["feature_media_id"], "project #{project["id"]} feature media")
+    project_media!(project["hero_media_id"], media_catalog, "project #{project["id"]} hero media")
+    project_media!(project["feature_media_id"], media_catalog, "project #{project["id"]} feature media")
     nested_entries!(project.fetch("facts"), FACT_KEYS, "project #{project["id"]} fact")
-    nested_entries!(project.fetch("stories"), STORY_KEYS, "project #{project["id"]} story")
+    validate_stories!(project, media_catalog)
+  end
+
+  # A story is paragraphs, an optional list of points, and either the media that
+  # illustrates it or the note standing in until that media exists.
+  def validate_stories!(project, media_catalog)
+    label = "project #{project["id"]} story"
+    stories = array!(project.fetch("stories"), "#{label}s")
+    stories.each do |story|
+      object!(story, label)
+      exact_keys!(story, STORY_KEYS, label)
+      present_string!(story["heading"], "#{label} heading")
+      body = string_array!(story.fetch("body"), "#{label} body")
+      raise InvalidCatalog, "#{label.capitalize} has no body" if body.empty?
+
+      nested_entries!(story.fetch("points"), POINT_KEYS, "#{label} point")
+      project_media!(story["media_id"], media_catalog, "#{label} media")
+      optional_string!(story["media_note"], "#{label} media note")
+      if story["media_id"] && story["media_note"]
+        raise InvalidCatalog, "#{label.capitalize} sets both media and a media note"
+      end
+    end
+  end
+
+  def project_media!(value, media_catalog, label)
+    return if value.nil?
+
+    media_catalog.fetch!(present_string!(value, label))
+    value
+  rescue MediaCatalog::Error => error
+    raise InvalidCatalog, "#{label.capitalize} is invalid: #{error.message}"
   end
 
   def validate_gallery!(gallery, media_catalog)
