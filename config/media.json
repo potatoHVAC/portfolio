@@ -9208,6 +9208,127 @@
       },
       "width": 598
     },
+    "led/cadenza/esp32": {
+      "alt": "An ESP32 controller board on a dark workbench, hand-numbered 6, with LED strip wires, a power capacitor, and a USB-C cable attached.",
+      "height": 4096,
+      "kind": "image",
+      "placeholder": "data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAA5ACADASIAAhEBAxEB/8QAGQAAAwEBAQAAAAAAAAAAAAAAAgQFAwYB/8QAFwEBAQEBAAAAAAAAAAAAAAAAAgABA//aAAwDAQACEAMQAAAB5/QGSsvHFqNpCnuaJ0XI8nQl1T0aqcw6jEdR0yMgC3//xAAgEAACAgMAAQUAAAAAAAAAAAABAgADEBESIgQTITEz/9oACAEBAAEFAsawIghWESkedVbMSvMKRG0yE1t+re18CP5ld0keoTmWLzWGguxZcbBudawMN9//xAAXEQADAQAAAAAAAAAAAAAAAAAAARAR/9oACAEDAQE/AYxTL//EABkRAQACAwAAAAAAAAAAAAAAAAECEBEgMf/aAAgBAgEBPwHRQcUxO1//xAAhEAABAwIHAQAAAAAAAAAAAAABABARITECIDBBUVJx4f/aAAgBAQAGPwKuh4jCjFdgVAImUJNuHB7ITVfGCq42z//EAB0QAAMBAAIDAQAAAAAAAAAAAAABESEQMUFhcYH/2gAIAQEAAT8hS2tWS8WoJTWGHEqG/YglNv2XTSZOQYz1YyejDWdjShPiMJ03QgkVbjPJOfQmP33Ea1r9HJSicMAxkXBw46fvJ//aAAwDAQACAAMAAAAQuOIz6k4j/8QAGxEBAQACAwEAAAAAAAAAAAAAAQARIRAxcYH/2gAIAQMBAT8Q84zD7JY2NkQvU6L/xAAYEQEBAQEBAAAAAAAAAAAAAAABABEhEP/aAAgBAgEBPxDwNkyEJ62yER0i/8QAIBABAQEAAgMAAgMAAAAAAAAAAREAITFBUWGxwRDR8P/aAAgBAQABPxC1x/LhdMqaDMwBb1NRok7POM6bkc2kpSHsF/WjjDVhGDcSrANNYcf73iKHDmIL2Hs6TLbdgPX4+4g+uONF479Y6gs3213U9k4rP3dwqAqHl+fNNlR5/qzXUmwghJTrNCJ9lwzpNZcPIPcMYEuKj1uQWeg87z/COzfg3//Z",
+      "sourceSha256": "acb8baece09e57b7b54dbcb66de1653d04d80ed1c93067009e9b9c88f603ecad",
+      "sources": {
+        "avif": [
+          {
+            "bytes": 32794,
+            "contentType": "image/avif",
+            "height": 853,
+            "path": "/media/led/cadenza/esp32/6e8dec78332e2f47c068eed84b6ae24c4b4a52f90a284f450abaf8dfb2ae3458-w480.avif",
+            "width": 480
+          },
+          {
+            "bytes": 74271,
+            "contentType": "image/avif",
+            "height": 1365,
+            "path": "/media/led/cadenza/esp32/9510511ee151a309639c21def3e226d25a6213f5993ff1474afe5410b59391ac-w768.avif",
+            "width": 768
+          },
+          {
+            "bytes": 164405,
+            "contentType": "image/avif",
+            "height": 2133,
+            "path": "/media/led/cadenza/esp32/571326f14ce6c1d35b4f96224e5b88447a5a6070949c3c1af2cbfc2b3bd8a52a-w1200.avif",
+            "width": 1200
+          },
+          {
+            "bytes": 262934,
+            "contentType": "image/avif",
+            "height": 2844,
+            "path": "/media/led/cadenza/esp32/738d1b10dcb2ae76eb57a3dc1e52812bbdbd2d8dea1d4ed3fea039d3d1f55123-w1600.avif",
+            "width": 1600
+          },
+          {
+            "bytes": 460600,
+            "contentType": "image/avif",
+            "height": 4096,
+            "path": "/media/led/cadenza/esp32/cc76761a00998684c280ed1ec2f752c58ad35fe5a2e61dfefc48f70bc1600f7e-w2304.avif",
+            "width": 2304
+          }
+        ],
+        "jpeg": [
+          {
+            "bytes": 87942,
+            "contentType": "image/jpeg",
+            "height": 853,
+            "path": "/media/led/cadenza/esp32/5b75218bc8af87f57b966c361c009af0c7a5ab88b6b4463c2fee7bb92c8e587c-w480.jpg",
+            "width": 480
+          },
+          {
+            "bytes": 204285,
+            "contentType": "image/jpeg",
+            "height": 1365,
+            "path": "/media/led/cadenza/esp32/a6db8a1483cc72b34d5859976d6d50be32f99985ae734903d7497fcd5b9f475c-w768.jpg",
+            "width": 768
+          },
+          {
+            "bytes": 461602,
+            "contentType": "image/jpeg",
+            "height": 2133,
+            "path": "/media/led/cadenza/esp32/c5a3fb95bb58c5d0ef61b1f0afef1f035021882797156766797da443462d3dd5-w1200.jpg",
+            "width": 1200
+          },
+          {
+            "bytes": 764984,
+            "contentType": "image/jpeg",
+            "height": 2844,
+            "path": "/media/led/cadenza/esp32/7b3cdbb7dc3fa34cd864696324f1a211d561eed50bc17c8898d70993980a96fe-w1600.jpg",
+            "width": 1600
+          },
+          {
+            "bytes": 1431600,
+            "contentType": "image/jpeg",
+            "height": 4096,
+            "path": "/media/led/cadenza/esp32/6454ae761da175255b49c0e829f320bd01a10526c10b3ec045a9ac3bdbf7fc6f-w2304.jpg",
+            "width": 2304
+          }
+        ],
+        "webp": [
+          {
+            "bytes": 72050,
+            "contentType": "image/webp",
+            "height": 853,
+            "path": "/media/led/cadenza/esp32/4507ba3dc984b41c77c8290dcbe0da0cddefe85281b7eb810e5d792232a18355-w480.webp",
+            "width": 480
+          },
+          {
+            "bytes": 162620,
+            "contentType": "image/webp",
+            "height": 1365,
+            "path": "/media/led/cadenza/esp32/d38cc4cf47a98ac5c3d344a7009bd67c8a6322f26aab04bbf99e88280f272b97-w768.webp",
+            "width": 768
+          },
+          {
+            "bytes": 355216,
+            "contentType": "image/webp",
+            "height": 2133,
+            "path": "/media/led/cadenza/esp32/85ee42b8c8f593ebd5e4c80000126c3a88362ea94f8cf105caa24564351d8246-w1200.webp",
+            "width": 1200
+          },
+          {
+            "bytes": 548310,
+            "contentType": "image/webp",
+            "height": 2844,
+            "path": "/media/led/cadenza/esp32/ab9698770190300e1214a058d845e30f281f1e892e9e1d68e435aad024c6d258-w1600.webp",
+            "width": 1600
+          },
+          {
+            "bytes": 960440,
+            "contentType": "image/webp",
+            "height": 4096,
+            "path": "/media/led/cadenza/esp32/6dba051e078727f7b8017dfc4610def29992b798b76065dd3be2cef7717dbfbc-w2304.webp",
+            "width": 2304
+          }
+        ]
+      },
+      "width": 2304
+    },
     "led/cadenza/glass-and-led-wall-art": {
       "captions": [],
       "clipEndMs": 11052,

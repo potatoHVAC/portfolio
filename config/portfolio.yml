@@ -114,8 +114,8 @@ projects:
             now, and never drop a frame while doing all three. If one ever locks up, it restarts
             itself and rejoins the show in progress.
         points: []
-        media_id:
-        media_note: Bare ESP32 on the bench, wires attached, and the same board installed in an instrument
+        media_id: led/cadenza/esp32
+        media_note:
       - heading: Nobody is in charge.
         body:
           - >-
