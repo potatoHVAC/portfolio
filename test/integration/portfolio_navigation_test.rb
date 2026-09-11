@@ -13,13 +13,14 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the gallery directory groups destinations without combining media" do
+  test "the gallery directory groups destinations without becoming a media gallery" do
     get galleries_path
 
     assert_equal 4, css_select("section.gallery-group").size
     assert_equal 11, css_select("article.gallery-card").size
     assert_empty css_select("section.media-gallery")
-    assert_empty css_select("picture, video")
+    assert_empty css_select("video")
+    assert_equal 11, css_select("article.gallery-card .gallery-card__visual picture").size
   end
 
   test "a gallery without a section still lists and renders on its own" do
@@ -153,18 +154,19 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     get gallery_path("russell-glow")
     assert_response :success
 
+    credits = PortfolioCatalog.current.gallery!("russell-glow").fetch("credits")
     banner = css_select(".gallery-credits .credit__name")
-    assert_equal 1, banner.size
-    assert_equal "Girl with the Blue Hair Photography", banner.first.text
+    assert_equal credits.map { |credit| credit.fetch("name") }, banner.map(&:text)
     assert_equal "https://linktr.ee/girl_with_the_blue_hair", banner.first["href"]
-    credited = PortfolioCatalog.current.gallery!("russell-glow").fetch("credits")
-      .sum { |credit| credit.fetch("media_ids").size }
-    assert_equal credited, css_select("article.media-gallery__item .credit--tile").size
+    assert_equal credits.sum { |credit| credit.fetch("media_ids").size },
+                 css_select("article.media-gallery__item .credit--tile").size
 
     get gallery_path("disco-chief")
     assert_response :success
+    disco = PortfolioCatalog.current.gallery!("disco-chief").fetch("credits")
     assert_equal "oke.bokeh", css_select(".gallery-credits .credit__name").first.text
-    assert_equal 5, css_select("article.media-gallery__item .credit--tile").size
+    assert_equal disco.sum { |credit| credit.fetch("media_ids").size },
+                 css_select("article.media-gallery__item .credit--tile").size
   end
 
   test "an uncredited gallery renders no credit markup" do

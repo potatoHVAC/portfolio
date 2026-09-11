@@ -12,6 +12,14 @@
     </div>
   </header>
 
+  <% if @section["media_id"].present? %>
+    <section class="page-section section-feature">
+      <figure class="section-feature__media">
+        <%= portfolio_media @section.fetch("media_id"), sizes: "(min-width: 48rem) 32rem, 100vw" %>
+      </figure>
+    </section>
+  <% end %>
+
   <% if @projects.any? %>
     <section class="page-section" aria-labelledby="featured-projects-title">
       <div class="section-heading">

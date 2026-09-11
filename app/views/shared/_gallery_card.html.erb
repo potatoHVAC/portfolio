@@ -1,7 +1,12 @@
 <article class="gallery-card <%= accent_class(gallery) %>">
   <%= link_to gallery.fetch("path"), class: "gallery-card__link" do %>
-    <div class="gallery-card__visual" aria-hidden="true">
-      <span><%= gallery.fetch("title").first(2).upcase %></span>
+    <% cover_media_id = gallery["cover_media_id"] %>
+    <div class="gallery-card__visual<%= " gallery-card__visual--photo" if cover_media_id.present? %>" aria-hidden="true">
+      <% if cover_media_id.present? %>
+        <%= portfolio_media_thumbnail cover_media_id, sizes: "(min-width: 60rem) 20rem, 100vw" %>
+      <% else %>
+        <span><%= gallery.fetch("title").first(2).upcase %></span>
+      <% end %>
     </div>
     <div class="gallery-card__body">
       <span class="gallery-card__status"><%= gallery.fetch("status") %></span>
