@@ -1,6 +1,10 @@
 <section class="reveal-band" role="presentation">
   <%= portfolio_media_sizer media_id, class: "reveal-band__sizer" %>
   <div class="reveal-band__image">
-    <%= portfolio_media media_id, sizes: "100vw" %>
+    <%# The image box is viewport-sized and fixed, so it always intersects the
+        viewport and lazy loading defers nothing — it only costs the preload
+        scanner. object-fit: contain caps the drawn width at 4:3 of the
+        viewport height, which is narrower than 100vw on any landscape window. %>
+    <%= portfolio_media media_id, sizes: "min(100vw, 133vh)", loading: "eager" %>
   </div>
 </section>
