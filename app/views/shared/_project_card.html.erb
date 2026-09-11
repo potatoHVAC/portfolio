@@ -1,9 +1,16 @@
+<% card_media_id = project_card_media_id(project) %>
 <article class="project-card <%= accent_class(project) %>">
   <%= link_to project.fetch("path"), class: "project-card__link" do %>
-    <span class="project-card__number" aria-hidden="true"><%= format("%02d", index + 1) %></span>
-    <span class="eyebrow"><%= project.fetch("kicker") %></span>
-    <h3><%= project.fetch("title") %></h3>
-    <p><%= project.fetch("summary") %></p>
-    <span class="text-link">Open project <span aria-hidden="true">↗</span></span>
+    <% if card_media_id %>
+      <div class="project-card__photo" aria-hidden="true">
+        <%= portfolio_media_thumbnail card_media_id, sizes: "(min-width: 58rem) 39rem, 100vw" %>
+      </div>
+    <% end %>
+    <div class="project-card__body">
+      <span class="eyebrow"><%= project.fetch("kicker") %></span>
+      <h3><%= project.fetch("title") %></h3>
+      <p><%= project.fetch("summary") %></p>
+      <span class="text-link">Open project <span aria-hidden="true">↗</span></span>
+    </div>
   <% end %>
 </article>

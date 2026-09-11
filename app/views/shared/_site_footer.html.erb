@@ -7,5 +7,11 @@
       <%= link_to "Contact", contact_path %>
     </nav>
     <p class="site-footer__note">Made by hand. Served by Rails.</p>
+    <nav class="site-footer__elsewhere" aria-label="Elsewhere">
+      <%= mail_to site_email, "Email" %>
+      <% site_socials.each do |network, url| %>
+        <%= link_to network, url, rel: "me noopener", target: "_blank" %>
+      <% end %>
+    </nav>
   </div>
 </footer>

@@ -7,6 +7,9 @@ site:
   manifesto: If the idea sounds slightly impractical, it’s probably worth doing.
   invitation: Bring the strange idea.
   description: LED installations, ambitious cosplay, and hand-built metalwork from the Chaos Factory.
+  email: speerdrings@gmail.com
+  instagram: https://www.instagram.com/speerdrings/
+  tiktok: https://www.tiktok.com/@speerdrings
 
 sections:
   - id: led-art
@@ -47,6 +50,7 @@ projects:
     summary: Stage-ready LED systems shaped around how an instrument is held, played, transported, and seen.
     path: /led-art/instrument-art
     hero_media_id: led/instrument/instrument-012
+    card_media_id:
     feature_media_id:
     gallery_id: instrument-art
     facts:
@@ -83,6 +87,7 @@ projects:
       between them — and keeps them in step by radio.
     path: /led-art/cadenza
     hero_media_id:
+    card_media_id: cosplay/russell-glow/russell-glow-006
     feature_media_id:
     gallery_id: cadenza
     facts:
@@ -205,6 +210,7 @@ projects:
     summary: A luminous armored build that trades battlefield camouflage for mirrored color, motion, and unapologetic dance-floor energy.
     path: /cosplay/disco-chief
     hero_media_id: cosplay/disco-chief/disco-chief-003
+    card_media_id:
     feature_media_id: cosplay/disco-chief/disco-chief-009
     gallery_id: disco-chief
     facts:
@@ -238,6 +244,7 @@ projects:
     summary: A character build expanded with illuminated details, playful scale, and the kind of finish that rewards a closer look.
     path: /cosplay/russell-glow
     hero_media_id: cosplay/russell-glow/russell-glow-013
+    card_media_id:
     feature_media_id:
     gallery_id: russell-glow
     facts:
@@ -271,6 +278,7 @@ projects:
     summary: A playful villain build balancing theatrical menace, wearable fabrication, and just enough self-awareness.
     path: /cosplay/darth-daddy
     hero_media_id: cosplay/darth-daddy/darth-daddy-003
+    card_media_id:
     feature_media_id: cosplay/darth-daddy/darth-daddy-005
     gallery_id: darth-daddy
     facts:

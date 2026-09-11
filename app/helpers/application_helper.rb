@@ -9,6 +9,7 @@ module ApplicationHelper
     [ "Contact", "/contact" ]
   ].freeze
   SPECTRUM_STOPS = 7
+  SOCIAL_NETWORKS = [ [ "Instagram", "instagram" ], [ "TikTok", "tiktok" ] ].freeze
 
   def set_page_meta(title:, description:)
     content_for(:title, title)
@@ -39,6 +40,24 @@ module ApplicationHelper
   # rather than to one section, which keeps its own accent.
   def spectrum_class(index)
     "spectrum--#{(index % SPECTRUM_STOPS) + 1}"
+  end
+
+  # Cards fall back to the hero when a project has no frame of its own.
+  def project_card_media_id(project)
+    project["card_media_id"].presence || project["hero_media_id"].presence
+  end
+
+  def site_email
+    portfolio_catalog.site.fetch("email")
+  end
+
+  def site_socials
+    SOCIAL_NETWORKS.map { |name, key| [ name, portfolio_catalog.site.fetch(key) ] }
+  end
+
+  # TikTok keeps the @ in its profile URL; Instagram does not.
+  def social_handle(url)
+    "@#{url.split("/").last.delete_prefix("@")}"
   end
 
   def accent_class(entry)

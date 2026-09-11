@@ -549,32 +549,63 @@ main > * {
 
 .project-card__link {
   position: relative;
-  min-height: 26rem;
+  display: flex;
+  min-height: 32rem;
+  flex-direction: column;
+  justify-content: flex-end;
   padding: clamp(1.5rem, 4vw, 3.25rem);
+  overflow: clip;
 }
 
-.project-card__link::after {
+/* The photo sits behind the whole card; the scrim paints the panel colour back
+   over it, heaviest across the copy at the bottom. */
+.project-card__photo {
   position: absolute;
-  right: 2rem;
-  bottom: 2rem;
-  width: 4.5rem;
-  height: 4.5rem;
-  border: 1px solid var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 2rem rgb(255 255 255 / 8%);
+  inset: 0;
+}
+
+.project-card__photo picture,
+.project-card__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-card__photo img {
+  opacity: 0.85;
+  transition: opacity 0.25s ease;
+}
+
+.project-card__photo::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(21 21 24 / 82%) 0 58%, rgb(21 21 24 / 18%) 100%);
   content: "";
+  transition: opacity 0.25s ease;
+}
+
+/* Halving the pseudo-element's opacity halves every stop in the gradient. */
+.project-card:hover .project-card__photo::after {
+  opacity: 0.5;
+}
+
+/* The card photo is decorative, so it never advertises a playable tile. */
+.project-card__photo .media-tile__play {
+  display: none;
+}
+
+.project-card:hover .project-card__photo img {
+  opacity: 1;
+}
+
+.project-card__body {
+  position: relative;
 }
 
 .project-card:hover,
 .gallery-card:hover {
   background: color-mix(in srgb, var(--panel), var(--accent) 7%);
-}
-
-.project-card__number {
-  display: block;
-  margin-bottom: 5rem;
-  color: var(--accent);
-  font: 700 0.8rem ui-monospace, monospace;
 }
 
 .project-card p,
@@ -807,6 +838,56 @@ main > * {
   display: grid;
   grid-template-columns: minmax(16rem, 0.6fr) minmax(0, 1fr);
   gap: 4rem;
+}
+
+.contact-routes {
+  padding-block: clamp(4rem, 8vw, 7rem);
+}
+
+.contact-routes__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-route {
+  display: grid;
+  padding-block: 1.65rem;
+  grid-template-columns: minmax(7rem, 0.18fr) minmax(13rem, 0.42fr) minmax(15rem, 1fr);
+  align-items: baseline;
+  gap: 0.5rem 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.contact-route:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.contact-route .eyebrow {
+  margin-bottom: 0;
+}
+
+.contact-route__link {
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.contact-route__link:hover {
+  color: var(--accent);
+}
+
+.contact-routes__footnote {
+  max-width: 44rem;
+  margin-top: 2.5rem;
+  color: var(--muted);
+}
+
+.contact-route__note {
+  margin: 0;
+  color: var(--muted);
 }
 
 .story-list {
@@ -1274,12 +1355,6 @@ main > * {
   color: #47464b;
 }
 
-.contact-hold {
-  padding: 1.2rem;
-  border-left: 3px solid var(--spectacle-ink);
-  background: #effaf8;
-}
-
 .site-footer {
   border-top: 0;
 }
@@ -1307,6 +1382,10 @@ main > * {
   margin: 0;
   color: var(--muted);
   font: 0.72rem ui-monospace, monospace;
+}
+
+.site-footer__elsewhere {
+  justify-content: flex-end;
 }
 
 @media (max-width: 58rem) {
@@ -1337,6 +1416,11 @@ main > * {
 
   .discipline-row {
     grid-template-columns: 2.5rem minmax(0, 1fr) 2rem;
+  }
+
+  .contact-route {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
   }
 
   .discipline-row__summary {
@@ -1418,6 +1502,10 @@ main > * {
 
   .site-footer nav {
     flex-wrap: wrap;
+  }
+
+  .site-footer__elsewhere {
+    justify-content: flex-start;
   }
 }
 

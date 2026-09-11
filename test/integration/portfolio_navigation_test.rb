@@ -192,6 +192,33 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_equal "0 0 4096 3072", spacer.first["viewbox"]
   end
 
+  test "the contact page publishes a route for every channel" do
+    get contact_path
+
+    links = css_select("a.contact-route__link")
+    assert_equal 3, links.size
+    assert_equal [ "speerdrings@gmail.com", "@speerdrings", "@speerdrings" ], links.map(&:text)
+    assert_match %r{\Amailto:speerdrings@gmail\.com}, links.first["href"]
+    assert_empty css_select("p.contact-hold")
+
+    socials = links.drop(1)
+    assert_equal [
+      "https://www.instagram.com/speerdrings/",
+      "https://www.tiktok.com/@speerdrings"
+    ], socials.map { |link| link["href"] }
+    # rel=me is what ties the accounts back to the site; nofollow would undo it.
+    assert socials.all? { |link| link["rel"].split.include?("me") }
+    assert_empty socials.select { |link| link["rel"].split.include?("nofollow") }
+  end
+
+  test "the site footer carries the accounts on every page" do
+    get about_path
+
+    elsewhere = css_select("nav.site-footer__elsewhere a")
+    assert_equal [ "Email", "Instagram", "TikTok" ], elsewhere.map(&:text)
+    assert_match %r{\Amailto:}, elsewhere.first["href"]
+  end
+
   # The edge CSP sets style-src 'self', so a browser drops inline style
   # attributes and whatever they carried never renders.
   test "no public page carries an inline style attribute" do

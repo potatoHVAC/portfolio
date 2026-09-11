@@ -1,4 +1,4 @@
-<% set_page_meta title: "Contact", description: "Start a conversation with SPEERD about light, fabrication, or an ambitious object." %>
+<% set_page_meta title: "Contact", description: "Reach SPEERD by email, Instagram, or TikTok about light, fabrication, or an ambitious object." %>
 
 <main id="main-content">
   <header class="contact-hero accent--spectacle">
@@ -14,8 +14,30 @@
     </div>
     <div class="prose">
       <p>Useful first messages include the object or space, the people using it, the rough timeline, and what success looks like. Sketches and improbable references are welcome.</p>
-      <p class="contact-hold"><strong>Contact route pending:</strong> the public address is intentionally not published until it is confirmed. For now, use the channel that brought you here.</p>
-      <%= link_to "Explore the work", galleries_path, class: "button-link button-link--dark" %>
+      <%= mail_to site_email, "Send the idea", subject: "Project inquiry", class: "button-link button-link--dark" %>
     </div>
+  </section>
+
+  <section class="contact-routes" aria-labelledby="contact-routes-title">
+    <p class="eyebrow">Every way in</p>
+    <h2 id="contact-routes-title">Three doors.</h2>
+    <ul class="contact-routes__list">
+      <li class="contact-route spectrum--1">
+        <p class="eyebrow">Email</p>
+        <%= mail_to site_email, subject: "Project inquiry", class: "contact-route__link" %>
+        <p class="contact-route__note">Commissions, collaborations, and anything with a timeline. This is the one I answer properly.</p>
+      </li>
+      <% [
+        [ "Instagram", portfolio_catalog.site.fetch("instagram"), "Work in progress, finished pieces, and the occasional honest failure. DMs are open for a quick question." ],
+        [ "TikTok", portfolio_catalog.site.fetch("tiktok"), "The same shop in motion, and considerably shorter." ]
+      ].each_with_index do |(network, url, note), index| %>
+        <li class="contact-route <%= spectrum_class(index + 3) %>">
+          <p class="eyebrow"><%= network %></p>
+          <%= link_to social_handle(url), url, class: "contact-route__link", rel: "me noopener", target: "_blank" %>
+          <p class="contact-route__note"><%= note %></p>
+        </li>
+      <% end %>
+    </ul>
+    <p class="contact-routes__footnote">The handle is a leftover from a bench that only made rings. It is all of it now — light, costume, and steel.</p>
   </section>
 </main>

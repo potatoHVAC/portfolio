@@ -10,17 +10,19 @@ class PortfolioCatalog
   ID_PATTERN = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
   PATH_PATTERN = %r{\A/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*\z}
   ROOT_KEYS = %w[version site sections projects galleries].freeze
-  SITE_KEYS = %w[name shop tagline manifesto invitation description].freeze
+  SITE_KEYS = %w[name shop tagline manifesto invitation description email instagram tiktok].freeze
+  SITE_URL_KEYS = %w[instagram tiktok].freeze
   ACCENTS = %w[electric spectacle ember].freeze
   SECTION_KEYS = %w[id title eyebrow summary path accent featured_project_ids media_id].freeze
-  PROJECT_KEYS = %w[id section_id title kicker summary path hero_media_id feature_media_id gallery_id facts stories].freeze
+  PROJECT_KEYS = %w[id section_id title kicker summary path hero_media_id card_media_id feature_media_id gallery_id facts stories].freeze
   GALLERY_KEYS = %w[id section_id title summary path status cover_media_id media_ids credits].freeze
   CREDIT_KEYS = %w[name url media_ids].freeze
   FACT_KEYS = %w[label value].freeze
   STORY_KEYS = %w[heading body points media_id media_note].freeze
   POINT_KEYS = %w[lead text].freeze
   CORE_PATHS = %w[/ /galleries /about /contact].freeze
-  CREDIT_URL_PATTERN = %r{\Ahttps://[a-z0-9.-]+\.[a-z]{2,}(?:/\S*)?\z}i
+  HTTPS_URL_PATTERN = %r{\Ahttps://[a-z0-9.-]+\.[a-z]{2,}(?:/\S*)?\z}i
+  EMAIL_PATTERN = /\A[^@\s]+@[^@\s]+\.[a-z]{2,}\z/i
 
   attr_reader :site, :sections, :projects, :galleries
 
@@ -113,6 +115,10 @@ class PortfolioCatalog
     object!(site, "site")
     exact_keys!(site, SITE_KEYS, "site")
     SITE_KEYS.each { |key| present_string!(site[key], "site #{key}") }
+    unless EMAIL_PATTERN.match?(site.fetch("email"))
+      raise InvalidCatalog, "Site email must be an email address"
+    end
+    SITE_URL_KEYS.each { |key| https_url!(site.fetch(key), "site #{key}") }
   end
 
   def validate_entries!(entries, keys, label)
@@ -149,6 +155,7 @@ class PortfolioCatalog
     end
     path!(project.fetch("path"), "project #{project["id"]} path")
     project_media!(project["hero_media_id"], media_catalog, "project #{project["id"]} hero media")
+    project_media!(project["card_media_id"], media_catalog, "project #{project["id"]} card media")
     project_media!(project["feature_media_id"], media_catalog, "project #{project["id"]} feature media")
     nested_entries!(project.fetch("facts"), FACT_KEYS, "project #{project["id"]} fact")
     validate_stories!(project, media_catalog)
@@ -215,7 +222,7 @@ class PortfolioCatalog
       object!(credit, label)
       exact_keys!(credit, CREDIT_KEYS, label)
       present_string!(credit["name"], "#{label} name")
-      credit_url!(credit["url"], "#{label} url")
+      https_url!(credit["url"], "#{label} url")
       credited = string_array!(credit.fetch("media_ids"), "#{label} media")
       raise InvalidCatalog, "#{label.capitalize} lists no media" if credited.empty?
 
@@ -228,9 +235,9 @@ class PortfolioCatalog
     end
   end
 
-  def credit_url!(value, label)
+  def https_url!(value, label)
     return if value.nil?
-    unless value.is_a?(String) && CREDIT_URL_PATTERN.match?(value)
+    unless value.is_a?(String) && HTTPS_URL_PATTERN.match?(value)
       raise InvalidCatalog, "#{label.capitalize} must be an https URL"
     end
     value
