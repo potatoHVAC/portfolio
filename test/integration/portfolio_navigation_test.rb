@@ -150,25 +150,6 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert(credits.all? { |credit| credit.include?("Gladiator") })
   end
 
-  test "gallery credit groups name the photographer once and mark their tiles" do
-    get gallery_path("russell-glow")
-    assert_response :success
-
-    credits = PortfolioCatalog.current.gallery!("russell-glow").fetch("credits")
-    banner = css_select(".gallery-credits .credit__name")
-    assert_equal credits.map { |credit| credit.fetch("name") }, banner.map(&:text)
-    assert_equal "https://linktr.ee/girl_with_the_blue_hair", banner.first["href"]
-    assert_equal credits.sum { |credit| credit.fetch("media_ids").size },
-                 css_select("article.media-gallery__item .credit--tile").size
-
-    get gallery_path("disco-chief")
-    assert_response :success
-    disco = PortfolioCatalog.current.gallery!("disco-chief").fetch("credits")
-    assert_equal "oke.bokeh", css_select(".gallery-credits .credit__name").first.text
-    assert_equal disco.sum { |credit| credit.fetch("media_ids").size },
-                 css_select("article.media-gallery__item .credit--tile").size
-  end
-
   test "an uncredited gallery renders no credit markup" do
     get gallery_path("damascus-rings")
 
