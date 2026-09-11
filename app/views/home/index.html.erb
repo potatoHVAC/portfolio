@@ -29,8 +29,8 @@
       <p>Light built into the object—not added after it.</p>
     </div>
     <div class="project-grid project-grid--featured">
-      <% @led_projects.each_with_index do |project, index| %>
-        <%= render "shared/project_card", project: project, index: index %>
+      <% @led_projects.each do |project| %>
+        <%= render "shared/project_card", project: project %>
       <% end %>
     </div>
   </section>

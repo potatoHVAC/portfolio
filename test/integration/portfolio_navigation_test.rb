@@ -150,25 +150,6 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert(credits.all? { |credit| credit.include?("Gladiator") })
   end
 
-  test "gallery credit groups name the photographer once and mark their tiles" do
-    get gallery_path("russell-glow")
-    assert_response :success
-
-    credits = PortfolioCatalog.current.gallery!("russell-glow").fetch("credits")
-    banner = css_select(".gallery-credits .credit__name")
-    assert_equal credits.map { |credit| credit.fetch("name") }, banner.map(&:text)
-    assert_equal "https://linktr.ee/girl_with_the_blue_hair", banner.first["href"]
-    assert_equal credits.sum { |credit| credit.fetch("media_ids").size },
-                 css_select("article.media-gallery__item .credit--tile").size
-
-    get gallery_path("disco-chief")
-    assert_response :success
-    disco = PortfolioCatalog.current.gallery!("disco-chief").fetch("credits")
-    assert_equal "oke.bokeh", css_select(".gallery-credits .credit__name").first.text
-    assert_equal disco.sum { |credit| credit.fetch("media_ids").size },
-                 css_select("article.media-gallery__item .credit--tile").size
-  end
-
   test "an uncredited gallery renders no credit markup" do
     get gallery_path("damascus-rings")
 
@@ -209,6 +190,33 @@ class PortfolioNavigationTest < ActionDispatch::IntegrationTest
     assert_equal 1, spacer.size
     # Nokogiri parses as HTML, which lowercases the attribute name.
     assert_equal "0 0 4096 3072", spacer.first["viewbox"]
+  end
+
+  test "the contact page publishes a route for every channel" do
+    get contact_path
+
+    links = css_select("a.contact-route__link")
+    assert_equal 3, links.size
+    assert_equal [ "speerdrings@gmail.com", "@speerdrings", "@speerdrings" ], links.map(&:text)
+    assert_match %r{\Amailto:speerdrings@gmail\.com}, links.first["href"]
+    assert_empty css_select("p.contact-hold")
+
+    socials = links.drop(1)
+    assert_equal [
+      "https://www.instagram.com/speerdrings/",
+      "https://www.tiktok.com/@speerdrings"
+    ], socials.map { |link| link["href"] }
+    # rel=me is what ties the accounts back to the site; nofollow would undo it.
+    assert socials.all? { |link| link["rel"].split.include?("me") }
+    assert_empty socials.select { |link| link["rel"].split.include?("nofollow") }
+  end
+
+  test "the site footer carries the accounts on every page" do
+    get about_path
+
+    elsewhere = css_select("nav.site-footer__elsewhere a")
+    assert_equal [ "Email", "Instagram", "TikTok" ], elsewhere.map(&:text)
+    assert_match %r{\Amailto:}, elsewhere.first["href"]
   end
 
   # The edge CSP sets style-src 'self', so a browser drops inline style

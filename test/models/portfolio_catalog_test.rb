@@ -38,6 +38,18 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
     assert_match "Site fields must be", error.message
   end
 
+  test "rejects a contact route that is not an address" do
+    bad_email = copy_data
+    bad_email["site"]["email"] = "speerdrings"
+    error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(bad_email) }
+    assert_match "Site email must be an email address", error.message
+
+    insecure = copy_data
+    insecure["site"]["instagram"] = "http://www.instagram.com/speerdrings/"
+    error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(insecure) }
+    assert_match "must be an https URL", error.message
+  end
+
   test "rejects duplicate identifiers and paths" do
     duplicate_id = copy_data
     duplicate_id["galleries"][1]["id"] = duplicate_id["galleries"][0]["id"]

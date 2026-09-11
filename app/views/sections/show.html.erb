@@ -30,8 +30,8 @@
         <p>Stories from the finished object back to the first unreasonable idea.</p>
       </div>
       <div class="project-grid">
-        <% @projects.each_with_index do |project, index| %>
-          <%= render "shared/project_card", project: project, index: index %>
+        <% @projects.each do |project| %>
+          <%= render "shared/project_card", project: project %>
         <% end %>
       </div>
     </section>
