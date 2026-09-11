@@ -15,6 +15,7 @@ sections:
     summary: Custom electronics and illuminated objects built to move with music, performers, and a room.
     path: /led-art
     accent: electric
+    media_id:
     featured_project_ids:
       - instrument-art
       - cadenza
@@ -24,6 +25,7 @@ sections:
     summary: Large-scale costumes where fabrication, electronics, and a little theatrical excess meet.
     path: /cosplay
     accent: spectacle
+    media_id: cosplay/cosplay-gallery/cd-armor-main-page
     featured_project_ids:
       - disco-chief
       - russell-glow
@@ -34,6 +36,7 @@ sections:
     summary: Damascus steel, chainmaille, and wearable metalwork made one deliberate detail at a time.
     path: /forge
     accent: ember
+    media_id:
     featured_project_ids: []
 
 projects:
@@ -56,7 +59,7 @@ projects:
         body:
           - Every installation begins with the performer. The light has to amplify the instrument without getting between the player and the work.
         points: []
-        media_id:
+        media_id: led/instrument/instrument-018
         media_note:
       - heading: Hardware that belongs there
         body:
@@ -319,6 +322,8 @@ galleries:
       - led/instrument/instrument-013
       - led/instrument/instrument-014
       - led/instrument/instrument-015
+      - led/instrument/instrument-016
+      - led/instrument/instrument-017
     credits: []
   - id: cadenza
     section_id: led-art
@@ -326,7 +331,7 @@ galleries:
     summary: The objects the system drives — helmets, armour, panels, and wearables, each with a controller of its own.
     path: /galleries/cadenza
     status: Selected work
-    cover_media_id: cosplay/russell-glow/russell-glow-028
+    cover_media_id: cosplay/russell-glow/russell-glow-006
     media_ids:
       - led/cadenza/glass-and-led-wall-art
       - cosplay/russell-glow/russell-glow-006
@@ -346,7 +351,7 @@ galleries:
     summary: Studies in diffusion, reflection, movement, and color.
     path: /galleries/led-experiments
     status: Selected work
-    cover_media_id: led/led-gallery/led-gallery-001
+    cover_media_id: led/led-gallery/led-gallery-002
     media_ids:
       - led/led-gallery/led-gallery-001
       - led/led-gallery/led-gallery-002
@@ -368,7 +373,7 @@ galleries:
     summary: Finished armor, illuminated details, and the build in action.
     path: /galleries/disco-chief
     status: Selected work
-    cover_media_id: cosplay/disco-chief/disco-chief-003
+    cover_media_id: cosplay/disco-chief/armor-main-page
     media_ids:
       - cosplay/disco-chief/disco-chief-010
       - cosplay/disco-chief/disco-chief-011
@@ -386,6 +391,13 @@ galleries:
       - cosplay/disco-chief/disco-chief-015
       - cosplay/disco-chief/disco-chief-016
       - led/led-gallery/led-gallery-006
+      - cosplay/disco-chief/disco-chief-017
+      - cosplay/disco-chief/disco-chief-018
+      - cosplay/disco-chief/disco-chief-019
+      - cosplay/disco-chief/disco-chief-020
+      - cosplay/disco-chief/disco-chief-021
+      - cosplay/disco-chief/disco-chief-022
+      - cosplay/disco-chief/armor-main-page
     credits:
       - name: oke.bokeh
         url: https://www.instagram.com/oke.bokeh/
@@ -395,13 +407,25 @@ galleries:
           - cosplay/disco-chief/disco-chief-012
           - cosplay/disco-chief/disco-chief-013
           - cosplay/disco-chief/disco-chief-014
+      - name: wheredidmyspoongo
+        url: https://www.instagram.com/wheredidmyspoongo/
+        media_ids:
+          - cosplay/disco-chief/disco-chief-017
+          - cosplay/disco-chief/disco-chief-018
+          - cosplay/disco-chief/disco-chief-019
+          - cosplay/disco-chief/disco-chief-020
+          - cosplay/disco-chief/disco-chief-021
+      - name: 206Street
+        url:
+        media_ids:
+          - cosplay/disco-chief/disco-chief-022
   - id: russell-glow
     section_id: cosplay
     title: Russell Glow
     summary: Character studies, fabrication details, and the illuminated final build.
     path: /galleries/russell-glow
     status: Selected work
-    cover_media_id: cosplay/russell-glow/russell-glow-013
+    cover_media_id: cosplay/russell-glow/russell-glow-034
     media_ids:
       - cosplay/russell-glow/russell-glow-014
       - cosplay/russell-glow/russell-glow-015
@@ -432,6 +456,22 @@ galleries:
       - cosplay/russell-glow/russell-glow-011
       - cosplay/russell-glow/russell-glow-012
       - cosplay/russell-glow/russell-glow-013
+      - cosplay/russell-glow/russell-glow-030
+      - cosplay/russell-glow/russell-glow-031
+      - cosplay/russell-glow/russell-glow-032
+      - cosplay/russell-glow/russell-glow-033
+      - cosplay/russell-glow/russell-glow-034
+      - cosplay/russell-glow/russell-glow-035
+      - cosplay/russell-glow/russell-glow-036
+      - cosplay/russell-glow/russell-glow-037
+      - cosplay/russell-glow/russell-glow-038
+      - cosplay/russell-glow/russell-glow-039
+      - cosplay/russell-glow/russell-glow-040
+      - cosplay/russell-glow/russell-glow-041
+      - cosplay/russell-glow/russell-glow-042
+      - cosplay/russell-glow/russell-glow-043
+      - cosplay/russell-glow/russell-glow-044
+      - cosplay/russell-glow/russell-glow-045
     credits:
       - name: Girl with the Blue Hair Photography
         url: https://linktr.ee/girl_with_the_blue_hair
@@ -452,13 +492,35 @@ galleries:
           - cosplay/russell-glow/russell-glow-027
           - cosplay/russell-glow/russell-glow-028
           - cosplay/russell-glow/russell-glow-029
+          - cosplay/russell-glow/russell-glow-035
+          - cosplay/russell-glow/russell-glow-036
+          - cosplay/russell-glow/russell-glow-037
+          - cosplay/russell-glow/russell-glow-038
+          - cosplay/russell-glow/russell-glow-039
+          - cosplay/russell-glow/russell-glow-040
+      - name: koto.graphic
+        url: https://www.instagram.com/koto.graphic/
+        media_ids:
+          - cosplay/russell-glow/russell-glow-031
+          - cosplay/russell-glow/russell-glow-032
+          - cosplay/russell-glow/russell-glow-033
+      - name: bygfoto.cosplay
+        url: https://www.instagram.com/bygfoto.cosplay/
+        media_ids:
+          - cosplay/russell-glow/russell-glow-034
+      - name: Triple Click Photo
+        url: https://tripleclick.photo/
+        media_ids:
+          - cosplay/russell-glow/russell-glow-042
+          - cosplay/russell-glow/russell-glow-043
+          - cosplay/russell-glow/russell-glow-044
   - id: darth-daddy
     section_id: cosplay
     title: Darth Daddy
     summary: Portraits, wearable details, and convention-floor field tests.
     path: /galleries/darth-daddy
     status: Selected work
-    cover_media_id: cosplay/darth-daddy/darth-daddy-003
+    cover_media_id: cosplay/darth-daddy/darth-daddy-010
     media_ids:
       - cosplay/darth-daddy/darth-daddy-001
       - cosplay/darth-daddy/darth-daddy-002
@@ -467,14 +529,23 @@ galleries:
       - cosplay/darth-daddy/darth-daddy-005
       - cosplay/darth-daddy/darth-daddy-007
       - cosplay/darth-daddy/darth-daddy-008
-    credits: []
+      - cosplay/darth-daddy/darth-daddy-009
+      - cosplay/darth-daddy/darth-daddy-010
+      - cosplay/darth-daddy/darth-daddy-011
+      - cosplay/darth-daddy/darth-daddy-012
+    credits:
+      - name: Girl with the Blue Hair Photography
+        url: https://linktr.ee/girl_with_the_blue_hair
+        media_ids:
+          - cosplay/darth-daddy/darth-daddy-010
+          - cosplay/darth-daddy/darth-daddy-011
   - id: cosplay
     section_id: cosplay
     title: Other Cosplay & Costume Art
     summary: One-off characters, props, experiments, and costume work beyond the flagship builds.
     path: /galleries/cosplay
     status: Selected work
-    cover_media_id: cosplay/cosplay-gallery/cosplay-gallery-001
+    cover_media_id: cosplay/cosplay-gallery/cosplay-gallery-007
     media_ids:
       - cosplay/cosplay-gallery/cosplay-gallery-001
       - cosplay/cosplay-gallery/cosplay-gallery-002
@@ -484,6 +555,10 @@ galleries:
       - cosplay/cosplay-gallery/cosplay-gallery-006
       - cosplay/cosplay-gallery/cosplay-gallery-007
       - cosplay/cosplay-gallery/cosplay-gallery-008
+      - cosplay/cosplay-gallery/cosplay-gallery-009
+      - cosplay/cosplay-gallery/cosplay-gallery-010
+      - cosplay/cosplay-gallery/cosplay-gallery-011
+      - cosplay/cosplay-gallery/cosplay-gallery-012
     credits:
       - name: Triple Click Photo
         url:
@@ -509,6 +584,12 @@ galleries:
       - metal/damascus/damascus-009
       - metal/damascus/damascus-011
       - metal/damascus/damascus-013
+      - metal/damascus/damascus-014
+      - metal/damascus/damascus-015
+      - metal/damascus/damascus-016
+      - metal/damascus/damascus-017
+      - metal/damascus/damascus-018
+      - metal/damascus/damascus-019
     credits: []
   - id: chainmaille
     section_id: forge
@@ -516,7 +597,7 @@ galleries:
     summary: Repeated links turned into structure, texture, and wearable movement.
     path: /galleries/chainmaille
     status: Selected work
-    cover_media_id: metal/chainmaille/chainmaille-001
+    cover_media_id: metal/chainmaille/chainmaille-011
     media_ids:
       - metal/chainmaille/chainmaille-001
       - metal/chainmaille/chainmaille-002
@@ -528,6 +609,12 @@ galleries:
       - metal/chainmaille/chainmaille-009
       - metal/chainmaille/chainmaille-010
       - metal/chainmaille/chainmaille-011
+      - metal/chainmaille/chainmaille-012
+      - metal/chainmaille/chainmaille-013
+      - metal/chainmaille/chainmaille-014
+      - metal/chainmaille/chainmaille-015
+      - metal/chainmaille/chainmaille-016
+      - metal/chainmaille/chainmaille-017
     credits: []
   - id: metal-press-on-nails
     section_id: forge
@@ -535,7 +622,7 @@ galleries:
     summary: Damascus, copper, and mirror-polished steel refined into a dramatic, improbable wearable surface.
     path: /galleries/metal-press-on-nails
     status: Selected work
-    cover_media_id: metal/nails/nails-001
+    cover_media_id: metal/nails/nails-009
     media_ids:
       - metal/nails/nails-001
       - metal/nails/nails-002
@@ -554,7 +641,7 @@ galleries:
     summary: Duct tape portraits, hand-made leatherwork, and one-off pieces that fit nowhere else.
     path: /galleries/misc-art
     status: Selected work
-    cover_media_id: msc-art/msc-art-001
+    cover_media_id: msc-art/msc-art-008
     media_ids:
       - msc-art/msc-art-001
       - msc-art/msc-art-002
@@ -574,4 +661,9 @@ galleries:
       - msc-art/msc-art-016
       - msc-art/msc-art-017
       - msc-art/msc-art-018
+      - msc-art/msc-art-019
+      - msc-art/msc-art-020
+      - msc-art/msc-art-021
+      - msc-art/msc-art-022
+      - msc-art/msc-art-023
     credits: []
