@@ -12,7 +12,7 @@ class PortfolioCatalog
   ROOT_KEYS = %w[version site sections projects galleries].freeze
   SITE_KEYS = %w[name shop tagline manifesto invitation description].freeze
   ACCENTS = %w[electric spectacle ember].freeze
-  SECTION_KEYS = %w[id title eyebrow summary path accent featured_project_ids].freeze
+  SECTION_KEYS = %w[id title eyebrow summary path accent featured_project_ids media_id].freeze
   PROJECT_KEYS = %w[id section_id title kicker summary path hero_media_id feature_media_id gallery_id facts stories].freeze
   GALLERY_KEYS = %w[id section_id title summary path status cover_media_id media_ids credits].freeze
   CREDIT_KEYS = %w[name url media_ids].freeze
@@ -95,7 +95,9 @@ class PortfolioCatalog
     end
 
     validate_site!(catalog.fetch("site"))
-    validate_entries!(catalog.fetch("sections"), SECTION_KEYS, "section") { |entry| validate_section!(entry) }
+    validate_entries!(catalog.fetch("sections"), SECTION_KEYS, "section") do |entry|
+      validate_section!(entry, media_catalog)
+    end
     validate_entries!(catalog.fetch("projects"), PROJECT_KEYS, "project") do |entry|
       validate_project!(entry, media_catalog)
     end
@@ -129,10 +131,11 @@ class PortfolioCatalog
     end
   end
 
-  def validate_section!(section)
+  def validate_section!(section, media_catalog)
     %w[title eyebrow summary accent].each do |key|
       present_string!(section[key], "section #{section["id"]} #{key}")
     end
+    project_media!(section["media_id"], media_catalog, "section #{section["id"]} media")
     unless ACCENTS.include?(section.fetch("accent"))
       raise InvalidCatalog, "Section #{section["id"]} accent must be one of #{ACCENTS.join(", ")}"
     end

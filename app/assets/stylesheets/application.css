@@ -500,6 +500,16 @@ main > * {
   border-top: 1px solid var(--line);
 }
 
+.section-feature__media {
+  margin: 0 auto;
+  max-width: 32rem;
+  min-width: 0;
+}
+.section-feature__media picture img {
+  width: 100%;
+  border: 1px solid var(--line);
+}
+
 .section-heading {
   display: grid;
   margin-bottom: 3rem;
@@ -986,6 +996,18 @@ main > * {
     #202025;
   color: var(--accent);
   font: 850 clamp(3rem, 7vw, 6rem) / 1 ui-monospace, monospace;
+}
+
+.gallery-card__visual--photo {
+  overflow: clip;
+  background: #202025;
+}
+.gallery-card__visual--photo picture,
+.gallery-card__visual--photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .gallery-card__body {

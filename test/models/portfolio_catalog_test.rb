@@ -159,7 +159,22 @@ class PortfolioCatalogTest < ActiveSupport::TestCase
     assert_match "hero media is invalid", error.message
   end
 
+  test "section media is optional and must exist in the manifest" do
+    absent = copy_data
+    absent["sections"].each { |section| section["media_id"] = nil }
+    assert_nil build_catalog(absent).section!("cosplay")["media_id"]
+
+    unknown = copy_data
+    cosplay_section(unknown)["media_id"] = "cosplay/cosplay-gallery/not-published"
+    error = assert_raises(PortfolioCatalog::InvalidCatalog) { build_catalog(unknown) }
+    assert_match "Section cosplay media is invalid", error.message
+  end
+
   private
+
+  def cosplay_section(data)
+    data["sections"].find { |entry| entry["id"] == "cosplay" }
+  end
 
   def cadenza_project(data)
     data["projects"].find { |entry| entry["id"] == "cadenza" }
